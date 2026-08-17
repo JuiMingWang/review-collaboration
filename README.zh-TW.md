@@ -24,7 +24,7 @@ Claude 有可能自信滿滿地講錯，而且錯得很難從同一段產生這�
 
 ## 系統需求
 
-- Windows、PowerShell 5.1（這份程式碼裡所有編碼／參數綁定相關的變通寫法，都是針對這個版本特別寫的——實際踩過的坑跟修法見 `docs/session-log.md`）。
+- Windows、PowerShell 5.1（這份程式碼裡所有編碼／參數綁定相關的變通寫法，都是針對這個版本特別寫的）。
 - 已安裝並登入的 [Codex CLI](https://github.com/openai/codex)（在一個全新的 shell 裡執行 `codex --version` 應該要能正常運作）。
 - Claude Code。
 
@@ -40,18 +40,8 @@ git clone https://github.com/JuiMingWang/review-collaboration.git "$env:USERPROF
 
 在 Claude Code 的對話裡，只要你跟 Claude 討論出一個值得找第二意見的結論，直接明確地開口要求即可——例如「用 review-collaboration 幫我審查一下這個」。這個技能不會自己主動觸發（`SKILL.md` frontmatter 裡設定了 `disable-model-invocation: true`）——一定要你親口要求才會執行。
 
-## 流程圖
-
-一份逐步展開、涵蓋四個角色與每一條分支／復原路徑的詳細控制流程圖，可以直接用瀏覽器線上看：
-
-- **English：** https://juimingwang.github.io/review-collaboration/diagram/index.en.html
-- **繁體中文：** https://juimingwang.github.io/review-collaboration/diagram/index.zh-TW.html
-
-這張圖是用 [`tools/generate-flow-diagram.py`](./tools/generate-flow-diagram.py) 依固定規則計算座標產生的——之後要調整版面時請重新執行這支腳本，不要手動微調座標。
-
 ## 目前狀態
 
-- 92 項自動化 Pester 測試全數通過（見 `tests/`）。
 - 已對真實 Codex CLI 完成一次端到端驗證，含工作目錄隔離機制本身確實有效（透過審查者自己留下的 log，確認它嘗試探索檔案系統的行為被擋下來）。
 - 早期、使用次數還不多——目標專案自己的 `docs/review-log.md` 會隨實際使用逐漸累積紀錄；目前請把這個技能的結論當作「一份有結構的第二意見」，還不是一個已經被大量實戰驗證過校準準確度的工具（詳見 `SKILL.md` 開頭的「Known limitation」說明）。
 - 每個機制背後的設計理由都記錄在 [`CONTEXT.md`](./CONTEXT.md) 與 [`docs/adr/`](./docs/adr/) 裡——如果 `SKILL.md` 裡有什麼規則看起來沒道理，答案通常在這裡。

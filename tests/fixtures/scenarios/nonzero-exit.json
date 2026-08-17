@@ -1,8 +1,0 @@
-{
-  "exitCode": 1,
-  "threadId": "fake-thread-fail",
-  "emitThreadStarted": true,
-  "emitCompletion": false,
-  "resultRaw": null,
-  "result": { "schema_version": "1.0.0", "outcome": "CONSENSUS", "narrative": "unreachable", "dispositions": [], "new_issues": [], "advisories": [], "material_requests": [] }
-}

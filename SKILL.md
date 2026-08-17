@@ -8,7 +8,7 @@ description: Run a structured review of a discussion/idea you and the user have 
 
 Review a discussion or conclusion you and the user reached together, using an independent reviewer (codex, different model/vendor = genuinely different blind spots, not a rubber stamp). Loops until the reviewer stops raising new, unconceded objections, or a round cap / material cap is hit and the user is brought in to decide how to proceed.
 
-**What changed 2026-08-17, and what didn't**: the mechanical negotiation loop (round-trip with codex, state tracking, resume-after-interruption, cap enforcement) now runs through the **review-collaboration-v1 CLI engine** (`scripts/review-collab.ps1`, shipped alongside this file) instead of this file's own hand-maintained phase-transition table and manual `codex exec` calls. Everything else — anonymization discipline, verification tagging, the checklist/ceiling-breaker mechanism, the working-directory isolation that keeps codex from wandering into unrelated files, the user confirmation gate, the ADR bar, mandatory source-audit — is **unchanged in substance**, only re-expressed in terms of the new CLI's commands. If you're comparing this against memory of the old version and something you remember seems to have vanished, check here first before assuming it was dropped on purpose — several of these were genuinely dropped in an earlier draft of this file and had to be restored (see `docs/session-log.md`, 2026-08-17 entries, for exactly what was found missing and why).
+**What changed 2026-08-17, and what didn't**: the mechanical negotiation loop (round-trip with codex, state tracking, resume-after-interruption, cap enforcement) now runs through the **review-collaboration-v1 CLI engine** (`scripts/review-collab.ps1`, shipped alongside this file) instead of this file's own hand-maintained phase-transition table and manual `codex exec` calls. Everything else — anonymization discipline, verification tagging, the checklist/ceiling-breaker mechanism, the working-directory isolation that keeps codex from wandering into unrelated files, the user confirmation gate, the ADR bar, mandatory source-audit — is **unchanged in substance**, only re-expressed in terms of the new CLI's commands. If you're comparing this against memory of the old version and something you remember seems to have vanished, check here first before assuming it was dropped on purpose — several of these were genuinely dropped in an earlier draft of this file and had to be restored.
 
 Design rationale for every mechanism below lives in `CONTEXT.md` and `docs/adr/` (both shipped alongside this file). If something here seems arbitrary, that's where the "why" is —don't silently change the mechanism without checking there first.
 
@@ -79,7 +79,7 @@ Push-Location $Dir   # do this before entering the Step 3-4 loop, and before any
 
 ```powershell
 $ReviewId = [Guid]::NewGuid().ToString("N").Substring(0,12)
-$SkillRoot = Join-Path $env:USERPROFILE ".claude\skills\review-collaboration"   # this file's own folder; scripts/schemas/tests ship alongside SKILL.md, not in a separate project
+$SkillRoot = Join-Path $env:USERPROFILE ".claude\skills\review-collaboration"   # this file's own folder; scripts/schemas ship alongside SKILL.md, not in a separate project
 $CollabScript = Join-Path $SkillRoot "scripts\review-collab.ps1"
 $CodexAdapter = Join-Path $SkillRoot "scripts\adapters\codex-adapter.ps1"
 $AdapterArgs = @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $CodexAdapter)

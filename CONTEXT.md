@@ -38,4 +38,4 @@ _Avoid_: B/C agent（僅為對話中簡稱）
 持久化存放在**目標專案**（正在被討論、將送審的那個專案，不是這個 skill 自己）`docs/review-log.md` 的紀錄檔，逐筆記錄送進審查協作的主題與狀態（進行中／已審查・達成共識／已審查・使用者裁決）。是判斷「這次討論範圍從哪裡開始算」的 source of truth，不受 session 切換或 context 壓縮影響——聊天裡的收尾標記只作為同一 session 內的快速路徑跟使用者溝通用，不是唯一依據。觸發審查協作時，產出者會讀取本檔＋目前 session 脈絡，主動列出「看起來已有初步結論但還沒送審」的候選主題供使用者確認，不要求使用者自己精準記得。詳見 [ADR-0005](./docs/adr/0005-persistent-review-log-not-chat-marker-alone.md)。
 
 **v1 CLI 引擎 (v1 CLI Engine, 2026-08-17 導入)**:
-上述機制中「回合制來回、狀態追蹤、中斷後接續、輪數上限」這幾件事，原本由 SKILL.md 自己的散文指示手動維護，2026-08-17 起改由本 skill 自帶的 PowerShell CLI（`scripts/review-collab.ps1`，搭配 `schemas/` 底下的 JSON schema）機械化執行，取代手動維護的狀態表。這是「怎麼記錄/推進」這一層的重構，不是「該做什麼」這一層的重構——匿名化、查證分類、審查清單機制、工作目錄隔離、使用者確認關卡等規則本身不變。詳見 [ADR-0013](./docs/adr/0013-reviewcollab-step3-4-delegated-execution.md) 與 `docs/session-log.md`。
+上述機制中「回合制來回、狀態追蹤、中斷後接續、輪數上限」這幾件事，原本由 SKILL.md 自己的散文指示手動維護，2026-08-17 起改由本 skill 自帶的 PowerShell CLI（`scripts/review-collab.ps1`，搭配 `schemas/` 底下的 JSON schema）機械化執行，取代手動維護的狀態表。這是「怎麼記錄/推進」這一層的重構，不是「該做什麼」這一層的重構——匿名化、查證分類、審查清單機制、工作目錄隔離、使用者確認關卡等規則本身不變。詳見 [ADR-0013](./docs/adr/0013-reviewcollab-step3-4-delegated-execution.md)。
