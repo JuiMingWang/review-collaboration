@@ -1,0 +1,13 @@
+# 這份 skill 覆寫前的本機備份，屬於個人保險用檔案，不隨 repo 公開
+SKILL.md.backup-*
+
+# 實際跑審查時，v1 CLI 會在「被審查的目標專案」底下產生這個資料夾；
+# 萬一有人直接在這個 repo 自己的資料夾裡試跑，狀態檔不該進版本控制
+.review-collaboration/
+
+# Python 工具（tools/generate-flow-diagram.py）執行後的快取
+tools/__pycache__/
+*.pyc
+
+# Pester 測試若在本機留下暫存輸出
+tests/**/*.tmp-*

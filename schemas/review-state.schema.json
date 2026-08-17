@@ -1,0 +1,105 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "review-state.schema.json",
+  "title": "review-state.json（每案唯一權威 state）",
+  "description": "設計依據：diagnostic snapshot 第 13 節「跨 Step 決定 1」。只有腳本／adapter 可寫；Producer/Controller 只提交 schema-valid 語意輸入。每次更新需執行鎖與 expected revision。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "review_id", "revision", "human_state",
+    "wait_reason", "current_package_ref", "completed_round", "cap",
+    "material_cap", "material_requests_used",
+    "current_thread_id", "latest_ledger_ref", "current_operation",
+    "pending_input_ref", "finalization", "created_at", "updated_at"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "review_id": { "type": "string", "minLength": 1, "pattern": "^[a-zA-Z0-9_-]+$" },
+    "revision": { "type": "integer", "minimum": 0, "description": "單調遞增；每次寫入都必須帶入讀取時的 expected revision，否則拒絕覆寫。" },
+    "human_state": {
+      "type": "string",
+      "enum": ["preparing", "confirmed-recoverable", "reviewing", "waiting-user", "ended"]
+    },
+    "wait_reason": {
+      "description": "只有 human_state=waiting-user 時非 null；其餘狀態必須是 null。",
+      "oneOf": [
+        { "type": "null" },
+        { "type": "string", "enum": ["material-decision", "package-reconfirmation", "final-confirmation", "arbitration", "manual-recovery"] }
+      ]
+    },
+    "current_package_ref": {
+      "description": "指向目前已確認 package 的完整 hash；preparing 階段可為 null（尚未 confirm-package）。",
+      "oneOf": [
+        { "type": "null" },
+        { "type": "object", "additionalProperties": false, "required": ["package_hash", "path"],
+          "properties": {
+            "package_hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+            "path": { "type": "string", "minLength": 1 }
+          }
+        }
+      ]
+    },
+    "completed_round": { "type": "integer", "minimum": 0 },
+    "cap": { "type": "integer", "minimum": 1 },
+    "material_cap": { "type": "integer", "minimum": 1, "description": "整個 review 累計最多能被 Codex 要求補件幾筆（material_requests[] 項目數累加，不是輪次數）；2026-08-17 補上，比照 SKILL.md 舊機制的『最多 3 次逐字引用』上限。" },
+    "material_requests_used": { "type": "integer", "minimum": 0, "description": "累計已用掉的補件筆數；超過 material_cap 時新的 MATERIAL_REQUIRED 改觸發 waiting-user/arbitration，不再建立新的補件請求。" },
+    "current_thread_id": {
+      "description": "Reviewer session/thread id；只有在 thread capture 或使用者明確核准的 recovery 分支才可變更。",
+      "oneOf": [ { "type": "null" }, { "type": "string", "minLength": 1 } ]
+    },
+    "latest_ledger_ref": {
+      "oneOf": [
+        { "type": "null" },
+        { "type": "object", "additionalProperties": false, "required": ["round", "ledger_hash", "path"],
+          "properties": {
+            "round": { "type": "integer", "minimum": 1 },
+            "ledger_hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+            "path": { "type": "string", "minLength": 1 }
+          }
+        }
+      ]
+    },
+    "current_operation": {
+      "description": "目前 in-flight 的 Reviewer call；完成 state commit 後必須清空為 null。已完成 call 改由 immutable operation receipt 保存。",
+      "oneOf": [
+        { "type": "null" },
+        { "type": "object", "additionalProperties": false,
+          "required": ["operation_id", "kind", "round", "attempt", "checkpoint", "prompt_ref", "events_ref", "result_ref", "error"],
+          "properties": {
+            "operation_id": { "type": "string", "minLength": 1 },
+            "kind": { "type": "string", "enum": ["review-call", "material-followup", "protocol-repair"] },
+            "round": { "type": "integer", "minimum": 1 },
+            "attempt": { "type": "integer", "minimum": 1 },
+            "checkpoint": {
+              "type": "string",
+              "enum": ["prepared", "launch_intent_saved", "thread_captured", "result_validated", "state_committed", "manual_recovery_required"]
+            },
+            "prompt_ref": { "oneOf": [ { "type": "null" }, { "type": "string" } ] },
+            "events_ref": { "oneOf": [ { "type": "null" }, { "type": "string" } ] },
+            "result_ref": { "oneOf": [ { "type": "null" }, { "type": "string" } ] },
+            "error": { "oneOf": [ { "type": "null" }, { "type": "string" } ] }
+          }
+        }
+      ]
+    },
+    "pending_input_ref": {
+      "description": "wait_reason 需要使用者輸入時，指向暫存的輸入 artifact（例如 arbitration input）；否則 null。",
+      "oneOf": [ { "type": "null" }, { "type": "string", "minLength": 1 } ]
+    },
+    "finalization": {
+      "oneOf": [
+        { "type": "null" },
+        { "type": "object", "additionalProperties": false,
+          "required": ["candidate_ref", "approval_ref", "handoff_ref"],
+          "properties": {
+            "candidate_ref": { "oneOf": [ { "type": "null" }, { "type": "object", "required": ["hash", "path"], "properties": { "hash": {"type":"string","pattern":"^[a-f0-9]{64}$"}, "path": {"type":"string"} } } ] },
+            "approval_ref": { "oneOf": [ { "type": "null" }, { "type": "object", "required": ["hash", "path"], "properties": { "hash": {"type":"string","pattern":"^[a-f0-9]{64}$"}, "path": {"type":"string"} } } ] },
+            "handoff_ref": { "oneOf": [ { "type": "null" }, { "type": "string" } ] }
+          }
+        }
+      ]
+    },
+    "created_at": { "type": "string", "format": "date-time" },
+    "updated_at": { "type": "string", "format": "date-time" }
+  }
+}

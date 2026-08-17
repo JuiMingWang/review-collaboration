@@ -1,0 +1,60 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "reviewer-result.schema.json",
+  "title": "Reviewer（Codex）單次結構化回覆",
+  "description": "設計依據：diagnostic snapshot 第 13 節 Step 4 決定 1。頂層 outcome 只有三種；MATERIAL_REQUIRED 是非 final attempt，不得同時攜帶 dispositions／new issues。2026-08-17 移除原本以 allOf/if/then/else 表達的條件邏輯（Codex/OpenAI structured output 不接受頂層 allOf，已實測確認），改由 ReviewerAdapter.psm1 的 Test-ReviewerResultShape 做完整驗證；本 schema 僅負責基本型別／enum／required，不再機械強制 outcome 與其他欄位間的條件關係，相關規則改以下方各欄位 description 文字提示。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "outcome", "narrative", "dispositions", "new_issues", "advisories", "material_requests"],
+  "properties": {
+    "schema_version": { "type": "string", "const": "1.0.0" },
+    "outcome": { "type": "string", "enum": ["CONSENSUS", "ISSUES_RAISED", "MATERIAL_REQUIRED"] },
+    "narrative": { "type": "string", "description": "供人閱讀，不驅動機械狀態。" },
+    "dispositions": {
+      "description": "對本輪所有 submitted open issues 逐一提供 disposition；outcome=MATERIAL_REQUIRED 時必須是空陣列；outcome=CONSENSUS 時每筆 disposition 只能是 FIX_ACCEPTED 或 CONCEDE。",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["issue_id", "disposition", "reason"],
+        "properties": {
+          "issue_id": { "type": "string", "pattern": "^I[0-9]{4,}$" },
+          "disposition": { "type": "string", "enum": ["FIX_ACCEPTED", "FIX_INSUFFICIENT", "CONCEDE", "MAINTAIN"] },
+          "reason": { "type": ["string", "null"], "description": "選填說明；Codex 必須提供此欄位，無說明時填 null。" }
+        }
+      }
+    },
+    "new_issues": {
+      "description": "outcome=MATERIAL_REQUIRED 或 outcome=CONSENSUS 時必須是空陣列。除了討論內容本身的問題，也要稽核 package.md 的 Key Assumptions And Verification 段落裡每項既有查證標籤是否合理（例如標「已查證」但引用的依據其實不支持、或標「純屬判斷」但其實可獨立查證）；標籤看起來站不住腳時，在這裡另外提出一筆獨立的 issue，不要默默接受 Producer 的自我判定（2026-08-17 補上，之前只在 SKILL.md 的散文提示裡講過，schema 本身沒有明講，2026-08-17 品質比較測試觀察到少了這句時 Codex 有機率漏抓刻意埋的查證標籤錯誤）。",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["summary", "type", "verification"],
+        "properties": {
+          "summary": { "type": "string", "minLength": 1 },
+          "type": { "type": "string", "enum": ["錯誤型", "解法覆蓋型"] },
+          "verification": { "type": "string", "enum": ["可查證且已查證", "可查證但未查證", "純屬判斷"] }
+        }
+      }
+    },
+    "advisories": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "建議性內容，不阻斷；若要阻斷必須改列為 new_issues。列出具體可行的替代做法（例如可以怎麼做、用什麼機制達成），不要只給籠統方向（例如「應該更嚴謹」這種沒有具體行動的話）（2026-08-17 補上，2026-08-17 品質比較測試發現這個欄位原本容易被寫得很籠統）。"
+    },
+    "material_requests": {
+      "description": "只有 outcome=MATERIAL_REQUIRED 時可非空；其餘 outcome 必須是空陣列。",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["claim_id", "codex_request_summary"],
+        "properties": {
+          "claim_id": { "type": "string", "minLength": 1 },
+          "codex_request_summary": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  }
+}

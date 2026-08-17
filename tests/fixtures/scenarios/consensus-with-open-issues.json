@@ -1,0 +1,19 @@
+{
+  "exitCode": 0,
+  "threadId": "fake-thread-consensus-r2",
+  "emitThreadStarted": true,
+  "emitCompletion": true,
+  "resultRaw": null,
+  "result": {
+    "schema_version": "1.0.0",
+    "outcome": "CONSENSUS",
+    "narrative": "producer's fixes resolve everything",
+    "dispositions": [
+      { "issue_id": "I0001", "disposition": "FIX_ACCEPTED", "reason": "matches evidence" },
+      { "issue_id": "I0002", "disposition": "CONCEDE", "reason": "pushback holds up" }
+    ],
+    "new_issues": [],
+    "advisories": [],
+    "material_requests": []
+  }
+}

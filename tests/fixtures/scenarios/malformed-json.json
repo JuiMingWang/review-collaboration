@@ -1,0 +1,7 @@
+{
+  "exitCode": 0,
+  "threadId": "fake-thread-malformed",
+  "emitThreadStarted": true,
+  "emitCompletion": true,
+  "resultRaw": "{ this is not valid json ["
+}

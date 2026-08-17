@@ -1,0 +1,52 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "handoff.schema.json",
+  "title": "Handoff packet（Step 5a，v1 只結束審查、不修改 target）",
+  "description": "設計依據：diagnostic snapshot 第 13 節 Step 5 決定 1。審查一律產生 handoff；純決策可標 follow_up_required=false。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "review_id", "final_package_hash", "conclusion_summary",
+    "accepted_fixes", "target_baseline", "acceptance_criteria", "follow_up_required", "follow_up_type"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "review_id": { "type": "string", "minLength": 1 },
+    "final_package_hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "conclusion_summary": { "type": "string", "minLength": 1 },
+    "accepted_fixes": { "type": "array", "items": { "type": "string" } },
+    "constraints_and_tripwires": { "type": "array", "items": { "type": "string" } },
+    "evidence_refs": { "type": "array", "items": { "type": "string" } },
+    "target_baseline": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "kind"],
+      "properties": {
+        "status": { "type": "string", "enum": ["captured", "unavailable", "not-applicable"] },
+        "kind": { "type": "string", "enum": ["files", "artifact", "external", "none"] },
+        "files": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["relative_path", "sha256"],
+            "properties": {
+              "relative_path": { "type": "string" },
+              "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+            }
+          }
+        }
+      },
+      "allOf": [
+        { "if": { "properties": { "status": { "const": "captured" }, "kind": { "const": "files" } } }, "then": { "required": ["files"] } }
+      ]
+    },
+    "acceptance_criteria": { "type": "array", "items": { "type": "string" } },
+    "follow_up_required": { "type": "boolean" },
+    "follow_up_type": { "type": "string", "enum": ["none", "implementation", "user-action"] }
+  },
+  "allOf": [
+    { "if": { "properties": { "follow_up_required": { "const": true } } }, "then": { "properties": { "follow_up_type": { "not": { "const": "none" } } } } },
+    { "if": { "properties": { "follow_up_required": { "const": false } } }, "then": { "properties": { "follow_up_type": { "const": "none" } } } }
+  ]
+}
