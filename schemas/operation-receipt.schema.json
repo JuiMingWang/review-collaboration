@@ -1,0 +1,37 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "operation-receipt.schema.json",
+  "title": "Operation receipt（每次 Reviewer 呼叫的 immutable 紀錄）",
+  "description": "設計依據：diagnostic snapshot 第 13 節「Artifact 與保存閉包」。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "operation_id", "round", "attempt", "package_hash", "thread_id", "prompt_ref", "result_ref", "checkpoint_reached", "validated"],
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "operation_id": { "type": "string", "minLength": 1 },
+    "round": { "type": "integer", "minimum": 1 },
+    "attempt": { "type": "integer", "minimum": 1 },
+    "package_hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "thread_id": { "oneOf": [ { "type": "null" }, { "type": "string", "minLength": 1 } ] },
+    "prompt_ref": { "type": "string", "minLength": 1 },
+    "result_ref": { "oneOf": [ { "type": "null" }, { "type": "string" } ] },
+    "checkpoint_reached": {
+      "type": "string",
+      "enum": ["prepared", "launch_intent_saved", "thread_captured", "result_validated", "state_committed"]
+    },
+    "validated": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["process_terminated", "exit_code_zero", "not_killed", "completion_event_seen", "schema_valid", "result_hash"],
+      "properties": {
+        "process_terminated": { "type": "boolean" },
+        "exit_code_zero": { "type": "boolean" },
+        "not_killed": { "type": "boolean" },
+        "completion_event_seen": { "type": "boolean" },
+        "schema_valid": { "type": "boolean" },
+        "result_hash": { "oneOf": [ { "type": "null" }, { "type": "string", "pattern": "^[a-f0-9]{64}$" } ] }
+      }
+    },
+    "error": { "oneOf": [ { "type": "null" }, { "type": "string" } ] }
+  }
+}

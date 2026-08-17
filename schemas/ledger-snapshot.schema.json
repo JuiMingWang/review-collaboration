@@ -1,0 +1,45 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "ledger-snapshot.schema.json",
+  "title": "每個 completed round 的 immutable issue ledger",
+  "description": "設計依據：diagnostic snapshot 第 13 節 Step 4 決定 1 第 8 點。自帶 package hash 與 operation refs，不能靠 round 順序猜來源。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "round", "package_hash", "operation_refs", "outcome", "issues", "created_at"],
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "round": { "type": "integer", "minimum": 1 },
+    "package_hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "operation_refs": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+    "outcome": { "type": "string", "enum": ["CONSENSUS", "ISSUES_RAISED"] },
+    "issues": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["issue_id", "origin_ref", "origin_hash", "summary", "status", "history"],
+        "properties": {
+          "issue_id": { "type": "string", "pattern": "^I[0-9]{4,}$" },
+          "origin_ref": { "type": "string" },
+          "origin_hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+          "summary": { "type": "string" },
+          "status": { "type": "string", "enum": ["open", "fixed-accepted", "conceded", "maintained-open"] },
+          "history": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["round", "event"],
+              "properties": {
+                "round": { "type": "integer", "minimum": 1 },
+                "event": { "type": "string", "enum": ["raised", "fix_proposed", "pushback_raised", "fix_accepted", "fix_insufficient", "conceded", "maintained", "reopened", "duplicate_of", "reviewer_tag_disputed"] },
+                "ref": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "created_at": { "type": "string", "format": "date-time" }
+  }
+}

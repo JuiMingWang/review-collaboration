@@ -1,0 +1,11 @@
+{
+  "exitCode": 0,
+  "threadId": "fake-thread-should-not-appear",
+  "emitThreadStarted": false,
+  "emitCompletion": true,
+  "resultRaw": null,
+  "result": {
+    "schema_version": "1.0.0", "outcome": "CONSENSUS", "narrative": "no thread.started event emitted",
+    "dispositions": [], "new_issues": [], "advisories": [], "material_requests": []
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "exitCode": 0,
+  "threadId": "fake-thread-material",
+  "emitThreadStarted": true,
+  "emitCompletion": true,
+  "resultRaw": null,
+  "result": {
+    "schema_version": "1.0.0",
+    "outcome": "MATERIAL_REQUIRED",
+    "narrative": "need to see the exact wording of claim X",
+    "dispositions": [],
+    "new_issues": [],
+    "advisories": [],
+    "material_requests": [
+      { "claim_id": "claim-x", "codex_request_summary": "want verbatim excerpt supporting claim X" }
+    ]
+  }
+}

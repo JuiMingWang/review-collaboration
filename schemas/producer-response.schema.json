@@ -1,0 +1,45 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "producer-response.schema.json",
+  "title": "Producer response（Fix／Pushback，immutable artifact）",
+  "description": "設計依據：diagnostic snapshot 第 13 節 Step 4 決定 1 第 7 點，以及 2026-08-16 使用者裁決的『稽核對稱性』補強（見同節新增的 Step 4 決定 2）：Codex 對 Producer 的查證標籤有明文稽核義務（發現標錯要當獨立問題提出，不能默默接受），這一版把對稱方向也變成機器可驗證的必填欄位——Producer 在對每個 issue 決定 Fix／Pushback 前，必須明講該 issue 的 verification 標籤看起來站不站得住腳，不能默默照單全收。每個 open issue 恰有一個 action。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "round", "actions"],
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "round": { "type": "integer", "minimum": 1 },
+    "actions": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["issue_id", "action", "reviewer_tag_plausible"],
+        "properties": {
+          "issue_id": { "type": "string", "pattern": "^I[0-9]{4,}$" },
+          "action": { "type": "string", "enum": ["fix", "pushback"] },
+          "reviewer_tag_plausible": {
+            "type": "boolean",
+            "description": "Producer 對這個 issue 原本的 verification 標籤（在 reviewer-result 的 new_issues 裡）做的稽核結果：標籤看起來合理＝true。這是強制欄位，逼 Producer 每個 issue 都要看一眼標籤，不能只挑會反駁的才檢查。"
+          },
+          "reviewer_tag_dispute_reason": {
+            "type": "string",
+            "minLength": 1,
+            "description": "reviewer_tag_plausible=false 時必填：具體說明標籤哪裡站不住腳（例如引用的依據其實不支持、或標『純屬判斷』但其實可獨立查證）。這一則爭議會進 round ledger，供之後回顧，不會因為最終選了 Fix 而消失。"
+          },
+          "fix_proposal": { "type": "string", "description": "action=fix 時必填：具體修正文案，不改真實 target。" },
+          "fix_rationale": { "type": "string" },
+          "scope_recheck": { "type": "string", "description": "此 Fix 是否改變已 tag 的 assumption 適用性。" },
+          "pushback_reason": { "type": "string", "description": "action=pushback 時必填。" },
+          "verification": { "type": "string", "enum": ["可查證且已查證", "可查證但未查證", "純屬判斷"] }
+        },
+        "allOf": [
+          { "if": { "properties": { "action": { "const": "fix" } } }, "then": { "required": ["fix_proposal"] } },
+          { "if": { "properties": { "action": { "const": "pushback" } } }, "then": { "required": ["pushback_reason", "verification"] } },
+          { "if": { "properties": { "reviewer_tag_plausible": { "const": false } } }, "then": { "required": ["reviewer_tag_dispute_reason"] } }
+        ]
+      }
+    }
+  }
+}

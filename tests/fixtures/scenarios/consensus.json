@@ -1,0 +1,16 @@
+{
+  "exitCode": 0,
+  "threadId": "fake-thread-consensus",
+  "emitThreadStarted": true,
+  "emitCompletion": true,
+  "resultRaw": null,
+  "result": {
+    "schema_version": "1.0.0",
+    "outcome": "CONSENSUS",
+    "narrative": "no remaining concerns",
+    "dispositions": [],
+    "new_issues": [],
+    "advisories": [],
+    "material_requests": []
+  }
+}

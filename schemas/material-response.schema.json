@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "material-response.schema.json",
+  "title": "補件回應（append-only，不改 base package）",
+  "description": "設計依據：diagnostic snapshot 第 13 節 Step 4 決定 1 第 9 點。每案累計最多三段 excerpt；provide 或 unavailable 二選一，這是唯一停點。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "request_id", "status"],
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "request_id": { "type": "string", "minLength": 1 },
+    "status": { "type": "string", "enum": ["provided", "unavailable"] },
+    "excerpt": {
+      "description": "status=provided 時必填。",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["content", "source_locator"],
+      "properties": {
+        "content": { "type": "string", "maxLength": 2000 },
+        "source_locator": { "type": "string" }
+      }
+    }
+  },
+  "allOf": [
+    { "if": { "properties": { "status": { "const": "provided" } } }, "then": { "required": ["excerpt"] } }
+  ]
+}
