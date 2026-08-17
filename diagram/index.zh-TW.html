@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>審查協作 v1：實際運作與恢復</title>
+<style>
+  :root{
+    color-scheme:light dark;
+    --bg:#f4f6f9;
+    --surface:#fff;
+    --surface-2:#eef2f6;
+    --ink:#18202b;
+    --muted:#596575;
+    --line:#cfd7e2;
+    --blue:#285f9f;
+    --blue-soft:#e1ebf7;
+    --teal:#197c78;
+    --teal-soft:#dff1ef;
+    --amber:#94651b;
+    --amber-soft:#f6ead2;
+    --red:#a8442c;
+    --red-soft:#f7e2dc;
+    --green:#28784e;
+    --green-soft:#dff0e6;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#0f141c;
+      --surface:#171e28;
+      --surface-2:#202936;
+      --ink:#e8edf4;
+      --muted:#a4afbd;
+      --line:#344052;
+      --blue:#7cadE6;
+      --blue-soft:#20354c;
+      --teal:#68c7c1;
+      --teal-soft:#193a39;
+      --amber:#e0b465;
+      --amber-soft:#3c2f1b;
+      --red:#ed8a71;
+      --red-soft:#432820;
+      --green:#73c895;
+      --green-soft:#1d3829;
+    }
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    color:var(--ink);
+    background:var(--bg);
+    font-family:"Microsoft JhengHei","PingFang TC","Noto Sans TC",sans-serif;
+    line-height:1.65;
+    overflow-x:hidden;
+  }
+  main{max-width:1120px;margin:0 auto;padding:42px 22px 72px}
+  header,section{margin-bottom:34px}
+  h1{font-size:clamp(26px,4vw,40px);line-height:1.25;margin:5px 0 12px}
+  h2{font-size:21px;margin:0 0 12px}
+  h3{font-size:16px;margin:0 0 6px}
+  p{margin:0 0 10px}
+  code,.mono{font-family:Consolas,"SFMono-Regular",monospace;overflow-wrap:anywhere}
+  .eyebrow{font:700 12px Consolas,monospace;letter-spacing:.12em;color:var(--blue);overflow-wrap:anywhere}
+  .lead{max-width:82ch;color:var(--muted);font-size:15px}
+  .panel,.step,.role,.state,.branch,.truth{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:10px;
+  }
+  .panel{padding:18px}
+  .status-grid,.roles,.states,.branches,.truth-grid{display:grid;gap:12px}
+  .status-grid{grid-template-columns:repeat(4,1fr);margin-top:18px}
+  .status{padding:12px;border:1px solid var(--line);border-radius:8px;background:var(--surface-2)}
+  .status strong{display:block;font-size:13px}
+  .status span{font-size:12px;color:var(--muted)}
+  .status.ok{border-color:var(--green);background:var(--green-soft)}
+  .status.warn{border-color:var(--amber);background:var(--amber-soft)}
+  .status.stop{border-color:var(--red);background:var(--red-soft)}
+  .notice{border-left:5px solid var(--amber);background:var(--amber-soft);padding:13px 15px;border-radius:7px}
+  .notice strong{color:var(--amber)}
+  .roles{grid-template-columns:repeat(4,1fr)}
+  .role{padding:14px;border-top:4px solid var(--line)}
+  .status,.role,.state,.branch,.step-body{min-width:0;overflow-wrap:anywhere}
+  .role.user{border-top-color:var(--blue)}
+  .role.producer{border-top-color:var(--teal)}
+  .role.script{border-top-color:var(--amber)}
+  .role.reviewer{border-top-color:var(--red)}
+  .role p,.state p,.branch p,.truth p{font-size:13px;color:var(--muted);margin:0}
+  .states{grid-template-columns:repeat(5,1fr)}
+  .state{padding:12px;position:relative}
+  .state:not(:last-child)::after{content:"→";position:absolute;right:-12px;top:34%;z-index:2;color:var(--muted);font-weight:700}
+  .state:nth-child(2){border-color:var(--blue);background:var(--blue-soft)}
+  .state:nth-child(3){border-color:var(--teal);background:var(--teal-soft)}
+  .state:nth-child(4){border-color:var(--amber);background:var(--amber-soft)}
+  .state:nth-child(5){border-color:var(--green);background:var(--green-soft)}
+  .flow{display:grid;gap:0}
+  .step{padding:17px 18px;display:grid;grid-template-columns:90px 1fr;gap:14px;align-items:start}
+  .step-no{font:700 13px Consolas,monospace;color:var(--blue)}
+  .step-body ul{margin:8px 0 0;padding-left:20px}
+  .step-body li{margin:4px 0;font-size:13.5px}
+  .step-body .io{margin-top:10px;padding:9px 11px;background:var(--surface-2);border-radius:7px;color:var(--muted);font-size:12.5px}
+  .arrow{text-align:center;color:var(--muted);font-size:22px;line-height:28px}
+  .branches{grid-template-columns:repeat(3,1fr)}
+  .branch{padding:14px}
+  .branch.material{border-top:4px solid var(--amber)}
+  .branch.issue{border-top:4px solid var(--red)}
+  .branch.consensus{border-top:4px solid var(--green)}
+  .branch ul{margin:7px 0 0;padding-left:18px;font-size:13px}
+  .pill{display:inline-block;border:1px solid currentColor;border-radius:999px;padding:1px 8px;font:700 11px Consolas,monospace}
+  .pill.amber{color:var(--amber)}
+  .pill.red{color:var(--red)}
+  .pill.green{color:var(--green)}
+  .table-wrap{overflow:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+  table{border-collapse:collapse;width:100%;min-width:760px;font-size:13px}
+  th,td{padding:11px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+  th{background:var(--surface-2);font-size:12px;color:var(--muted)}
+  tr:last-child td{border-bottom:0}
+  .checkpoints{font:12px Consolas,monospace;color:var(--teal)}
+  .truth-grid{grid-template-columns:1fr 1fr}
+  .truth{padding:15px}
+  .truth.yes{border-left:5px solid var(--green)}
+  .truth.no{border-left:5px solid var(--red)}
+  .truth ul{margin:8px 0 0;padding-left:20px;font-size:13px}
+  .removed{display:flex;flex-wrap:wrap;gap:8px}
+  .removed span{padding:6px 9px;border-radius:7px;background:var(--red-soft);color:var(--red);font:700 12px Consolas,monospace}
+  .handoff{border:2px solid var(--green);background:var(--green-soft);padding:17px;border-radius:10px}
+  .handoff p:last-child{margin-bottom:0}
+  footer{border-top:1px solid var(--line);padding-top:16px;color:var(--muted);font-size:12px}
+  @media(max-width:850px){
+    .status-grid,.roles{grid-template-columns:repeat(2,1fr)}
+    .states{grid-template-columns:1fr}
+    .state:not(:last-child)::after{content:"↓";right:50%;top:auto;bottom:-19px}
+    .branches,.truth-grid{grid-template-columns:1fr}
+  }
+  @media(max-width:680px){
+    main{padding:26px 14px 48px}
+    .status-grid,.roles{grid-template-columns:1fr}
+    .step{grid-template-columns:1fr;gap:3px}
+  }
+
+  /* 分頁只是切換同一張 SVG 的 viewBox（顯示哪一段垂直範圍），不是切成好幾張圖，
+     沒有版本不一致的風險；「全圖」分頁保留原本可捲動的完整視圖，方便追蹤跨分頁的
+     連線（例如側欄 manual_recovery_required → terminate 這種長距離連線）。
+     full-bleed：讓圖表跳出 main 原本 1120px 的文字欄寬度、改用視窗實際寬度，
+     這樣多數分頁不必再靠左右捲動就能看到完整內容。 */
+  .diagram-full-bleed{width:100vw;position:relative;left:50%;margin-left:-50vw;padding:0 24px;box-sizing:border-box}
+  .diagram-tabs{display:flex;flex-wrap:wrap;gap:8px;max-width:1940px;margin:4px auto 12px}
+  .diagram-tabs button{font:inherit;font-size:13px;padding:7px 14px;border-radius:999px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+  .diagram-tabs button[aria-current="true"]{border-color:var(--blue);background:var(--blue-soft);color:var(--blue);font-weight:700}
+  /* max-height 讓這個框自己形成固定大小的可捲動視窗（「全圖」分頁高度遠超一般螢幕時的保底），
+     捲軸永遠貼在框邊、隨時看得到／用得到。 */
+  .diagram-wrap{overflow:auto;max-height:80vh;border:1px solid var(--line);border-radius:10px;background:var(--surface);padding:14px;max-width:1940px;margin:0 auto}
+  .diagram-wrap svg{display:block;width:100%;min-width:600px}
+  .scroll-hint{max-width:1940px;margin:10px auto 0;font-size:12.5px;color:var(--muted)}
+  .legend{display:flex;flex-wrap:wrap;gap:10px 18px;margin:14px 0;font-size:12.5px;color:var(--muted);align-items:center}
+  .legend .item{display:flex;align-items:center;gap:7px;white-space:nowrap}
+  .legend .swatch{width:15px;height:15px;border-radius:4px;display:inline-block;flex:none}
+  .legend .swatch.diamond{border-radius:2px;transform:rotate(45deg);width:11px;height:11px;background:var(--blue-soft);border:2px solid var(--blue)}
+  .legend .swatch.dashed{background:none;border:2px dashed var(--red)}
+  .legend .swatch.pill{background:var(--surface);border:1.5px dashed var(--muted);border-radius:8px}
+
+  @media print{
+    :root{color-scheme:light}
+    body{background:#fff}
+    main{max-width:none;padding:18px}
+    section{break-inside:avoid}
+  }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="eyebrow">REVIEW-COLLABORATION · V1 DESIGN · 設計於 2026-08-16，2026-08-17 完成實作與初次真實驗證</div>
+    <h1>審查協作：現在設計成怎麼運作</h1>
+    <p class="lead">這是一套把 Producer 的討論結論交給 Codex Reviewer 挑錯、協商並保存決策的流程。首版只實作 <strong>Claude Producer／Controller → Codex Reviewer</strong>，審查完成後產生 handoff，不直接修改被審查的 target。</p>
+    <div class="status-grid" aria-label="目前完成狀態">
+      <div class="status ok"><strong>流程設計</strong><span>Step 0–5 已確認</span></div>
+      <div class="status ok"><strong>正式 SKILL.md／ADR</strong><span>已於 2026-08-17 同步至本設計</span></div>
+      <div class="status ok"><strong>PowerShell／Schema</strong><span>已實作，92 項自動化測試全數通過</span></div>
+      <div class="status warn"><strong>真實 E2E／恢復</strong><span>已完成一次真實驗證；累積使用次數仍少，見下方「還不能相信什麼」</span></div>
+    </div>
+  </header>
+
+  <aside class="notice">
+    <strong>先看這句：</strong>下圖描述的 v1 設計已經實作完成並通過一次真實端到端驗證（confirm-package → 真實呼叫 Codex → 正確寫回 ledger，含工作目錄隔離機制的驗證）。仍屬早期、使用次數不多的階段——把它當「已驗證運作、但還沒累積大量實戰經驗」的功能看待，不是還在紙上的設計，但也還不是久經考驗的成熟工具。
+  </aside>
+
+  <section aria-labelledby="roles-title">
+    <h2 id="roles-title">四個角色，只保留一條責任線</h2>
+    <div class="roles">
+      <article class="role user"><h3>使用者</h3><p>確認完整送審包、決定是否補件、核准最終決策，或在 cap 到達時裁決。</p></article>
+      <article class="role producer"><h3>Claude Producer／Controller</h3><p>整理內容、查證與匿名化、產生 checklist、判斷 Fix／Pushback，並把語意輸入提交給腳本。</p></article>
+      <article class="role script"><h3>PowerShell adapter</h3><p>唯一能寫 state 的角色；負責 hash、鎖、revision、Codex 呼叫、schema、恢復與歸檔。</p></article>
+      <article class="role reviewer"><h3>Codex Reviewer</h3><p>獨立找問題、要求補件、判定 Fix 是否足夠，以及對 Pushback 回 CONCEDE／MAINTAIN。</p></article>
+    </div>
+  </section>
+
+  <section aria-labelledby="state-title">
+    <h2 id="state-title">五個狀態是整案生命週期，不是 Step 0 的五個進程</h2>
+    <div class="states">
+      <article class="state"><h3>準備中</h3><p>Step 0–2。未確認前不承諾跨 Session 恢復。</p></article>
+      <article class="state"><h3>已確認／可恢復</h3><p>完整 package 已 hash 並建立 durable active state。</p></article>
+      <article class="state"><h3>審查中</h3><p>Codex 呼叫、Fix／Pushback 與同輪修復。</p></article>
+      <article class="state"><h3>等待使用者</h3><p>只用於補件、重新確認、最終確認、仲裁或恢復裁決。</p></article>
+      <article class="state"><h3>已結束</h3><p>history 的 <code>completion.json</code> 已驗證；不代表 target 已修改。</p></article>
+    </div>
+  </section>
+
+  <section aria-labelledby="flow-title">
+    <h2 id="flow-title">Step 0 → Step 5：主流程</h2>
+    <div class="flow">
+      <article class="step">
+        <div class="step-no">STEP 0</div>
+        <div class="step-body"><h3>選定範圍；決定新建或恢復</h3><ul><li>明確相同：恢復既有 <code>review_id</code>。</li><li>明確不同：建立新案。</li><li>重疊或證據不足：才請使用者選擇。</li><li>關鍵歷史缺失或矛盾：停止並回 <code>manual_recovery</code>，不猜、不重送。</li></ul><div class="io"><strong>讀：</strong>active／history 索引與 state　<strong>出：</strong>路由結果、依據、review_id 或停止原因</div></div>
+      </article>
+      <div class="arrow" aria-hidden="true">↓</div>
+      <article class="step">
+        <div class="step-no">STEP 1</div>
+        <div class="step-body"><h3>把原始討論整理成可審查內容</h3><ul><li>固定覆蓋：問題、目前結論、限制、關鍵前提與查證狀態、替代方案、未知、排除內容與敏感限制。</li><li>每次低成本搜尋 Skill 自管 history；只在找到候選時深入讀。</li><li>匿名化去除身分與權威暗示，但保留會改變決策的限制與證據。</li></ul><div class="io"><strong>不承諾：</strong>摘要等同完整逐字稿；缺件時由後續 MATERIAL_REQUIRED 安全補充。</div></div>
+      </article>
+      <div class="arrow" aria-hidden="true">↓</div>
+      <article class="step">
+        <div class="step-no">STEP 2</div>
+        <div class="step-body"><h3>產生 checklist，讓使用者確認完整 package</h3><ul><li>先重建角色、輸入、輸出、狀態、交接與外部依賴，再檢查目標、完整性、可行性、安全性、可逆性與成本。</li><li>Codex 同時收到固定開放式指令，不被 checklist 上限綁住。</li><li>確認後建立 immutable Markdown package，以完整 SHA-256 識別；任一 byte 改變都需新 hash 與重新確認。</li></ul><div class="io"><strong>恢復邊界：</strong><code>confirm-package</code> 成功建立 active state 後，才開始承諾跨 Session 可恢復。</div></div>
+      </article>
+      <div class="arrow" aria-hidden="true">↓</div>
+      <article class="step">
+        <div class="step-no">STEP 3</div>
+        <div class="step-body"><h3>Controller 呼叫 adapter；adapter 呼叫 Codex</h3><ul><li>沒有 runtime Subagent，也沒有 manifest。</li><li>每次 Codex call 使用唯一 <code>operation_id</code>；同一 round 可有多次 operation。</li><li>先保存 launch intent，再啟動 Codex；看到 <code>thread.started</code> 立即保存 thread ID。</li><li>只有 process、exit code、completion event、schema 與 hash 全部可信，才接受結果。</li></ul><div class="io checkpoints">prepared → launch_intent_saved → thread_captured → result_validated → state_committed</div></div>
+      </article>
+      <div class="arrow" aria-hidden="true">↓</div>
+      <article class="step">
+        <div class="step-no">STEP 4</div>
+        <div class="step-body"><h3>依結構化結果協商，不解析自由文字</h3><ul><li><code>CONSENSUS</code>：沒有 open issue、new issue 或 pending material。</li><li><code>ISSUES_RAISED</code>：Producer 對每個 issue 選 Fix 或 Pushback；Codex 回 FIX_ACCEPTED／FIX_INSUFFICIENT 或 CONCEDE／MAINTAIN。</li><li><code>MATERIAL_REQUIRED</code>：非 final，同一 round 補件後再取得 final outcome。</li><li>只有 final outcome 增加 completed round；到 cap 後腳本禁止建立 N+1。</li></ul><div class="io"><strong>保存：</strong>operation receipt、raw result、Producer response、material、每輪 immutable ledger；ledger 自帶 package hash。</div></div>
+      </article>
+      <div class="arrow" aria-hidden="true">↓</div>
+      <article class="step">
+        <div class="step-no">STEP 5</div>
+        <div class="step-body"><h3>確認最終決策；建立 history 與 handoff</h3><ul><li>final package 綁定最新 ledger、issue 處置、條件與證據；使用者核准綁定確切 hash。</li><li>首版不修改 target。handoff 說明後續是否需要 implementation／user action，純決策可標示無後續動作。</li><li>history 實體保存所有永久引用；最後寫入並驗證 <code>completion.json</code> 才算 ended。</li><li>ADR／review-log 是選配；active／TEMP 清理失敗只留下 warning。</li></ul><div class="io"><strong>正常結束：</strong><code>consensus-finalized</code>　<strong>其他：</strong><code>user-arbitrated-closed</code>／<code>abandoned</code>／<code>superseded</code></div></div>
+      </article>
+    </div>
+  </section>
+
+  <section aria-labelledby="detail-flow-title">
+    <h2 id="detail-flow-title">詳細控制流圖（Step 0 → Step 5 全展開，含泳道與資料標註）</h2>
+    <p class="lead">上面「主流程」是第一次理解用的摘要，只畫得出「大致會經過這幾步」；這張圖是同一套 v1 設計的完整版本——Step 0 的四向路由、Step 2 的確認回圈、Step 4 三種 outcome 各自的迴圈與 cap 判斷、使用者仲裁、Step 5 的核准與收尾，以及中斷／<code>manual_recovery_required</code> 安全分支，全部畫成節點與連線，並用角色泳道取代文字描述「誰負責」。下面既有的「三條分支」「中斷後怎麼判斷」「五個入口」三節內容，這張圖已經涵蓋；保留那三節是給只想查表、不想看全圖的人用，兩邊互為對照，不是互相取代。</p>
+
+    <div class="legend" aria-label="圖例">
+      <span class="item"><span class="swatch" style="background:var(--blue-soft);border:1.5px solid var(--blue)"></span>使用者</span>
+      <span class="item"><span class="swatch" style="background:var(--teal-soft);border:1.5px solid var(--teal)"></span>Producer／Controller</span>
+      <span class="item"><span class="swatch" style="background:var(--amber-soft);border:1.5px solid var(--amber)"></span>PowerShell adapter</span>
+      <span class="item"><span class="swatch" style="background:var(--red-soft);border:1.5px solid var(--red)"></span>Codex Reviewer</span>
+      <span class="item"><span class="swatch diamond"></span>菱形＝需要判斷的決策點（旁邊文字＝判斷依據）</span>
+      <span class="item"><span class="swatch dashed"></span>虛線框／側欄＝設計決定但尚未經腳本或 E2E 驗證（含全部 manual_recovery_required 分支）</span>
+      <span class="item"><span class="swatch pill"></span>圓角虛線小標籤＝資料／artifact（hash、state、receipt…）</span>
+    </div>
+
+    <div class="diagram-full-bleed">
+    <p class="scroll-hint">圖依 Step 切成幾個分頁，每頁盡量一次顯示完整內容，不用一直捲動；「全圖（可捲動）」分頁保留原本的完整視圖，方便追蹤跨分頁的連線（例如側欄 manual_recovery_required → terminate）。</p>
+    <div class="diagram-tabs" role="tablist" aria-label="流程圖分頁">
+      <button type="button" role="tab" data-tab="0" aria-current="true">全圖（可捲動）</button>
+      <button type="button" role="tab" data-tab="1">Step 0　案件路由</button>
+      <button type="button" role="tab" data-tab="2">Step 1–2　送審與確認</button>
+      <button type="button" role="tab" data-tab="3">Step 3　Reviewer 呼叫</button>
+      <button type="button" role="tab" data-tab="4">Step 4a　MATERIAL_REQUIRED 補件</button>
+      <button type="button" role="tab" data-tab="5">Step 4b　ISSUES_RAISED／cap／仲裁</button>
+      <button type="button" role="tab" data-tab="6">Step 5　核准與收尾</button>
+    </div>
+    <div class="diagram-wrap" role="img" aria-label="review-collaboration v1 詳細控制流程圖：四個角色泳道，含 Step0 案件路由、Step2 確認回圈、Step3 checkpoint 鏈與側欄復原分支、Step4 三種 outcome 與各自迴圈、Step5 核准與收尾">
+<svg id="flowsvg" viewBox="0 0 1940 4580" xmlns="http://www.w3.org/2000/svg" font-family="Microsoft JhengHei,PingFang TC,Noto Sans TC,sans-serif">
+<defs>
+  <marker id="arrowhead" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto">
+    <path d="M0,0 L8,4 L0,8 Z" fill="context-stroke"/>
+  </marker>
+  <marker id="arrowhead-loop" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto">
+    <path d="M0,0 L8,4 L0,8 Z" fill="context-stroke"/>
+  </marker>
+</defs>
+<path d="M 750.0,220.0 L 750.0,220.0 L 810.0,220.0 L 810.0,220.0" fill="none" stroke="var(--muted)" stroke-width="2.2" marker-end="url(#arrowhead)"/><path d="M 780.0,142.0 L 780.0,148.0 L 590.0,148.0 L 590.0,154.0" fill="none" stroke="var(--muted)" stroke-width="2.2" marker-end="url(#arrowhead)"/><path d="M 590.0,286.0 L 590.0,280.5 L 780.0,280.5 L 780.0,275.0" fill="none" stroke="var(--muted)" stroke-width="2.2" marker-end="url(#arrowhead)"/><path d="M 970.0,279.0 L 970.0,277.0 L 780.0,277.0 L 780.0,275.0" fill="none" stroke="var(--muted)" stroke-width="2.2" marker-end="url(#arrowhead)"/><path d="M 565.0,370.0 L 565.0,445.0 L 590.0,445.0 L 590.0,520.0" fill="none" stroke="var(--muted)" stroke-width="2.2" marker-end="url(#arrowhead)"/><rect x="557.9" y="509.0" width="64.3" height="20" rx="4" fill="var(--bg)" opacity="0.92"/><text x="590.0" y="524.0" font-size="11.5" fill="var(--muted)" text-anchor="middle" font-family="Consolas,monospace" font-weight="700">明確不同</text><path d="M 995.0,370.0 L 995.0,445.0 L 970.0,445.0 L 970.0,520.0" fill="none" stroke="var(--muted)" stroke-width="2.2" marker-end="url(#arrowhead)"/><rect x="937.9" y="509.0" width="64.3" height="20" rx="4" fill="var(--bg)" opacity="0.92"/><text x="970.0" y="524.0" font-size="11.5" fill="var(--muted)" text-anchor="middle" font-family="Consolas,monospace" font-weight="700">明確相同</text><path d="M 780.0,465.0 L 210.0,505.0 L 210.0,610.0" fill="none" stroke="var(--muted)" stroke-width="2.2" marker-end="url(#arrowhead)"/><rect x="165.8" y="494.0" width="88.5" height="20" rx="4" fill="var(--bg)" opacity="0.92"/><text x="210.0" y="509.0" font-size="11.5" fill="var(--muted)" text-anchor="middle" font-family="Consolas,monospace" font-weight="700">重疊／不確定</text><path d="M 995.0,370.0 L 995.0,520.0 L 1610.0,520.0 L 1610.0,670.0" fill="none" stroke="var(--red)" stroke-width="2.2" stroke-dasharray="8,6" marker-end="url(#arrowhead)"/><rect x="1547.7" y="659.0" width="124.7" height="20" rx="4" fill="var(--bg)" opacity="0.92"/><text x="1610.0" y="674.0" font-size="11.5" fill="var(--red)" text-anchor="middle" font-family="Consolas,monospace" font-weight="700">關鍵歷史缺失／矛盾</text><path d="M 60.0,680.0 L 140.0,680.0 L 140.0,540.0 L 430.0,540.0 L 430.0,560.0" fill="none" stroke="var(--muted)" stroke-width="2.2" stroke-dasharray="8,6" marker-end="url(#arrowhead)"/><rect x="101.8" y="529.0" width="76.4" height="20" rx="4" fill="var(--bg)" opacity="0.92"/><text x="140.0" y="544.0" font-size="11.5" fill="var(--muted)" text-anchor="middle" font-family="Consolas,monospace" font-weight="700">選建立新案</text><path d="M 360.0,680.0 L 300.0,650.0 L 770.0,590.0 L 810.0,590.0 L 810.0,560.0" fill="none" stroke="var(--muted)" stroke-width="2.2" stroke-dasharray="8,6" marker-end="url(#arrowhead)"/><rect x="731.8" y="579.0" width="76.4" height="20" rx="4" fill="var(--bg)" opacity="0.92"/><text x="770.0" y="594.0" font-size="11.5" fill="var(--muted)" text-anchor="middle" font-family="Consolas,monospace" font-weight="700">選恢復既有</text><path d="M 590.0,600.0 L 590.0,767.0" fill="none" stroke="var(--muted)" stroke-width="2.2" marker-end="url(#arrowhead)"/><path d="M 590.0,973.0 L 590.0,1017.0" fill="none" stroke="var(--muted)" stroke-width="2.2" marker-end="url(#arrowhead)"/><path d="M 590.0,1183.0 L 590.0,1206.5 L 400.0,1206.5 L 400.0,1230.0" fill="none" stroke="var(--muted)" stroke-width="2.2" marker-end="url(#arrowhead)"/><path d="M 400.0,1330.0 L 400.0,1337.5 L 210.0,1337.5 L 210.0,1345.0" fill="none" stroke="var(--muted)" stroke-width="2.2" marker-end="url(#arrowhead)"/><path d="M 210.0,1495.0 L 210.0,1517.5 L 970.0,1517.5 L 970.0,1540.0" fill="none" stroke="var(--muted)" stroke-width="2.2" marker-end="url(#arrowhead)"/><rect x="949.9" y="1529.0" width="40.2" height="20" rx="4" fill="var(--bg)" opacity="0.92"/><text x="970.0" y="1544.0" font-size="11.5" fill="var(--muted)" text-anchor="middle" font-family="Consolas,monospace" font-weight="700">確認</text><path d="M 50.0,1420.0 L 20.0,1420.0 L 20.0,720.0 L 25.0,720.0 L 25.0,870.0 L 430.0,870.0" fill="none" stroke="var(--muted)" stroke-width="2.2" stroke-dasharray="8,6" marker-end="url(#arrowhead)"/><rect x="8.0" y="709.0" width="52.2" height="20" rx="4" fill="var(--bg)" opacity="0.92"/><text x="34.1" y="724.0" font-size="11.5" fill="var(--muted)" text-anchor="middle" font-family="Consolas,monospace" font-weight="700">需修改</text><path d="M 1130.0,1610.0 L 1130.0,1575.0 L 1252.8,1575.0 L 1252.8,1540.0" fill="none" stroke="var(--muted)" stroke-width="2.2" marker-end="url(#arrowhead)"/><path d="M 970.0,1680.0 L 970.0,1800.0 L 750.0,1800.0" fill="none" stroke="var(--muted)" stroke-width="2.2" marker-end="url(#arrowhead)"/><path d="M 590.0,1840.0 L 590.0,1859.0 L 970.0,1859.0 L 970.0,1878.0" fill="none" stroke="var(--muted)" stroke-width="2.2" marker-end="url(#arrowhead)"/><path d="M 1130.0,1930.0 L 1130.0,1910.0 L 1610.0,1910.0 L 1610.0,1890.0" fill="none" stroke="var(--amber)" stroke-width="2.2" stroke-dasharray="8,6" marker-end="url(#arrowhead)"/><path d="M 1130.0,1930.0 L 1130.0,1957.5 L 1610.0,1957.5 L 1610.0,1985.0" fill="none" stroke="var(--amber)" stroke-width="2.2" stroke-dasharray="8,6" marker-end="url(#arrowhead)"/><path d="M 970.0,1982.0 L 970.0,2030.0" fill="none" stroke="var(--muted)" stroke-width="2.2" marker-end="url(#arrowhead)"/><path d="M 1130.0,2080.0 L 1130.0,2080.0 L 1190.0,2080.0 L 1190.0,2080.0" fill="none" stroke="var(--muted)" stroke-width="2.2" marker-end="url(#arrowhead)"/><path d="M 1130.0,2080.0 L 1290.0,2080.0 L 1629.0,2080.0" fill="none" stroke="var(--muted)" stroke-width="2.2" marker-end="url(#arrowhead)"/><path d="M 1350.0,2130.0 L 1350.0,2220.0 L 1130.0,2220.0" fill="none" stroke="var(--muted)" stroke-width="2.2" marker-end="url(#arrowhead)"/><path d="M 1130.0,2220.0 L 1130.0,2220.0 L 1610.0,2220.0 L 1610.0,2220.0" fill="none" stroke="var(--amber)" stroke-width="2.2" stroke-dasharray="8,6" marker-end="url(#arrowhead)"/><path d="M 970.0,2270.0 L 970.0,2300.0" fill="none" stroke="var(--muted)" stroke-width="2.2" marker-end="url(#arrowhead)"/><path d="M 1130.0,2340.0 L 1130.0,2340.0 L 1251.1,2340.0 L 1251.1,2340.0" fill="none" stroke="var(--muted)" stroke-width="2.2" marker-end="url(#arrowhead)"/><path d="M 970.0,2380.0 L 970.0,2450.0 L 995.0,2450.0" fill="none" stroke="var(--muted)" stroke-width="2.2" marker-end="url(#arrowhead)"/><path d="M 995.0,2450.0 L 1350.0,2450.0 L 1350.0,2570.0" fill="none" stroke="var(--amber)" stroke-width="2.2" marker-end="url(#arrowhead)"/><rect x="1283.3" y="2439.0" width="133.3" height="20" rx="4" fill="var(--bg)" opacity="0.92"/><text x="1350.0" y="2454.0" font-size="11.5" fill="var(--amber)" text-anchor="middle" font-family="Consolas,monospace" font-weight="700">MATERIAL_REQUIRED</text><path d="M 1510.0,2620.0 L 1510.0,2620.0 L 1646.3,2620.0 L 1646.3,2620.0" fill="none" stroke="var(--muted)" stroke-width="2.2" marker-end="url(#arrowhead)"/><path d="M 1350.0,2670.0 L 1350.0,2680.0" fill="none" stroke="var(--muted)" stroke-width="2.2" marker-end="url(#arrowhead)"/><path d="M 1350.0,2780.0 L 1350.0,2810.0" fill="none" stroke="var(--muted)" stroke-width="2.2" marker-end="url(#arrowhead)"/><path d="M 1190.0,2860.0 L 1160.0,2860.0 L 1160.0,2140.0 L 970.0,2130.0" fill="none" stroke="var(--amber)" stroke-width="2.2" marker-end="url(#arrowhead-loop)"/><rect x="1077.0" y="2129.0" width="166.1" height="20" rx="4" fill="var(--bg)" opacity="0.92"/><text x="1160.0" y="2144.0" font-size="11.5" fill="var(--amber)" text-anchor="middle" font-family="Consolas,monospace" font-weight="700">同 round material loop</text><path d="M 565.0,2450.0 L 590.0,2490.0 L 590.0,2760.0" fill="none" stroke="var(--red)" stroke-width="2.2" marker-end="url(#arrowhead)"/><rect x="537.1" y="2479.0" width="105.7" height="20" rx="4" fill="var(--bg)" opacity="0.92"/><text x="590.0" y="2494.0" font-size="11.5" fill="var(--red)" text-anchor="middle" font-family="Consolas,monospace" font-weight="700">ISSUES_RAISED</text><path d="M 590.0,2860.0 L 590.0,2940.0 L 810.0,2940.0" fill="none" stroke="var(--muted)" stroke-width="2.2" marker-end="url(#arrowhead)"/><path d="M 1130.0,2940.0 L 1100.0,2940.0 L 1100.0,2170.0 L 970.0,2130.0" fill="none" stroke="var(--red)" stroke-width="2.2" marker-end="url(#arrowhead-loop)"/><rect x="1049.7" y="2159.0" width="100.5" height="20" rx="4" fill="var(--bg)" opacity="0.92"/><text x="1100.0" y="2174.0" font-size="11.5" fill="var(--red)" text-anchor="middle" font-family="Consolas,monospace" font-weight="700">送出下一輪呼叫</text><path d="M 970.0,2980.0 L 970.0,2990.0 L 2.0,2990.0 L 2.0,3000.0" fill="none" stroke="var(--muted)" stroke-width="2.2" marker-end="url(#arrowhead)"/><path d="M -138.0,3070.0 L 440.0,3070.0 L 440.0,1800.0 L 430.0,1800.0" fill="none" stroke="var(--red)" stroke-width="2.2" marker-end="url(#arrowhead-loop)"/><rect x="352.6" y="1789.0" width="174.7" height="20" rx="4" fill="var(--bg)" opacity="0.92"/><text x="440.0" y="1804.0" font-size="11.5" fill="var(--red)" text-anchor="middle" font-family="Consolas,monospace" font-weight="700">N＜cap：下一 final round</text><path d="M 142.0,3070.0 L 210.0,3070.0 L 210.0,3175.0" fill="none" stroke="var(--red)" stroke-width="2.2" marker-end="url(#arrowhead)"/><rect x="182.2" y="3059.0" width="55.7" height="20" rx="4" fill="var(--bg)" opacity="0.92"/><text x="210.0" y="3074.0" font-size="11.5" fill="var(--red)" text-anchor="middle" font-family="Consolas,monospace" font-weight="700">N＝cap</text><path d="M 210.0,3265.0 L 210.0,3275.0" fill="none" stroke="var(--muted)" stroke-width="2.2" marker-end="url(#arrowhead)"/><path d="M 360.0,3350.0 L 390.0,3350.0 L 1750.0,3436.0" fill="none" stroke="var(--red)" stroke-width="2.2" marker-end="url(#arrowhead)"/><rect x="369.9" y="3339.0" width="40.2" height="20" rx="4" fill="var(--bg)" opacity="0.92"/><text x="390.0" y="3354.0" font-size="11.5" fill="var(--red)" text-anchor="middle" font-family="Consolas,monospace" font-weight="700">放棄</text><path d="M 1750.0,730.0 L 1560.0,740.0 L 1560.0,3500.0 L 1610.0,3500.0" fill="none" stroke="var(--red)" stroke-width="2.2" stroke-dasharray="8,6" marker-end="url(#arrowhead)"/><rect x="1515.8" y="3489.0" width="88.5" height="20" rx="4" fill="var(--bg)" opacity="0.92"/><text x="1560.0" y="3504.0" font-size="11.5" fill="var(--red)" text-anchor="middle" font-family="Consolas,monospace" font-weight="700">視為不可修復</text><path d="M 60.0,3350.0 L 15.0,3350.0 L 15.0,910.0 L 430.0,910.0 L 430.0,870.0" fill="none" stroke="var(--red)" stroke-width="2.2" marker-end="url(#arrowhead-loop)"/><rect x="8.0" y="899.0" width="171.3" height="20" rx="4" fill="var(--bg)" opacity="0.92"/><text x="93.6" y="914.0" font-size="11.5" fill="var(--red)" text-anchor="middle" font-family="Consolas,monospace" font-weight="700">cap 後新增輸入回 Step1-2</text><path d="M 995.0,2450.0 L 1160.0,2810.0 L 1160.0,3580.0 L 430.0,3580.0" fill="none" stroke="var(--green)" stroke-width="2.2" marker-end="url(#arrowhead)"/><rect x="1121.0" y="3569.0" width="78.1" height="20" rx="4" fill="var(--bg)" opacity="0.92"/><text x="1160.0" y="3584.0" font-size="11.5" fill="var(--green)" text-anchor="middle" font-family="Consolas,monospace" font-weight="700">CONSENSUS</text><path d="M 750.0,3580.0 L 750.0,3580.0 L 1249.4,3580.0 L 1249.4,3580.0" fill="none" stroke="var(--muted)" stroke-width="2.2" marker-end="url(#arrowhead)"/><path d="M 590.0,3630.0 L 210.0,3650.0 L 210.0,3645.0" fill="none" stroke="var(--muted)" stroke-width="2.2" marker-end="url(#arrowhead)"/><path d="M 210.0,3795.0 L 210.0,3825.0 L 970.0,3825.0 L 970.0,3855.0" fill="none" stroke="var(--muted)" stroke-width="2.2" marker-end="url(#arrowhead)"/><rect x="949.9" y="3844.0" width="40.2" height="20" rx="4" fill="var(--bg)" opacity="0.92"/><text x="970.0" y="3859.0" font-size="11.5" fill="var(--muted)" text-anchor="middle" font-family="Consolas,monospace" font-weight="700">核准</text><path d="M 1130.0,3910.0 L 1130.0,3910.0 L 1297.7,3910.0 L 1297.7,3910.0" fill="none" stroke="var(--muted)" stroke-width="2.2" marker-end="url(#arrowhead)"/><path d="M 50.0,3720.0 L 30.0,3650.0 L 30.0,3620.0 L 430.0,3620.0 L 430.0,3580.0" fill="none" stroke="var(--green)" stroke-width="2.2" stroke-dasharray="8,6" marker-end="url(#arrowhead)"/><rect x="8.0" y="3609.0" width="166.1" height="20" rx="4" fill="var(--bg)" opacity="0.92"/><text x="91.0" y="3624.0" font-size="11.5" fill="var(--green)" text-anchor="middle" font-family="Consolas,monospace" font-weight="700">僅重排：重新 hash 再確認</text><path d="M 50.0,3720.0 L 5.0,3720.0 L 5.0,940.0 L 430.0,940.0 L 430.0,870.0" fill="none" stroke="var(--green)" stroke-width="2.2" stroke-dasharray="8,6" marker-end="url(#arrowhead)"/><rect x="8.0" y="929.0" width="207.5" height="20" rx="4" fill="var(--bg)" opacity="0.92"/><text x="111.7" y="944.0" font-size="11.5" fill="var(--green)" text-anchor="middle" font-family="Consolas,monospace" font-weight="700">改動主張：回 Step1-2＋提高 cap</text><path d="M 970.0,3965.0 L 970.0,4035.0" fill="none" stroke="var(--muted)" stroke-width="2.2" marker-end="url(#arrowhead)"/><path d="M 1130.0,4080.0 L 1130.0,4080.0 L 1297.7,4080.0 L 1297.7,4080.0" fill="none" stroke="var(--muted)" stroke-width="2.2" marker-end="url(#arrowhead)"/><path d="M 970.0,4125.0 L 970.0,4175.0" fill="none" stroke="var(--muted)" stroke-width="2.2" marker-end="url(#arrowhead)"/><path d="M 1130.0,4220.0 L 1130.0,4220.0 L 1294.2,4220.0 L 1294.2,4220.0" fill="none" stroke="var(--muted)" stroke-width="2.2" marker-end="url(#arrowhead)"/><path d="M 1130.0,4220.0 L 1130.0,4172.5 L 1610.0,4172.5 L 1610.0,4125.0" fill="none" stroke="var(--amber)" stroke-width="2.2" stroke-dasharray="8,6" marker-end="url(#arrowhead)"/><path d="M 970.0,4265.0 L 970.0,4313.0" fill="none" stroke="var(--muted)" stroke-width="2.2" marker-end="url(#arrowhead)"/><path d="M 970.0,4407.0 L 970.0,4480.0 L 780.0,4440.0" fill="none" stroke="var(--muted)" stroke-width="2.2" marker-end="url(#arrowhead)"/><path d="M 1750.0,3564.0 L 1560.0,3590.0 L 1560.0,4480.0 L 1510.0,4480.0" fill="none" stroke="var(--red)" stroke-width="2.2" stroke-dasharray="8,6" marker-end="url(#arrowhead)"/><rect x="1404.5" y="4469.0" width="311.0" height="20" rx="4" fill="var(--bg)" opacity="0.92"/><text x="1560.0" y="4484.0" font-size="11.5" fill="var(--red)" text-anchor="middle" font-family="Consolas,monospace" font-weight="700">同樣驗 hash→completion.json→best effort 清理</text><rect x="40" y="40" width="340" height="30" rx="6" fill="var(--blue-soft)" stroke="var(--blue)" stroke-width="1.5"/><text x="210.0" y="26" font-size="14" font-weight="700" fill="var(--blue)" text-anchor="middle" font-family="Consolas,monospace">使用者</text><rect x="420" y="40" width="340" height="30" rx="6" fill="var(--teal-soft)" stroke="var(--teal)" stroke-width="1.5"/><text x="590.0" y="26" font-size="14" font-weight="700" fill="var(--teal)" text-anchor="middle" font-family="Consolas,monospace">Producer／Controller</text><rect x="800" y="40" width="340" height="30" rx="6" fill="var(--amber-soft)" stroke="var(--amber)" stroke-width="1.5"/><text x="970.0" y="26" font-size="14" font-weight="700" fill="var(--amber)" text-anchor="middle" font-family="Consolas,monospace">PowerShell adapter</text><rect x="1180" y="40" width="340" height="30" rx="6" fill="var(--red-soft)" stroke="var(--red)" stroke-width="1.5"/><text x="1350.0" y="26" font-size="14" font-weight="700" fill="var(--red)" text-anchor="middle" font-family="Consolas,monospace">Codex Reviewer</text><rect x="1600.0" y="40" width="300.0" height="30" rx="6" fill="var(--red-soft)" stroke="var(--red)" stroke-width="1.5" stroke-dasharray="5,4"/><text x="1750.0" y="26" font-size="13" font-weight="700" fill="var(--red)" text-anchor="middle" font-family="Consolas,monospace">中斷／恢復安全分支（側欄，待驗證）</text><rect x="50.0" y="78.0" width="1460.0" height="64.0" rx="12" fill="var(--blue-soft)" stroke="var(--blue)" stroke-width="2"/><foreignObject x="50.0" y="78.0" width="1460.0" height="64.0"><div xmlns="http://www.w3.org/1999/xhtml" style="width:100%;height:100%;box-sizing:border-box;padding:10px;font-family:'Microsoft JhengHei','PingFang TC','Noto Sans TC',sans-serif;font-size:12.3px;text-align:left;overflow:hidden;display:flex;flex-direction:column;justify-content:center"><div style="font-weight:700;font-size:15px;color:var(--ink);line-height:1.3">使用者觸發 review-collaboration</div><div style="margin-top:3px;color:var(--muted);line-height:1.38">提出審查主題，或要求恢復既有 review_id</div></div></foreignObject><rect x="430.0" y="154.0" width="320.0" height="132.0" rx="12" fill="var(--teal-soft)" stroke="var(--teal)" stroke-width="2"/><foreignObject x="430.0" y="154.0" width="320.0" height="132.0"><div xmlns="http://www.w3.org/1999/xhtml" style="width:100%;height:100%;box-sizing:border-box;padding:10px;font-family:'Microsoft JhengHei','PingFang TC','Noto Sans TC',sans-serif;font-size:12.3px;text-align:left;overflow:hidden;display:flex;flex-direction:column;justify-content:center"><div style="font-weight:700;font-size:15px;color:var(--ink);line-height:1.3">Step 0A　選定審查範圍</div><div style="margin-top:3px;color:var(--muted);line-height:1.38">使用者已指定主題：確認邊界</div><div style="margin-top:3px;color:var(--muted);line-height:1.38">未指定：Producer 從可見對話列候選</div><div style="margin-top:3px;color:var(--muted);line-height:1.38">候選可能因壓縮／跨 Session 而不完整</div></div></foreignObject><rect x="810.0" y="161.0" width="320.0" height="118.0" rx="12" fill="var(--amber-soft)" stroke="var(--amber)" stroke-width="2"/><foreignObject x="810.0" y="161.0" width="320.0" height="118.0"><div xmlns="http://www.w3.org/1999/xhtml" style="width:100%;height:100%;box-sizing:border-box;padding:10px;font-family:'Microsoft JhengHei','PingFang TC','Noto Sans TC',sans-serif;font-size:12.3px;text-align:left;overflow:hidden;display:flex;flex-direction:column;justify-content:center"><div style="font-weight:700;font-size:15px;color:var(--ink);line-height:1.3">Step 0B　status（唯讀）</div><div style="margin-top:3px;color:var(--muted);line-height:1.38">查詢 .review-collaboration/active、history 索引</div><div style="margin-top:3px;color:var(--muted);line-height:1.38">讀出 review-state.json 目前 revision</div></div></foreignObject><polygon points="780.0,275.0 995.0,370 780.0,465.0 565.0,370" fill="var(--blue-soft)" stroke="var(--blue)" stroke-width="2.5"/><foreignObject x="646.7" y="311.1" width="266.6" height="117.8"><div xmlns="http://www.w3.org/1999/xhtml" style="width:100%;height:100%;box-sizing:border-box;padding:4px;font-family:'Microsoft JhengHei','PingFang TC','Noto Sans TC',sans-serif;font-size:11px;text-align:center;overflow:hidden;display:flex;flex-direction:column;justify-content:center"><div style="font-weight:700;font-size:13.5px;color:var(--ink);line-height:1.3">Step 0B 案件路由</div><div style="margin-top:3px;color:var(--muted);line-height:1.38">明確相同／明確不同／重疊或不確定／</div><div style="margin-top:3px;color:var(--muted);line-height:1.38">關鍵歷史缺失或矛盾</div></div></foreignObject><rect x="430.0" y="520.0" width="320.0" height="80.0" rx="12" fill="var(--teal-soft)" stroke="var(--teal)" stroke-width="2"/><foreignObject x="430.0" y="520.0" width="320.0" height="80.0"><div xmlns="http://www.w3.org/1999/xhtml" style="width:100%;height:100%;box-sizing:border-box;padding:10px;font-family:'Microsoft JhengHei','PingFang TC','Noto Sans TC',sans-serif;font-size:12.3px;text-align:left;overflow:hidden;display:flex;flex-direction:column;justify-content:center"><div style="font-weight:700;font-size:15px;color:var(--ink);line-height:1.3">→ 明確不同：建立新案</div><div style="margin-top:3px;color:var(--muted);line-height:1.38">review_id 新建，human_state=preparing</div></div></foreignObject><rect x="810.0" y="520.0" width="320.0" height="80.0" rx="12" fill="var(--amber-soft)" stroke="var(--amber)" stroke-width="2" stroke-dasharray="7,5"/><foreignObject x="810.0" y="520.0" width="320.0" height="80.0"><div xmlns="http://www.w3.org/1999/xhtml" style="width:100%;height:100%;box-sizing:border-box;padding:10px;font-family:'Microsoft JhengHei','PingFang TC','Noto Sans TC',sans-serif;font-size:12.3px;text-align:left;overflow:hidden;display:flex;flex-direction:column;justify-content:center"><div style="font-weight:700;font-size:15px;color:var(--ink);line-height:1.3">→ 明確相同：依 checkpoint 復原</div><div style="margin-top:3px;color:var(--muted);line-height:1.38">讀 durable revision，依 human_state 接續到對應步驟</div></div></foreignObject><rect x="1072.9" y="528.0" width="49.1" height="20" rx="10" fill="var(--surface)" stroke="var(--amber)" stroke-width="1.5"/><text x="1097.5" y="542.0" font-size="10.5" font-weight="700" fill="var(--amber)" text-anchor="middle" font-family="Consolas,monospace">待驗證</text><polygon points="210.0,610.0 360.0,680 210.0,750.0 60.0,680" fill="var(--blue-soft)" stroke="var(--blue)" stroke-width="2.5"/><foreignObject x="117.0" y="636.6" width="186.0" height="86.8"><div xmlns="http://www.w3.org/1999/xhtml" style="width:100%;height:100%;box-sizing:border-box;padding:4px;font-family:'Microsoft JhengHei','PingFang TC','Noto Sans TC',sans-serif;font-size:11px;text-align:center;overflow:hidden;display:flex;flex-direction:column;justify-content:center"><div style="font-weight:700;font-size:13.5px;color:var(--ink);line-height:1.3">使用者裁決</div><div style="margin-top:3px;color:var(--muted);line-height:1.38">恢復既有 review_id，</div><div style="margin-top:3px;color:var(--muted);line-height:1.38">或建立新案？</div></div></foreignObject><rect x="1610.0" y="610.0" width="280.0" height="120.0" rx="12" fill="var(--red-soft)" stroke="var(--red)" stroke-width="2" stroke-dasharray="7,5"/><foreignObject x="1610.0" y="610.0" width="280.0" height="120.0"><div xmlns="http://www.w3.org/1999/xhtml" style="width:100%;height:100%;box-sizing:border-box;padding:10px;font-family:'Microsoft JhengHei','PingFang TC','Noto Sans TC',sans-serif;font-size:12.3px;text-align:left;overflow:hidden;display:flex;flex-direction:column;justify-content:center"><div style="font-weight:700;font-size:15px;color:var(--ink);line-height:1.3">manual_recovery_required</div><div style="margin-top:3px;color:var(--muted);line-height:1.38">「等待使用者」下的技術警告，不是第六個主要狀態</div><div style="margin-top:3px;color:var(--muted);line-height:1.38">使用者決定：資料補齊後重跑 status，或視為不可修復</div></div></foreignObject><rect x="1832.9" y="618.0" width="49.1" height="20" rx="10" fill="var(--surface)" stroke="var(--red)" stroke-width="1.5"/><text x="1857.5" y="632.0" font-size="10.5" font-weight="700" fill="var(--red)" text-anchor="middle" font-family="Consolas,monospace">待驗證</text><rect x="430.0" y="767.0" width="320.0" height="206.0" rx="12" fill="var(--teal-soft)" stroke="var(--teal)" stroke-width="2"/><foreignObject x="430.0" y="767.0" width="320.0" height="206.0"><div xmlns="http://www.w3.org/1999/xhtml" style="width:100%;height:100%;box-sizing:border-box;padding:10px;font-family:'Microsoft JhengHei','PingFang TC','Noto Sans TC',sans-serif;font-size:12.3px;text-align:left;overflow:hidden;display:flex;flex-direction:column;justify-content:center"><div style="font-weight:700;font-size:15px;color:var(--ink);line-height:1.3">Step 1　整理送審內容</div><div style="margin-top:3px;color:var(--muted);line-height:1.38">固定覆蓋：問題／結論／限制／關鍵前提查證／</div><div style="margin-top:3px;color:var(--muted);line-height:1.38">替代方案／未知／排除內容</div><div style="margin-top:3px;color:var(--muted);line-height:1.38">查證標籤：已查證／可查證未查證／純屬判斷</div><div style="margin-top:3px;color:var(--muted);line-height:1.38">匿名化：去權威歸屬，保留限制與證據</div><div style="margin-top:3px;color:var(--muted);line-height:1.38">每次低成本搜尋 .review-collaboration/history</div></div></foreignObject><rect x="430.0" y="1017.0" width="320.0" height="166.0" rx="12" fill="var(--teal-soft)" stroke="var(--teal)" stroke-width="2"/><foreignObject x="430.0" y="1017.0" width="320.0" height="166.0"><div xmlns="http://www.w3.org/1999/xhtml" style="width:100%;height:100%;box-sizing:border-box;padding:10px;font-family:'Microsoft JhengHei','PingFang TC','Noto Sans TC',sans-serif;font-size:12.3px;text-align:left;overflow:hidden;display:flex;flex-direction:column;justify-content:center"><div style="font-weight:700;font-size:15px;color:var(--ink);line-height:1.3">Step 2　兩段式 checklist</div><div style="margin-top:3px;color:var(--muted);line-height:1.38">先重建角色／輸入輸出／狀態／交接／外部依賴</div><div style="margin-top:3px;color:var(--muted);line-height:1.38">再依六面向：目標對齊／完整性／可行性／</div><div style="margin-top:3px;color:var(--muted);line-height:1.38">安全性／可逆性／成本</div><div style="margin-top:3px;color:var(--muted);line-height:1.38">固定開放式 ceiling-breaker 指令（不客製）</div></div></foreignObject><rect x="50.0" y="1230.0" width="700.0" height="100.0" rx="12" fill="var(--blue-soft)" stroke="var(--blue)" stroke-width="2"/><foreignObject x="50.0" y="1230.0" width="700.0" height="100.0"><div xmlns="http://www.w3.org/1999/xhtml" style="width:100%;height:100%;box-sizing:border-box;padding:10px;font-family:'Microsoft JhengHei','PingFang TC','Noto Sans TC',sans-serif;font-size:12.3px;text-align:left;overflow:hidden;display:flex;flex-direction:column;justify-content:center"><div style="font-weight:700;font-size:15px;color:var(--ink);line-height:1.3">呈現完整送審 package</div><div style="margin-top:3px;color:var(--muted);line-height:1.38">使用者確認：已納入／刻意排除／尚未確定</div><div style="margin-top:3px;color:var(--muted);line-height:1.38">可先看精簡版，但完整內容必須可查閱</div></div></foreignObject><polygon points="210.0,1345.0 370.0,1420 210.0,1495.0 50.0,1420" fill="var(--blue-soft)" stroke="var(--blue)" stroke-width="2.5"/><foreignObject x="110.8" y="1373.5" width="198.4" height="93.0"><div xmlns="http://www.w3.org/1999/xhtml" style="width:100%;height:100%;box-sizing:border-box;padding:4px;font-family:'Microsoft JhengHei','PingFang TC','Noto Sans TC',sans-serif;font-size:11px;text-align:center;overflow:hidden;display:flex;flex-direction:column;justify-content:center"><div style="font-weight:700;font-size:13.5px;color:var(--ink);line-height:1.3">使用者確認完整 package？</div></div></foreignObject><rect x="810.0" y="1540.0" width="320.0" height="140.0" rx="12" fill="var(--amber-soft)" stroke="var(--amber)" stroke-width="2"/><foreignObject x="810.0" y="1540.0" width="320.0" height="140.0"><div xmlns="http://www.w3.org/1999/xhtml" style="width:100%;height:100%;box-sizing:border-box;padding:10px;font-family:'Microsoft JhengHei','PingFang TC','Noto Sans TC',sans-serif;font-size:12.3px;text-align:left;overflow:hidden;display:flex;flex-direction:column;justify-content:center"><div style="font-weight:700;font-size:15px;color:var(--ink);line-height:1.3">confirm-package　安全落地</div><div style="margin-top:3px;color:var(--muted);line-height:1.38">暫存寫入 → 依完整 hash atomic rename</div><div style="margin-top:3px;color:var(--muted);line-height:1.38">→ 讀回驗 hash → expected-revision 原子更新 state</div><div style="margin-top:3px;color:var(--muted);line-height:1.38">human_state → confirmed-recoverable</div></div></foreignObject><rect x="1061.9" y="1548.0" width="60.1" height="20" rx="10" fill="var(--surface)" stroke="var(--amber)" stroke-width="1.5"/><text x="1092.0" y="1562.0" font-size="10.5" font-weight="700" fill="var(--amber)" text-anchor="middle" font-family="Consolas,monospace">恢復起點</text><rect x="1252.8" y="1525.0" width="214.3" height="30" rx="15" fill="var(--surface)" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="3,3"/><text x="1360.0" y="1544.0" font-size="11.5" fill="var(--ink)" text-anchor="middle" font-family="Consolas,monospace">package hash（完整 SHA-256）</text><rect x="1266.6" y="1610.0" width="186.7" height="30" rx="15" fill="var(--surface)" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="3,3"/><text x="1360.0" y="1629.0" font-size="11.5" fill="var(--ink)" text-anchor="middle" font-family="Consolas,monospace">review-state.json rev++</text><rect x="430.0" y="1760.0" width="320.0" height="80.0" rx="12" fill="var(--teal-soft)" stroke="var(--teal)" stroke-width="2"/><foreignObject x="430.0" y="1760.0" width="320.0" height="80.0"><div xmlns="http://www.w3.org/1999/xhtml" style="width:100%;height:100%;box-sizing:border-box;padding:10px;font-family:'Microsoft JhengHei','PingFang TC','Noto Sans TC',sans-serif;font-size:12.3px;text-align:left;overflow:hidden;display:flex;flex-direction:column;justify-content:center"><div style="font-weight:700;font-size:15px;color:var(--ink);line-height:1.3">Producer 呼叫 advance</div><div style="margin-top:3px;color:var(--muted);line-height:1.38">review_id ＋ expected revision</div></div></foreignObject><rect x="810.0" y="1878.0" width="320.0" height="104.0" rx="12" fill="var(--amber-soft)" stroke="var(--amber)" stroke-width="2" stroke-dasharray="7,5"/><foreignObject x="810.0" y="1878.0" width="320.0" height="104.0"><div xmlns="http://www.w3.org/1999/xhtml" style="width:100%;height:100%;box-sizing:border-box;padding:10px;font-family:'Microsoft JhengHei','PingFang TC','Noto Sans TC',sans-serif;font-size:12.3px;text-align:left;overflow:hidden;display:flex;flex-direction:column;justify-content:center"><div style="font-weight:700;font-size:15px;color:var(--ink);line-height:1.3">Step 3 技術 checkpoint 鏈</div></div></foreignObject><rect x="1072.9" y="1886.0" width="49.1" height="20" rx="10" fill="var(--surface)" stroke="var(--amber)" stroke-width="1.5"/><text x="1097.5" y="1900.0" font-size="10.5" font-weight="700" fill="var(--amber)" text-anchor="middle" font-family="Consolas,monospace">待驗證</text><foreignObject x="820.0" y="1918.0" width="300.0" height="56.0"><div xmlns="http://www.w3.org/1999/xhtml" style="width:100%;height:100%;box-sizing:border-box;padding:10px;font-family:'Microsoft JhengHei','PingFang TC','Noto Sans TC',sans-serif;font-size:12.3px;text-align:left;overflow:hidden;display:flex;flex-direction:column;justify-content:center"><div style="font-weight:700;font-size:15px;color:var(--ink);line-height:1.3"></div><div style="margin-top:3px;color:var(--muted);line-height:1.38"><span style="font-family:Consolas,monospace;font-size:10.6px">prepared → launch_intent_saved → thread_captured</span></div><div style="margin-top:3px;color:var(--muted);line-height:1.38"><span style="font-family:Consolas,monospace;font-size:10.6px">result_validated → state_committed</span></div></div></foreignObject><rect x="1610.0" y="1842.0" width="280.0" height="96.0" rx="12" fill="var(--amber-soft)" stroke="var(--amber)" stroke-width="2" stroke-dasharray="7,5"/><foreignObject x="1610.0" y="1842.0" width="280.0" height="96.0"><div xmlns="http://www.w3.org/1999/xhtml" style="width:100%;height:100%;box-sizing:border-box;padding:10px;font-family:'Microsoft JhengHei','PingFang TC','Noto Sans TC',sans-serif;font-size:12.3px;text-align:left;overflow:hidden;display:flex;flex-direction:column;justify-content:center"><div style="font-weight:700;font-size:15px;color:var(--ink);line-height:1.3">R：launch intent 已存但啟動與否不明</div><div style="margin-top:3px;color:var(--muted);line-height:1.38">查 PID／events／thread，仍不明才 MRR</div></div></foreignObject><rect x="1610.0" y="1943.0" width="280.0" height="84.0" rx="12" fill="var(--amber-soft)" stroke="var(--amber)" stroke-width="2" stroke-dasharray="7,5"/><foreignObject x="1610.0" y="1943.0" width="280.0" height="84.0"><div xmlns="http://www.w3.org/1999/xhtml" style="width:100%;height:100%;box-sizing:border-box;padding:10px;font-family:'Microsoft JhengHei','PingFang TC','Noto Sans TC',sans-serif;font-size:12.3px;text-align:left;overflow:hidden;display:flex;flex-direction:column;justify-content:center"><div style="font-weight:700;font-size:15px;color:var(--ink);line-height:1.3">R：有 thread_id 但無可信結果</div><div style="margin-top:3px;color:var(--muted);line-height:1.38">只 resume 同一 thread，不重送</div></div></foreignObject><rect x="810.0" y="2030.0" width="320.0" height="100.0" rx="12" fill="var(--amber-soft)" stroke="var(--amber)" stroke-width="2"/><foreignObject x="810.0" y="2030.0" width="320.0" height="100.0"><div xmlns="http://www.w3.org/1999/xhtml" style="width:100%;height:100%;box-sizing:border-box;padding:10px;font-family:'Microsoft JhengHei','PingFang TC','Noto Sans TC',sans-serif;font-size:12.3px;text-align:left;overflow:hidden;display:flex;flex-direction:column;justify-content:center"><div style="font-weight:700;font-size:15px;color:var(--ink);line-height:1.3">adapter 啟動／resume Codex</div><div style="margin-top:3px;color:var(--muted);line-height:1.38">安全順序：驗證 package → 保存 launch intent →</div><div style="margin-top:3px;color:var(--muted);line-height:1.38">啟動；看到 thread.started 立即持久化 thread_id</div></div></foreignObject><rect x="1190.0" y="2030.0" width="320.0" height="100.0" rx="12" fill="var(--red-soft)" stroke="var(--red)" stroke-width="2"/><foreignObject x="1190.0" y="2030.0" width="320.0" height="100.0"><div xmlns="http://www.w3.org/1999/xhtml" style="width:100%;height:100%;box-sizing:border-box;padding:10px;font-family:'Microsoft JhengHei','PingFang TC','Noto Sans TC',sans-serif;font-size:12.3px;text-align:left;overflow:hidden;display:flex;flex-direction:column;justify-content:center"><div style="font-weight:700;font-size:15px;color:var(--ink);line-height:1.3">Codex 獨立審查</div><div style="margin-top:3px;color:var(--muted);line-height:1.38">讀取 package＋checklist＋ceiling-breaker</div><div style="margin-top:3px;color:var(--muted);line-height:1.38">產生 schema 限定的結構化結果</div></div></foreignObject><rect x="1629.0" y="2065.0" width="241.9" height="30" rx="15" fill="var(--surface)" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="3,3"/><text x="1750.0" y="2084.0" font-size="11.5" fill="var(--ink)" text-anchor="middle" font-family="Consolas,monospace">thread ID（capture 後立即持久化）</text><rect x="810.0" y="2170.0" width="320.0" height="100.0" rx="12" fill="var(--amber-soft)" stroke="var(--amber)" stroke-width="2"/><foreignObject x="810.0" y="2170.0" width="320.0" height="100.0"><div xmlns="http://www.w3.org/1999/xhtml" style="width:100%;height:100%;box-sizing:border-box;padding:10px;font-family:'Microsoft JhengHei','PingFang TC','Noto Sans TC',sans-serif;font-size:12.3px;text-align:left;overflow:hidden;display:flex;flex-direction:column;justify-content:center"><div style="font-weight:700;font-size:15px;color:var(--ink);line-height:1.3">adapter 驗證結果</div><div style="margin-top:3px;color:var(--muted);line-height:1.38">process／exit code／completion event／</div><div style="margin-top:3px;color:var(--muted);line-height:1.38">schema／hash 全部可信才接受</div></div></foreignObject><rect x="1072.9" y="2178.0" width="49.1" height="20" rx="10" fill="var(--surface)" stroke="var(--amber)" stroke-width="1.5"/><text x="1097.5" y="2192.0" font-size="10.5" font-weight="700" fill="var(--amber)" text-anchor="middle" font-family="Consolas,monospace">待驗證</text><rect x="1610.0" y="2173.0" width="280.0" height="94.0" rx="12" fill="var(--amber-soft)" stroke="var(--amber)" stroke-width="2" stroke-dasharray="7,5"/><foreignObject x="1610.0" y="2173.0" width="280.0" height="94.0"><div xmlns="http://www.w3.org/1999/xhtml" style="width:100%;height:100%;box-sizing:border-box;padding:10px;font-family:'Microsoft JhengHei','PingFang TC','Noto Sans TC',sans-serif;font-size:12.3px;text-align:left;overflow:hidden;display:flex;flex-direction:column;justify-content:center"><div style="font-weight:700;font-size:15px;color:var(--ink);line-height:1.3">R：result 已驗證但 state 未 commit</div><div style="margin-top:3px;color:var(--muted);line-height:1.38">只做本地冪等 commit，不再呼叫 Codex</div></div></foreignObject><rect x="810.0" y="2300.0" width="320.0" height="80.0" rx="12" fill="var(--amber-soft)" stroke="var(--amber)" stroke-width="2"/><foreignObject x="810.0" y="2300.0" width="320.0" height="80.0"><div xmlns="http://www.w3.org/1999/xhtml" style="width:100%;height:100%;box-sizing:border-box;padding:10px;font-family:'Microsoft JhengHei','PingFang TC','Noto Sans TC',sans-serif;font-size:12.3px;text-align:left;overflow:hidden;display:flex;flex-direction:column;justify-content:center"><div style="font-weight:700;font-size:15px;color:var(--ink);line-height:1.3">state_committed</div><div style="margin-top:3px;color:var(--muted);line-height:1.38">原子推進 review-state.json；</div><div style="margin-top:3px;color:var(--muted);line-height:1.38">human_state 全程維持 reviewing</div></div></foreignObject><rect x="1251.1" y="2325.0" width="217.7" height="30" rx="15" fill="var(--surface)" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="3,3"/><text x="1360.0" y="2344.0" font-size="11.5" fill="var(--ink)" text-anchor="middle" font-family="Consolas,monospace">operation receipt（每次呼叫）</text><polygon points="780.0,2365.0 995.0,2450 780.0,2535.0 565.0,2450" fill="var(--blue-soft)" stroke="var(--blue)" stroke-width="2.5"/><foreignObject x="646.7" y="2397.3" width="266.6" height="105.4"><div xmlns="http://www.w3.org/1999/xhtml" style="width:100%;height:100%;box-sizing:border-box;padding:4px;font-family:'Microsoft JhengHei','PingFang TC','Noto Sans TC',sans-serif;font-size:11px;text-align:center;overflow:hidden;display:flex;flex-direction:column;justify-content:center"><div style="font-weight:700;font-size:13.5px;color:var(--ink);line-height:1.3">頂層 outcome（schema 限定）</div><div style="margin-top:3px;color:var(--muted);line-height:1.38">CONSENSUS／ISSUES_RAISED／</div><div style="margin-top:3px;color:var(--muted);line-height:1.38">MATERIAL_REQUIRED</div></div></foreignObject><rect x="1190.0" y="2570.0" width="320.0" height="100.0" rx="12" fill="var(--amber-soft)" stroke="var(--amber)" stroke-width="2"/><foreignObject x="1190.0" y="2570.0" width="320.0" height="100.0"><div xmlns="http://www.w3.org/1999/xhtml" style="width:100%;height:100%;box-sizing:border-box;padding:10px;font-family:'Microsoft JhengHei','PingFang TC','Noto Sans TC',sans-serif;font-size:12.3px;text-align:left;overflow:hidden;display:flex;flex-direction:column;justify-content:center"><div style="font-weight:700;font-size:15px;color:var(--ink);line-height:1.3">MATERIAL_REQUIRED</div><div style="margin-top:3px;color:var(--muted);line-height:1.38">append-only material-request-r&lt;N&gt;.json</div><div style="margin-top:3px;color:var(--muted);line-height:1.38">非 final attempt，只能同時要求補件</div></div></foreignObject><rect x="1646.3" y="2605.0" width="207.4" height="30" rx="15" fill="var(--surface)" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="3,3"/><text x="1750.0" y="2624.0" font-size="11.5" fill="var(--ink)" text-anchor="middle" font-family="Consolas,monospace">material request（≤3段/案）</text><rect x="1190.0" y="2680.0" width="320.0" height="100.0" rx="12" fill="var(--amber-soft)" stroke="var(--amber)" stroke-width="2"/><foreignObject x="1190.0" y="2680.0" width="320.0" height="100.0"><div xmlns="http://www.w3.org/1999/xhtml" style="width:100%;height:100%;box-sizing:border-box;padding:10px;font-family:'Microsoft JhengHei','PingFang TC','Noto Sans TC',sans-serif;font-size:12.3px;text-align:left;overflow:hidden;display:flex;flex-direction:column;justify-content:center"><div style="font-weight:700;font-size:15px;color:var(--ink);line-height:1.3">Producer／使用者一次決定</div><div style="margin-top:3px;color:var(--muted);line-height:1.38">提供已整理 excerpt（每案累計最多三段），</div><div style="margin-top:3px;color:var(--muted);line-height:1.38">或標記 unavailable —— 這是唯一停點</div></div></foreignObject><rect x="1190.0" y="2810.0" width="320.0" height="100.0" rx="12" fill="var(--amber-soft)" stroke="var(--amber)" stroke-width="2"/><foreignObject x="1190.0" y="2810.0" width="320.0" height="100.0"><div xmlns="http://www.w3.org/1999/xhtml" style="width:100%;height:100%;box-sizing:border-box;padding:10px;font-family:'Microsoft JhengHei','PingFang TC','Noto Sans TC',sans-serif;font-size:12.3px;text-align:left;overflow:hidden;display:flex;flex-direction:column;justify-content:center"><div style="font-weight:700;font-size:15px;color:var(--ink);line-height:1.3">submit 補件 → advance 續同一 round</div><div style="margin-top:3px;color:var(--muted);line-height:1.38">resume 同一 thread；不改 base package；</div><div style="margin-top:3px;color:var(--muted);line-height:1.38">不增加 round</div></div></foreignObject><rect x="430.0" y="2760.0" width="320.0" height="100.0" rx="12" fill="var(--red-soft)" stroke="var(--red)" stroke-width="2"/><foreignObject x="430.0" y="2760.0" width="320.0" height="100.0"><div xmlns="http://www.w3.org/1999/xhtml" style="width:100%;height:100%;box-sizing:border-box;padding:10px;font-family:'Microsoft JhengHei','PingFang TC','Noto Sans TC',sans-serif;font-size:12.3px;text-align:left;overflow:hidden;display:flex;flex-direction:column;justify-content:center"><div style="font-weight:700;font-size:15px;color:var(--ink);line-height:1.3">ISSUES_RAISED：Producer 逐 issue 判斷</div><div style="margin-top:3px;color:var(--muted);line-height:1.38">Fix（具體修正文案，不改真實 target）</div><div style="margin-top:3px;color:var(--muted);line-height:1.38">或 Pushback（理由＋查證標籤）</div></div></foreignObject><rect x="810.0" y="2900.0" width="320.0" height="80.0" rx="12" fill="var(--red-soft)" stroke="var(--red)" stroke-width="2"/><foreignObject x="810.0" y="2900.0" width="320.0" height="80.0"><div xmlns="http://www.w3.org/1999/xhtml" style="width:100%;height:100%;box-sizing:border-box;padding:10px;font-family:'Microsoft JhengHei','PingFang TC','Noto Sans TC',sans-serif;font-size:12.3px;text-align:left;overflow:hidden;display:flex;flex-direction:column;justify-content:center"><div style="font-weight:700;font-size:15px;color:var(--ink);line-height:1.3">submit Producer response</div><div style="margin-top:3px;color:var(--muted);line-height:1.38">immutable artifact；下一輪呼叫 Codex</div></div></foreignObject><polygon points="2,3000.0 142.0,3070 2,3140.0 -138.0,3070" fill="var(--red-soft)" stroke="var(--red)" stroke-width="2.5"/><foreignObject x="-84.8" y="3026.6" width="173.6" height="86.8"><div xmlns="http://www.w3.org/1999/xhtml" style="width:100%;height:100%;box-sizing:border-box;padding:4px;font-family:'Microsoft JhengHei','PingFang TC','Noto Sans TC',sans-serif;font-size:11px;text-align:center;overflow:hidden;display:flex;flex-direction:column;justify-content:center"><div style="font-weight:700;font-size:13.5px;color:var(--ink);line-height:1.3">N ＜ cap？</div><div style="margin-top:3px;color:var(--muted);line-height:1.38">完成 final outcome 才計入 round</div></div></foreignObject><rect x="50.0" y="3175.0" width="320.0" height="90.0" rx="12" fill="var(--red-soft)" stroke="var(--red)" stroke-width="2"/><foreignObject x="50.0" y="3175.0" width="320.0" height="90.0"><div xmlns="http://www.w3.org/1999/xhtml" style="width:100%;height:100%;box-sizing:border-box;padding:10px;font-family:'Microsoft JhengHei','PingFang TC','Noto Sans TC',sans-serif;font-size:12.3px;text-align:left;overflow:hidden;display:flex;flex-direction:column;justify-content:center"><div style="font-weight:700;font-size:15px;color:var(--ink);line-height:1.3">N＝cap：waiting-user／arbitration</div><div style="margin-top:3px;color:var(--muted);line-height:1.38">禁止建立 N+1；等使用者仲裁</div></div></foreignObject><polygon points="210.0,3275.0 360.0,3350 210.0,3425.0 60.0,3350" fill="var(--red-soft)" stroke="var(--red)" stroke-width="2.5"/><foreignObject x="117.0" y="3303.5" width="186.0" height="93.0"><div xmlns="http://www.w3.org/1999/xhtml" style="width:100%;height:100%;box-sizing:border-box;padding:4px;font-family:'Microsoft JhengHei','PingFang TC','Noto Sans TC',sans-serif;font-size:11px;text-align:center;overflow:hidden;display:flex;flex-direction:column;justify-content:center"><div style="font-weight:700;font-size:13.5px;color:var(--ink);line-height:1.3">使用者仲裁</div><div style="margin-top:3px;color:var(--muted);line-height:1.38">結束（放棄）；</div><div style="margin-top:3px;color:var(--muted);line-height:1.38">或新增實質輸入＋提高 cap</div></div></foreignObject><rect x="1610.0" y="3436.0" width="280.0" height="128.0" rx="12" fill="var(--red-soft)" stroke="var(--red)" stroke-width="2"/><foreignObject x="1610.0" y="3436.0" width="280.0" height="128.0"><div xmlns="http://www.w3.org/1999/xhtml" style="width:100%;height:100%;box-sizing:border-box;padding:10px;font-family:'Microsoft JhengHei','PingFang TC','Noto Sans TC',sans-serif;font-size:12.3px;text-align:left;overflow:hidden;display:flex;flex-direction:column;justify-content:center"><div style="font-weight:700;font-size:15px;color:var(--ink);line-height:1.3">terminate（abandoned／superseded）</div><div style="margin-top:3px;color:var(--muted);line-height:1.38">仍產生自己的 terminal history／completion.json，</div><div style="margin-top:3px;color:var(--muted);line-height:1.38">不刪證據；不依賴 CONSENSUS 分支的節點</div></div></foreignObject><rect x="430.0" y="3530.0" width="320.0" height="100.0" rx="12" fill="var(--green-soft)" stroke="var(--green)" stroke-width="2"/><foreignObject x="430.0" y="3530.0" width="320.0" height="100.0"><div xmlns="http://www.w3.org/1999/xhtml" style="width:100%;height:100%;box-sizing:border-box;padding:10px;font-family:'Microsoft JhengHei','PingFang TC','Noto Sans TC',sans-serif;font-size:12.3px;text-align:left;overflow:hidden;display:flex;flex-direction:column;justify-content:center"><div style="font-weight:700;font-size:15px;color:var(--ink);line-height:1.3">CONSENSUS → Step 5a 編譯 final package</div><div style="margin-top:3px;color:var(--muted);line-height:1.38">最終決策／已收斂 Fix／未解風險／</div><div style="margin-top:3px;color:var(--muted);line-height:1.38">證據／各 issue 處置</div></div></foreignObject><rect x="1249.4" y="3565.0" width="221.2" height="30" rx="15" fill="var(--surface)" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="3,3"/><text x="1360.0" y="3584.0" font-size="11.5" fill="var(--ink)" text-anchor="middle" font-family="Consolas,monospace">final package（完整 SHA-256）</text><rect x="1214.9" y="3495.0" width="290.2" height="30" rx="15" fill="var(--surface)" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="3,3"/><text x="1360.0" y="3514.0" font-size="11.5" fill="var(--ink)" text-anchor="middle" font-family="Consolas,monospace">ledger snapshot（每個 completed round）</text><polygon points="210.0,3645.0 370.0,3720 210.0,3795.0 50.0,3720" fill="var(--green-soft)" stroke="var(--green)" stroke-width="2.5"/><foreignObject x="110.8" y="3673.5" width="198.4" height="93.0"><div xmlns="http://www.w3.org/1999/xhtml" style="width:100%;height:100%;box-sizing:border-box;padding:4px;font-family:'Microsoft JhengHei','PingFang TC','Noto Sans TC',sans-serif;font-size:11px;text-align:center;overflow:hidden;display:flex;flex-direction:column;justify-content:center"><div style="font-weight:700;font-size:13.5px;color:var(--ink);line-height:1.3">使用者核准（綁定 exact hash）？</div></div></foreignObject><rect x="810.0" y="3855.0" width="320.0" height="110.0" rx="12" fill="var(--green-soft)" stroke="var(--green)" stroke-width="2"/><foreignObject x="810.0" y="3855.0" width="320.0" height="110.0"><div xmlns="http://www.w3.org/1999/xhtml" style="width:100%;height:100%;box-sizing:border-box;padding:10px;font-family:'Microsoft JhengHei','PingFang TC','Noto Sans TC',sans-serif;font-size:12.3px;text-align:left;overflow:hidden;display:flex;flex-direction:column;justify-content:center"><div style="font-weight:700;font-size:15px;color:var(--ink);line-height:1.3">產生 handoff ＋ target baseline</div><div style="margin-top:3px;color:var(--muted);line-height:1.38">review_id／final_package_hash／結論／Fix／</div><div style="margin-top:3px;color:var(--muted);line-height:1.38">target scope／constraints／follow_up_*</div></div></foreignObject><rect x="1297.7" y="3895.0" width="124.6" height="30" rx="15" fill="var(--surface)" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="3,3"/><text x="1360.0" y="3914.0" font-size="11.5" fill="var(--ink)" text-anchor="middle" font-family="Consolas,monospace">handoff packet</text><rect x="810.0" y="4035.0" width="320.0" height="90.0" rx="12" fill="var(--green-soft)" stroke="var(--green)" stroke-width="2"/><foreignObject x="810.0" y="4035.0" width="320.0" height="90.0"><div xmlns="http://www.w3.org/1999/xhtml" style="width:100%;height:100%;box-sizing:border-box;padding:10px;font-family:'Microsoft JhengHei','PingFang TC','Noto Sans TC',sans-serif;font-size:12.3px;text-align:left;overflow:hidden;display:flex;flex-direction:column;justify-content:center"><div style="font-weight:700;font-size:15px;color:var(--ink);line-height:1.3">保存 history bundle</div><div style="margin-top:3px;color:var(--muted);line-height:1.38">實體複製 final package／handoff／ledger</div><div style="margin-top:3px;color:var(--muted);line-height:1.38">所傳遞引用的所有 immutable artifact</div></div></foreignObject><rect x="1297.7" y="4065.0" width="124.6" height="30" rx="15" fill="var(--surface)" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="3,3"/><text x="1360.0" y="4084.0" font-size="11.5" fill="var(--ink)" text-anchor="middle" font-family="Consolas,monospace">history bundle</text><rect x="810.0" y="4175.0" width="320.0" height="90.0" rx="12" fill="var(--green-soft)" stroke="var(--green)" stroke-width="2"/><foreignObject x="810.0" y="4175.0" width="320.0" height="90.0"><div xmlns="http://www.w3.org/1999/xhtml" style="width:100%;height:100%;box-sizing:border-box;padding:10px;font-family:'Microsoft JhengHei','PingFang TC','Noto Sans TC',sans-serif;font-size:12.3px;text-align:left;overflow:hidden;display:flex;flex-direction:column;justify-content:center"><div style="font-weight:700;font-size:15px;color:var(--ink);line-height:1.3">驗證必要 hash → 寫入 completion.json</div><div style="margin-top:3px;color:var(--muted);line-height:1.38">ended 的唯一權威證據</div></div></foreignObject><rect x="1072.9" y="4183.0" width="49.1" height="20" rx="10" fill="var(--surface)" stroke="var(--green)" stroke-width="1.5"/><text x="1097.5" y="4197.0" font-size="10.5" font-weight="700" fill="var(--green)" text-anchor="middle" font-family="Consolas,monospace">待驗證</text><rect x="1294.2" y="4205.0" width="131.5" height="30" rx="15" fill="var(--surface)" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="3,3"/><text x="1360.0" y="4224.0" font-size="11.5" fill="var(--ink)" text-anchor="middle" font-family="Consolas,monospace">completion.json</text><rect x="1610.0" y="4065.0" width="280.0" height="120.0" rx="12" fill="var(--amber-soft)" stroke="var(--amber)" stroke-width="2" stroke-dasharray="7,5"/><foreignObject x="1610.0" y="4065.0" width="280.0" height="120.0"><div xmlns="http://www.w3.org/1999/xhtml" style="width:100%;height:100%;box-sizing:border-box;padding:10px;font-family:'Microsoft JhengHei','PingFang TC','Noto Sans TC',sans-serif;font-size:12.3px;text-align:left;overflow:hidden;display:flex;flex-direction:column;justify-content:center"><div style="font-weight:700;font-size:15px;color:var(--ink);line-height:1.3">R：history 部分寫入，marker 未生效</div><div style="margin-top:3px;color:var(--muted);line-height:1.38">冪等補齊並驗 hash，不得標 ended</div><div style="margin-top:3px;color:var(--muted);line-height:1.38">或先刪 active</div></div></foreignObject><rect x="810.0" y="4313.0" width="320.0" height="94.0" rx="12" fill="var(--surface-2)" stroke="var(--amber)" stroke-width="2" stroke-dasharray="7,5"/><foreignObject x="810.0" y="4313.0" width="320.0" height="94.0"><div xmlns="http://www.w3.org/1999/xhtml" style="width:100%;height:100%;box-sizing:border-box;padding:10px;font-family:'Microsoft JhengHei','PingFang TC','Noto Sans TC',sans-serif;font-size:12.3px;text-align:left;overflow:hidden;display:flex;flex-direction:column;justify-content:center"><div style="font-weight:700;font-size:15px;color:var(--ink);line-height:1.3">best effort：選配 review-log／ADR、清理 active／TEMP</div><div style="margin-top:3px;color:var(--muted);line-height:1.38">失敗只留 warning，不反轉核心結案</div></div></foreignObject><rect x="1084.0" y="4321.0" width="38.0" height="20" rx="10" fill="var(--surface)" stroke="var(--amber)" stroke-width="1.5"/><text x="1103.0" y="4335.0" font-size="10.5" font-weight="700" fill="var(--amber)" text-anchor="middle" font-family="Consolas,monospace">選配</text><rect x="50.0" y="4440.0" width="1460.0" height="80.0" rx="12" fill="var(--green-soft)" stroke="var(--green)" stroke-width="2"/><foreignObject x="50.0" y="4440.0" width="1460.0" height="80.0"><div xmlns="http://www.w3.org/1999/xhtml" style="width:100%;height:100%;box-sizing:border-box;padding:10px;font-family:'Microsoft JhengHei','PingFang TC','Noto Sans TC',sans-serif;font-size:12.3px;text-align:left;overflow:hidden;display:flex;flex-direction:column;justify-content:center"><div style="font-weight:700;font-size:15px;color:var(--ink);line-height:1.3">human_state = ended</div><div style="margin-top:3px;color:var(--muted);line-height:1.38">consensus-finalized／user-arbitrated-closed／abandoned／superseded</div></div></foreignObject></svg>
+    </div>
+    </div>
+
+    <script>
+    (function(){
+      // 分頁邊界：從 tools/generate-flow-diagram.py 實際產出的節點座標量出來，
+      // 不是憑感覺切；邊界之間刻意留一點重疊（例如 730/770、2370/2420），
+      // 避免剛好切在跨欄節點（如 terminate／manual_recovery_required 側欄）中間。
+      var svg = document.getElementById('flowsvg');
+      if (!svg) return;
+      var tabs = [
+        [0, 0,    1940, 4580],  // 全圖
+        [0, 0,    1940, 770],   // Step 0　案件路由
+        [0, 730,  1940, 990],   // Step 1–2　送審與確認
+        [0, 1680, 1940, 740],   // Step 3　Reviewer 呼叫
+        [0, 2370, 1940, 580],   // Step 4a　MATERIAL_REQUIRED 補件迴圈
+        [0, 2700, 1940, 900],   // Step 4b　ISSUES_RAISED／cap／仲裁
+        [0, 3470, 1940, 1110]   // Step 5　核准與收尾
+      ];
+      var wrap = svg.closest('.diagram-wrap');
+      var btns = Array.prototype.slice.call(document.querySelectorAll('.diagram-tabs button'));
+      btns.forEach(function(btn){
+        btn.addEventListener('click', function(){
+          var i = parseInt(btn.getAttribute('data-tab'), 10);
+          svg.setAttribute('viewBox', tabs[i].join(' '));
+          btns.forEach(function(b){ b.setAttribute('aria-current', b === btn ? 'true' : 'false'); });
+          if (wrap) { wrap.scrollTop = 0; wrap.scrollLeft = 0; }
+        });
+      });
+    })();
+    </script>
+
+    <p class="lead" style="margin-top:12px"><strong>怎麼讀決策依據：</strong>「Step 0B 案件路由」的依據是 Producer 對主題／範圍的語意比對，腳本本身不判斷語意，只認 Producer 送進來的路由結果；「N ＝ cap？」的依據是完成 final outcome 的輪數是否已達使用者核准的絕對上限（不是嘗試次數，MATERIAL_REQUIRED 的同輪補件不計入）；「使用者核准（綁定 exact hash）？」的依據是使用者是否認可 <code>final_package_hash</code> 對應的完整內容，不是口頭同意結論。</p>
+
+    <div class="table-wrap" style="margin-top:14px">
+      <table>
+        <thead><tr><th>資料／artifact</th><th>建立於</th><th>用途</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">package hash</td><td>confirm-package</td><td>完整 SHA-256，是送審 package 的身分；任一 byte 改變都要新 hash＋重新確認</td></tr>
+          <tr><td class="mono">review-state.json</td><td>每次原子推進</td><td>唯一權威 state；只有腳本／adapter 可寫，帶單調 revision</td></tr>
+          <tr><td>operation receipt</td><td>每次 Reviewer 呼叫（state_committed）</td><td>記錄該次 operation_id、round、checkpoint、驗證結果，immutable</td></tr>
+          <tr><td>thread ID</td><td>thread_captured checkpoint</td><td>看到 <code>thread.started</code> 立即持久化，之後所有 resume 都認這個 ID</td></tr>
+          <tr><td>material request</td><td>MATERIAL_REQUIRED</td><td>append-only，每案最多三段 excerpt，不改 base package</td></tr>
+          <tr><td>ledger snapshot</td><td>每個 completed round</td><td>immutable，自帶 package hash 與 operation refs，不能靠 round 順序猜來源</td></tr>
+          <tr><td>final package</td><td>Step 5a.1</td><td>最終決策＋完整 SHA-256；使用者核准綁定這個 exact hash</td></tr>
+          <tr><td>handoff packet</td><td>Step 5a（核准後）</td><td>review_id／final_package_hash／結論／target scope／follow_up_*，不代表 target 已修改</td></tr>
+          <tr><td>history bundle</td><td>Step 5a</td><td>實體複製 final package／handoff／ledger 引用閉包，任何仍被引用的證據不得刪除</td></tr>
+          <tr><td class="mono">completion.json</td><td>Step 5a（最後一步）</td><td>唯一有效的 <code>ended</code> 權威證據；沒有它就不算結束</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section aria-labelledby="branch-title">
+    <h2 id="branch-title">三條真正會回圈或停下的分支</h2>
+    <div class="branches">
+      <article class="branch material"><span class="pill amber">MATERIAL_REQUIRED</span><h3>缺少特定材料</h3><ul><li>建立 append-only request。</li><li><code>provide_material_or_unavailable</code>：使用者／Producer 一次決定提供已整理 excerpt（每案最多三段），或標 unavailable。</li><li>回同一 round；不改 base package、不增加 round。</li></ul></article>
+      <article class="branch issue"><span class="pill red">ISSUES_RAISED</span><h3>問題仍未解決</h3><ul><li>N &lt; cap：Fix／Pushback 後再送下一 final round。</li><li>N = cap：停止，等使用者仲裁。</li><li>新增實質輸入：明確增加 cap，回 Step 1–2 建立新完整 package 並重新確認。</li></ul></article>
+      <article class="branch consensus"><span class="pill green">CONSENSUS</span><h3>Reviewer 已同意</h3><ul><li>Producer 編譯 final package。</li><li>使用者確認 exact hash。</li><li>產生 handoff、history 與 completion marker。</li><li>審查結束，但實作是否完成另看 handoff。</li></ul></article>
+    </div>
+  </section>
+
+  <section aria-labelledby="recovery-title">
+    <h2 id="recovery-title">中斷後怎麼判斷下一步</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>看到的可靠證據</th><th>安全動作</th><th>禁止事項</th></tr></thead>
+        <tbody>
+          <tr><td>尚未完成 package 確認</td><td>重新整理並讓使用者確認。</td><td>不得宣稱能從準備中間點恢復。</td></tr>
+          <tr><td>只有 <code>prepared</code>，且可證明尚未 launch</td><td>安全重跑同一 operation。</td><td>不能只靠「沒有結果」推論未啟動。</td></tr>
+          <tr><td>已有 launch intent，但是否啟動不明</td><td>查 PID、events、thread；仍不明就 <code>manual_recovery</code>。</td><td>不得盲目重送。</td></tr>
+          <tr><td>已有 thread ID，沒有可信 final result</td><td>依保存的 events／result 狀態 resume 同一 thread。</td><td>不發明 recap 狀態，也不保證 Reviewer 能回報過去是否完成。</td></tr>
+          <tr><td>result 已驗證，state 尚未 commit</td><td>只做本地冪等 commit。</td><td>不得再次呼叫 Codex。</td></tr>
+          <tr><td>history 只有部分檔案，沒有有效 completion marker</td><td>從 active immutable artifacts 冪等補齊並驗 hash。</td><td>不得標示 ended 或先刪 active。</td></tr>
+          <tr><td>completion marker 有效</td><td>視為核心已結束；可重試選配整合與 cleanup。</td><td>cleanup warning 不得把案件倒退回 reviewing。</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section aria-labelledby="commands-title">
+    <h2 id="commands-title">腳本只提供五個入口</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>命令</th><th>用途</th><th>是否可寫入</th></tr></thead>
+        <tbody>
+          <tr><td><code>status</code></td><td>列出／驗證 active 與 history，提供 Step 0 路由證據。</td><td>否</td></tr>
+          <tr><td><code>confirm-package</code></td><td>在明確確認後安全建立或換入新的 immutable package。</td><td>只寫 Skill 自管資料</td></tr>
+          <tr><td><code>submit</code></td><td>依目前 next_action 接受一份有 schema 的 Producer／使用者輸入。</td><td>只寫 Skill 自管資料</td></tr>
+          <tr><td><code>advance</code></td><td>機械推進到下一個判斷停點；可安全重跑，但不盲目重送。</td><td>state、artifacts、Codex thread</td></tr>
+          <tr><td><code>terminate</code></td><td>經明確授權後以 abandoned／superseded 結案並保留歷史。</td><td>terminal history；不刪證據</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section aria-labelledby="removed-title">
+    <h2 id="removed-title">首版明確移除或延後</h2>
+    <div class="removed" aria-label="首版排除項目">
+      <span>runtime Subagent</span><span>manifest.json</span><span>agency-agents</span><span>checklist-map</span><span>source audit</span><span>blind pass</span><span>direct-write</span><span>patch / rollback engine</span><span>Codex → Claude reverse adapter</span>
+    </div>
+  </section>
+
+  <section aria-labelledby="truth-title">
+    <h2 id="truth-title">目前可以相信什麼／還不能相信什麼</h2>
+    <div class="truth-grid">
+      <article class="truth yes"><h3>可以相信</h3><ul><li>Step 0–5 的設計選擇已由使用者確認，並已於 2026-08-17 落地成正式 <code>SKILL.md</code>。</li><li>首版角色、資料所有權、停點與恢復原則已閉合。</li><li>handoff-only、五個命令（<code>status</code>／<code>confirm-package</code>／<code>advance</code>／<code>submit</code>／<code>terminate</code>）與 artifact closure 已實作完成，非僅止於目標。</li><li>PowerShell CLI、JSON Schema、history bundle 均已存在，92 項自動化測試（Pester，使用假 reviewer）全數通過。</li><li>至少一次真實 Codex 呼叫已驗證：confirm-package → advance → 正確寫回 ledger，含工作目錄隔離機制本身有效。</li><li>所有「已驗證」與「設計推論」仍必須分開描述——下面兩項就是目前還屬於「設計推論」的部分。</li></ul></article>
+      <article class="truth no"><h3>還不能相信</h3><ul><li>Codex thread 在「真的發生」的中斷（例如流程跑到一半、程序被強制中止）後一定能 resume——目前只驗證過正常結束的單輪呼叫，沒有實際模擬過中途中斷。</li><li>多輪 Fix／Pushback、cap 仲裁、material 補件迴圈已用真實 Codex 走過完整 E2E——這些邏輯本身已被 92 項自動化測試覆蓋（對象是假 reviewer），但只有最簡單的單輪路徑實際對過真實 Codex；多輪、cap 到達、補件這幾條路徑對真實 Codex 的行為仍待驗證。</li><li>任何 target 已被安全修改；首版本來就不修改 target，這點不受上述進度影響。</li></ul></article>
+    </div>
+  </section>
+
+  <section class="handoff" aria-labelledby="handoff-title">
+    <h2 id="handoff-title">使用者核准 Step 5 時應看到的話</h2>
+    <p>「審查決策已完成；核准已綁定此版本，handoff 已保存，目前沒有修改任何 target。」</p>
+    <p>若 handoff 標示 <code>follow_up_required: true</code>，還必須接著說明：尚待哪一項 implementation 或 user action，以及後續執行前要重新檢查哪個 target baseline。</p>
+  </section>
+
+  <footer>
+    2026-08-16 完成設計，2026-08-17 完成實作、92 項自動化測試與一次真實 Codex 端到端驗證，並已同步進正式 <code>SKILL.md</code>。設計依據與實作過程詳見 GitHub repo 內的 <code>CONTEXT.md</code>、<code>docs/adr/</code> 與 <code>docs/session-log.md</code>：<a href="https://github.com/JuiMingWang/review-collaboration">github.com/JuiMingWang/review-collaboration</a>。本頁英文版：<a href="./index.en.html">index.en.html</a>。
+  </footer>
+</main>
+</body>
+</html>

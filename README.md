@@ -1,5 +1,7 @@
 # review-collaboration
 
+*[繁體中文](./README.zh-TW.md)*
+
 A [Claude Code](https://claude.com/claude-code) skill that puts a conclusion you and Claude just reached in front of an **independent AI reviewer** (currently [Codex CLI](https://github.com/openai/codex)) before you commit to it — a second, genuinely different set of eyes, not a rubber stamp.
 
 ## Why
@@ -37,6 +39,15 @@ That's it — scripts, schemas, and tests all ship alongside `SKILL.md` in this 
 ## Use
 
 Inside a Claude Code session, once you and Claude have a conclusion worth a second opinion, just ask for it explicitly — e.g. *"review this with review-collaboration"*. The skill never triggers itself (`disable-model-invocation: true` in `SKILL.md`'s frontmatter) — it only runs when you ask.
+
+## Diagram
+
+A detailed, step-by-step control-flow diagram (all four roles, every branch and recovery path) is browsable live:
+
+- **English:** https://juimingwang.github.io/review-collaboration/diagram/index.en.html
+- **繁體中文：** https://juimingwang.github.io/review-collaboration/diagram/index.zh-TW.html
+
+The diagram is generated deterministically from [`tools/generate-flow-diagram.py`](./tools/generate-flow-diagram.py) — re-run it after editing the layout rather than hand-tuning coordinates.
 
 ## Status
 
