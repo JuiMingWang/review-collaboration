@@ -24,7 +24,7 @@ Not for: reviewing a file/spec that already exists on disk with no live discussi
 
 ## Requirements
 
-- Windows, PowerShell 5.1 (all encoding/argument-binding workarounds in this codebase are written for it specifically — see `docs/session-log.md` for the exact bugs hit and fixed).
+- Windows, PowerShell 5.1 (all encoding/argument-binding workarounds in this codebase are written for it specifically).
 - [Codex CLI](https://github.com/openai/codex) installed and authenticated (`codex --version` should work in a fresh shell).
 - Claude Code.
 
@@ -40,18 +40,8 @@ That's it — scripts, schemas, and tests all ship alongside `SKILL.md` in this 
 
 Inside a Claude Code session, once you and Claude have a conclusion worth a second opinion, just ask for it explicitly — e.g. *"review this with review-collaboration"*. The skill never triggers itself (`disable-model-invocation: true` in `SKILL.md`'s frontmatter) — it only runs when you ask.
 
-## Diagram
-
-A detailed, step-by-step control-flow diagram (all four roles, every branch and recovery path) is browsable live:
-
-- **English:** https://juimingwang.github.io/review-collaboration/diagram/index.en.html
-- **繁體中文：** https://juimingwang.github.io/review-collaboration/diagram/index.zh-TW.html
-
-The diagram is generated deterministically from [`tools/generate-flow-diagram.py`](./tools/generate-flow-diagram.py) — re-run it after editing the layout rather than hand-tuning coordinates.
-
 ## Status
 
-- 92 automated Pester tests, all passing (`tests/`).
 - Verified once end-to-end against the real Codex CLI, including the working-directory isolation guarantee (confirmed via the reviewer's own logs that its filesystem-exploration attempts were blocked).
 - Early / lightly used — `docs/review-log.md` in a target project accumulates real usage over time; treat conclusions from this skill as a structured second opinion, not a proven-calibrated instrument yet (see the "Known limitation" note near the top of `SKILL.md`).
 - Design rationale for every mechanism lives in [`CONTEXT.md`](./CONTEXT.md) and [`docs/adr/`](./docs/adr/) — if something in `SKILL.md` looks arbitrary, that's where the "why" is.

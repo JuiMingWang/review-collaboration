@@ -5,9 +5,18 @@ SKILL.md.backup-*
 # 萬一有人直接在這個 repo 自己的資料夾裡試跑，狀態檔不該進版本控制
 .review-collaboration/
 
-# Python 工具（tools/generate-flow-diagram.py）執行後的快取
-tools/__pycache__/
-*.pyc
-
-# Pester 測試若在本機留下暫存輸出
-tests/**/*.tmp-*
+# --- 以下為開發過程副檔案：本機保留、不隨公開 repo 上傳 ---
+# 自動化測試（Pester）：不是執行 skill 的必要內容
+tests/
+# 開發規劃/紀錄類文件：session-log、測試計畫、checklist 草稿等
+docs/session-log.md
+docs/codex-integration-test-plan.md
+docs/consistency-checklist.md
+docs/planB-task-spec.md
+docs/skillmd-integration-design.md
+# eval 框架設定檔（開發時用，非 skill 執行必要）
+evals/
+# 流程圖產生工具與輸出、其他開發用小工具
+tools/
+# 流程圖說明頁（GitHub Pages 用），連同上面的 tools/ 一起下架
+diagram/
