@@ -1,4 +1,4 @@
-# 清單擬定的參考來源：不用 agency-agents 自帶檢索，改延後自建地圖
+# 清單擬定的參考來源：不用 agency-agents 自帶檢索，改延後自建地圖 (目前已經不採用agency-agents)
 
 **Status**: superseded by [ADR-0007](./0007-reviewcollab-checklist-reference-source-pluggable.md)
 
