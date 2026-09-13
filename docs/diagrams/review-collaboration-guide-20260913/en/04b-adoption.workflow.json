@@ -1,0 +1,177 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "04b | What the host receives and how it decides",
+    "quality_profile": "showcase",
+    "locale": "en"
+  },
+  "lanes": [
+    {
+      "id": "return",
+      "label": "Delegate's return: concise reporting must still account for material issues"
+    },
+    {
+      "id": "accept",
+      "label": "Host acceptance: check the current task and actual artifact"
+    },
+    {
+      "id": "record",
+      "label": "Save the decision and end the ordinary review"
+    }
+  ],
+  "mainPath": [
+    "brief",
+    "integrity",
+    "current",
+    "decision",
+    "note"
+  ],
+  "nodes": [
+    {
+      "id": "brief",
+      "lane": "return",
+      "col": 0,
+      "type": "messagebus",
+      "label": "1 Account for material issues",
+      "sublabel": "Reasons or unresolved status; merge repeats",
+      "width": 280,
+      "height": 92
+    },
+    {
+      "id": "integrity",
+      "lane": "return",
+      "col": 2,
+      "type": "backend",
+      "label": "2 status checks completion",
+      "sublabel": "reply-ready: receipt, not content approval",
+      "width": 280,
+      "height": 92
+    },
+    {
+      "id": "current",
+      "lane": "return",
+      "col": 5,
+      "type": "frontend",
+      "label": "3 Check goal and artifact",
+      "sublabel": "Check key sources and tool failures",
+      "width": 280,
+      "height": 92
+    },
+    {
+      "id": "clarify",
+      "lane": "accept",
+      "col": 0,
+      "type": "backend",
+      "label": "Clarify adoption-critical gaps",
+      "sublabel": "State exactly what is needed; continue at 04a",
+      "width": 280,
+      "height": 92
+    },
+    {
+      "id": "premise",
+      "lane": "accept",
+      "col": 2,
+      "type": "backend",
+      "label": "Record a premise-change note",
+      "sublabel": "Increment topic revision; reassess old replies",
+      "width": 280,
+      "height": 92
+    },
+    {
+      "id": "decision",
+      "lane": "accept",
+      "col": 5,
+      "type": "frontend",
+      "label": "4 Accept, partly accept, reject",
+      "sublabel": "Weigh evidence and applicability",
+      "width": 280,
+      "height": 92
+    },
+    {
+      "id": "ordinaryEnd",
+      "lane": "record",
+      "col": 2,
+      "type": "backend",
+      "label": "6 Ordinary review ends",
+      "sublabel": "Reviewer, settings, results, limits",
+      "width": 280,
+      "height": 92
+    },
+    {
+      "id": "note",
+      "lane": "record",
+      "col": 5,
+      "type": "database",
+      "label": "5 note adoption and reasons",
+      "sublabel": "Seen observations, sources, skill revision",
+      "width": 280,
+      "height": 92
+    }
+  ],
+  "edges": [
+    {
+      "from": "brief",
+      "to": "integrity",
+      "label": "Precise sources"
+    },
+    {
+      "from": "integrity",
+      "to": "current",
+      "label": "Receipt complete"
+    },
+    {
+      "from": "current",
+      "to": "decision",
+      "label": "Premises unchanged"
+    },
+    {
+      "from": "current",
+      "to": "premise",
+      "label": "Premises changed",
+      "role": "return",
+      "route": "drop"
+    },
+    {
+      "from": "premise",
+      "to": "decision",
+      "label": "After reassessment"
+    },
+    {
+      "from": "decision",
+      "to": "clarify",
+      "label": "Material gap remains",
+      "role": "return"
+    },
+    {
+      "from": "decision",
+      "to": "note",
+      "label": "Adoption decision made"
+    },
+    {
+      "from": "note",
+      "to": "ordinaryEnd",
+      "label": "Save and end",
+      "role": "return"
+    }
+  ],
+  "cards": [
+    {
+      "title": "What the host needs",
+      "items": [
+        "Account for every decision-changing question and objection; merged duplicates must not hide unresolved issues.",
+        "Hashes cannot prove semantic completeness; missing context may still require original material.",
+        "The final report also retains material disagreement; agreeing is not required."
+      ],
+      "dot": "cyan"
+    },
+    {
+      "title": "Maintenance is a separate request",
+      "items": [
+        "No extra per-run evaluation or automatic skill edit. Use 07 only when the user requests maintenance.",
+        "Communication authority does not authorize edits or publication. A note revision conflict cannot be overwritten."
+      ],
+      "dot": "amber"
+    }
+  ]
+}

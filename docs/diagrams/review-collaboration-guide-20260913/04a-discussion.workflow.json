@@ -1,0 +1,175 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "04a｜代理如何查證、追問與停止討論",
+    "quality_profile": "showcase"
+  },
+  "lanes": [
+    {
+      "id": "discuss",
+      "label": "信件正文由 reviewer 自由回答，代理負責查證"
+    },
+    {
+      "id": "gap",
+      "label": "先解決能在授權資料中找到的缺口"
+    },
+    {
+      "id": "return",
+      "label": "只為可能改變選擇的問題增加往返"
+    }
+  ],
+  "mainPath": [
+    "send",
+    "claim",
+    "nextDecision"
+  ],
+  "nodes": [
+    {
+      "id": "send",
+      "lane": "discuss",
+      "col": 0,
+      "type": "messagebus",
+      "label": "1 exchange 寄信並取得回信",
+      "sublabel": "收據須可用；正常收發見 05，異常見 06",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "claim",
+      "lane": "discuss",
+      "col": 1,
+      "type": "backend",
+      "label": "2 核對重要主張與支持依據",
+      "sublabel": "成立與否、適用條件及是否值得做分開判斷",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "nextDecision",
+      "lane": "discuss",
+      "col": 2,
+      "type": "security",
+      "label": "3 還需要 reviewer 的貢獻？",
+      "sublabel": "必須能指出缺什麼，以及如何改變選擇",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "hostQuestion",
+      "lane": "gap",
+      "col": 0,
+      "type": "frontend",
+      "label": "合併成具體問題回問主端",
+      "sublabel": "限重要未知、使用者取捨或新增授權",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "lookup",
+      "lane": "gap",
+      "col": 1,
+      "type": "backend",
+      "label": "先查相關且已授權的來源",
+      "sublabel": "可自行比較有理由、可能改變選擇的替代案",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "conditional",
+      "lane": "return",
+      "col": 0,
+      "type": "backend",
+      "label": "缺口未解：保留條件與未知",
+      "sublabel": "可先回報有支持的部分，不補造背景",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "brief",
+      "lane": "return",
+      "col": 1,
+      "type": "messagebus",
+      "label": "4 整理結果，交圖 04b 採納",
+      "sublabel": "支持證據、反證、條件與分歧均保留",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "followup",
+      "lane": "return",
+      "col": 2,
+      "type": "backend",
+      "label": "用新 exchange 續談",
+      "sublabel": "只帶必要增量或原文；回步驟 1",
+      "width": 220,
+      "height": 92
+    }
+  ],
+  "edges": [
+    {
+      "from": "send",
+      "to": "claim"
+    },
+    {
+      "from": "claim",
+      "to": "nextDecision",
+      "label": "依據已核對"
+    },
+    {
+      "from": "claim",
+      "to": "lookup",
+      "label": "需查證"
+    },
+    {
+      "from": "lookup",
+      "to": "nextDecision",
+      "label": "本機已解答"
+    },
+    {
+      "from": "lookup",
+      "to": "hostQuestion",
+      "label": "仍需主端資訊",
+      "role": "return"
+    },
+    {
+      "from": "hostQuestion",
+      "to": "conditional",
+      "label": "未補足時"
+    },
+    {
+      "from": "nextDecision",
+      "to": "brief",
+      "label": "不需要",
+      "role": "return"
+    },
+    {
+      "from": "nextDecision",
+      "to": "followup",
+      "label": "有選擇影響"
+    },
+    {
+      "from": "conditional",
+      "to": "brief",
+      "label": "標明限制"
+    }
+  ],
+  "cards": [
+    {
+      "title": "什麼值得再談",
+      "items": [
+        "缺少的依據、反例或替代方案，必須可能改變本次選擇且需要 reviewer。",
+        "主端補足資訊後回步驟 2；已授權材料可重用，遵守本次範圍及預算。"
+      ],
+      "dot": "cyan"
+    },
+    {
+      "title": "停止條件",
+      "items": [
+        "能交代支持結果與剩餘分歧就可結束；不用固定輪數或湊問題數。",
+        "原方案可行仍可比較實質替代案；風格偏好或重複意見不足以續談。"
+      ],
+      "dot": "amber"
+    }
+  ]
+}

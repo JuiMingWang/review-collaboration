@@ -1,0 +1,180 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "03 | Prepare a review letter and the delegate's handoff",
+    "quality_profile": "showcase",
+    "locale": "en"
+  },
+  "lanes": [
+    {
+      "id": "frame",
+      "label": "1–3: include the information that can change the decision"
+    },
+    {
+      "id": "authorize",
+      "label": "4–6: verify disclosure authority and project records"
+    },
+    {
+      "id": "handoff",
+      "label": "7–9: freeze this run and dispatch a real subagent"
+    }
+  ],
+  "mainPath": [
+    "question",
+    "history",
+    "letter",
+    "authorize"
+  ],
+  "nodes": [
+    {
+      "id": "question",
+      "lane": "frame",
+      "col": 0,
+      "type": "frontend",
+      "label": "1 Define question and limits",
+      "sublabel": "Include proposal and reasons, if one exists",
+      "width": 280,
+      "height": 92
+    },
+    {
+      "id": "history",
+      "lane": "frame",
+      "col": 2,
+      "type": "database",
+      "label": "2 Read relevant records",
+      "sublabel": "Index, topic, and relevant primary sources",
+      "width": 280,
+      "height": 92
+    },
+    {
+      "id": "letter",
+      "lane": "frame",
+      "col": 5,
+      "type": "backend",
+      "label": "3 Pair claims with evidence",
+      "sublabel": "Conditions, versions, contrary facts, gaps",
+      "width": 280,
+      "height": 92
+    },
+    {
+      "id": "authorize",
+      "lane": "authorize",
+      "col": 5,
+      "type": "security",
+      "label": "4 Explain recipient and material",
+      "sublabel": "New private sources need added authority",
+      "width": 280,
+      "height": 92
+    },
+    {
+      "id": "project",
+      "lane": "authorize",
+      "col": 2,
+      "type": "backend",
+      "label": "5 project-init records",
+      "sublabel": "Keep records outside the skill package",
+      "width": 280,
+      "height": 92
+    },
+    {
+      "id": "topic",
+      "lane": "authorize",
+      "col": 0,
+      "type": "backend",
+      "label": "6 Reuse the same topic",
+      "sublabel": "New question: create and link a topic",
+      "width": 280,
+      "height": 92
+    },
+    {
+      "id": "run",
+      "lane": "handoff",
+      "col": 0,
+      "type": "backend",
+      "label": "7 run-open freezes settings",
+      "sublabel": "Host, reviewer, route, settings, timeout",
+      "width": 280,
+      "height": 92
+    },
+    {
+      "id": "packet",
+      "lane": "handoff",
+      "col": 2,
+      "type": "backend",
+      "label": "8 Prepare bounded handoff",
+      "sublabel": "Procedure, IDs, read and send scopes",
+      "width": 280,
+      "height": 92
+    },
+    {
+      "id": "delegate",
+      "lane": "handoff",
+      "col": 5,
+      "type": "backend",
+      "label": "9 Dispatch native subagent",
+      "sublabel": "Delegate detailed work; continue at 04a",
+      "width": 280,
+      "height": 92
+    }
+  ],
+  "edges": [
+    {
+      "from": "question",
+      "to": "history"
+    },
+    {
+      "from": "history",
+      "to": "letter",
+      "label": "Relevant background"
+    },
+    {
+      "from": "letter",
+      "to": "authorize"
+    },
+    {
+      "from": "authorize",
+      "to": "project",
+      "label": "Authorized scope",
+      "role": "return"
+    },
+    {
+      "from": "project",
+      "to": "topic",
+      "label": "Keep project ID",
+      "role": "return"
+    },
+    {
+      "from": "topic",
+      "to": "run"
+    },
+    {
+      "from": "run",
+      "to": "packet",
+      "label": "Keep run ID"
+    },
+    {
+      "from": "packet",
+      "to": "delegate",
+      "label": "No full host transcript"
+    }
+  ],
+  "cards": [
+    {
+      "title": "Sufficient context without a transcript dump",
+      "items": [
+        "Include decision-changing evidence and conditions. Explain what each lookup pointer can answer.",
+        "A short relevant original excerpt may avoid repeated summaries and extra questions."
+      ],
+      "dot": "cyan"
+    },
+    {
+      "title": "Boundaries before sending",
+      "items": [
+        "Keep material unsent when required authority is missing. Local readability is not permission to disclose.",
+        "Supply steps 3–4 or a readable path and revision. The delegate cannot prove that no context was omitted."
+      ],
+      "dot": "amber"
+    }
+  ]
+}

@@ -1,0 +1,174 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "02a｜確認主端能力與 reviewer 選擇",
+    "quality_profile": "showcase"
+  },
+  "lanes": [
+    {
+      "id": "identify",
+      "label": "主端準備：工具身分與已保存偏好"
+    },
+    {
+      "id": "route",
+      "label": "判斷路線是否仍可用"
+    },
+    {
+      "id": "ready",
+      "label": "送審前的結果"
+    }
+  ],
+  "mainPath": [
+    "capability",
+    "resolve",
+    "choice"
+  ],
+  "nodes": [
+    {
+      "id": "capability",
+      "lane": "identify",
+      "col": 0,
+      "type": "frontend",
+      "label": "1 確認真正原生 subagent",
+      "sublabel": "辨認主工具與可追溯的 host session key",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "resolve",
+      "lane": "identify",
+      "col": 1,
+      "type": "backend",
+      "label": "2 resolve 讀取已存選擇",
+      "sublabel": "有預設就沿用；沒有則請使用者選一名",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "choice",
+      "lane": "identify",
+      "col": 2,
+      "type": "security",
+      "label": "3 核對 reviewer 工具身分",
+      "sublabel": "必須與主工具不同；換模型仍算同工具",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "blocked",
+      "lane": "route",
+      "col": 0,
+      "type": "security",
+      "label": "停止送信並保留草稿",
+      "sublabel": "subagent-unavailable；先補足主端能力",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "connect",
+      "lane": "ready",
+      "col": 1,
+      "type": "backend",
+      "label": "進入首次接入或重驗",
+      "sublabel": "依圖 02b 核對入口、登入及資料範圍",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "routeCheck",
+      "lane": "route",
+      "col": 1,
+      "type": "security",
+      "label": "4 檢查已存路線與證據",
+      "sublabel": "入口、版本、參數、設定及必要能力",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "ready",
+      "lane": "ready",
+      "col": 2,
+      "type": "messagebus",
+      "label": "5 宣告本次 reviewer 與設定",
+      "sublabel": "可進圖 03；本輪 run 之後固定此快照",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "sameTool",
+      "lane": "route",
+      "col": 2,
+      "type": "security",
+      "label": "同工具自審：拒絕送信",
+      "sublabel": "保留草稿；需使用者選另一種工具",
+      "width": 220,
+      "height": 92
+    }
+  ],
+  "edges": [
+    {
+      "from": "capability",
+      "to": "resolve",
+      "label": "能力可用"
+    },
+    {
+      "from": "resolve",
+      "to": "choice",
+      "label": "已有或已選定"
+    },
+    {
+      "from": "choice",
+      "to": "routeCheck",
+      "label": "不同工具"
+    },
+    {
+      "from": "capability",
+      "to": "blocked",
+      "label": "缺原生代理",
+      "role": "error",
+      "variant": "security"
+    },
+    {
+      "from": "choice",
+      "to": "sameTool",
+      "label": "同工具",
+      "role": "error",
+      "variant": "security"
+    },
+    {
+      "from": "routeCheck",
+      "to": "ready",
+      "label": "證據仍有效"
+    },
+    {
+      "from": "routeCheck",
+      "to": "connect",
+      "label": "缺失、變動或失敗",
+      "role": "return"
+    },
+    {
+      "from": "connect",
+      "to": "ready",
+      "label": "02b 核對完成"
+    }
+  ],
+  "cards": [
+    {
+      "title": "選擇保存與設定",
+      "items": [
+        "單次 selection_override 不改預設；永久變更才用 profile-set。",
+        "profile-set 需 expected_revision；衝突不覆寫他人的選擇。"
+      ],
+      "dot": "cyan"
+    },
+    {
+      "title": "不能以名稱推論能力",
+      "items": [
+        "模型／thinking 預設不送 setter；未回報的實際值記 unknown。",
+        "缺件不自動安裝、不換 reviewer；新主 session 必須開新 run。"
+      ],
+      "dot": "amber"
+    }
+  ]
+}

@@ -1,0 +1,188 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "07｜有界改善：使用證據支持提案，再集中採用",
+    "quality_profile": "showcase"
+  },
+  "lanes": [
+    {
+      "id": "evidence",
+      "label": "使用者另外要求維護，才開始這個分支"
+    },
+    {
+      "id": "decision",
+      "label": "將改善選項變成可核對的具體差異"
+    },
+    {
+      "id": "finish",
+      "label": "限定修改與後續觀察，不無限尋找更好的寫法"
+    }
+  ],
+  "mainPath": [
+    "request",
+    "cause",
+    "proposal"
+  ],
+  "nodes": [
+    {
+      "id": "request",
+      "lane": "evidence",
+      "col": 0,
+      "type": "database",
+      "label": "1 讀選定的實際使用觀察",
+      "sublabel": "相關 adoption、使用者修正、證據及版本",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "cause",
+      "lane": "evidence",
+      "col": 1,
+      "type": "backend",
+      "label": "2 判斷原因是否在 skill",
+      "sublabel": "先查資訊當時可得、可能改變判斷，再歸因",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "proposal",
+      "lane": "evidence",
+      "col": 2,
+      "type": "backend",
+      "label": "3 比較不改、刪除、合併及改寫",
+      "sublabel": "必要才新增；列原文、具體差異與取捨",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "unchanged",
+      "lane": "decision",
+      "col": 0,
+      "type": "backend",
+      "label": "沒有可行修改就維持不變",
+      "sublabel": "有根據處理選定觀察；不硬找規則增加",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "ledger",
+      "lane": "decision",
+      "col": 1,
+      "type": "database",
+      "label": "4 保存合併後的改善提案",
+      "sublabel": "record root / skill-improvements.md",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "batch",
+      "lane": "decision",
+      "col": 2,
+      "type": "external",
+      "label": "5 使用者集中決定",
+      "sublabel": "採用、延後或拒絕；記錄原因",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "later",
+      "lane": "finish",
+      "col": 0,
+      "type": "backend",
+      "label": "下一次受要求維護才回看",
+      "sublabel": "後續真實結果可支持、無法判斷或顯示退步",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "stop",
+      "lane": "finish",
+      "col": 1,
+      "type": "backend",
+      "label": "7 核對已採用差異後結束",
+      "sublabel": "檢查引用與版本；更多可能性不重開本輪",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "apply",
+      "lane": "finish",
+      "col": 2,
+      "type": "backend",
+      "label": "6 核對基準、備份、只改採用項",
+      "sublabel": "既有討論沿用舊版；之後的使用套用新版",
+      "width": 220,
+      "height": 92
+    }
+  ],
+  "edges": [
+    {
+      "from": "request",
+      "to": "cause"
+    },
+    {
+      "from": "cause",
+      "to": "proposal",
+      "label": "有指引改動依據"
+    },
+    {
+      "from": "cause",
+      "to": "unchanged",
+      "label": "沒有可行證據",
+      "role": "return"
+    },
+    {
+      "from": "proposal",
+      "to": "ledger",
+      "label": "合併重複提案",
+      "role": "return"
+    },
+    {
+      "from": "ledger",
+      "to": "batch",
+      "label": "具體差異可審"
+    },
+    {
+      "from": "batch",
+      "to": "apply",
+      "label": "已採用"
+    },
+    {
+      "from": "batch",
+      "to": "stop",
+      "label": "延後或拒絕",
+      "role": "return"
+    },
+    {
+      "from": "apply",
+      "to": "stop",
+      "label": "限定核對完成",
+      "role": "return"
+    },
+    {
+      "from": "stop",
+      "to": "later",
+      "label": "有新證據或新範圍",
+      "role": "return"
+    }
+  ],
+  "cards": [
+    {
+      "title": "收斂與改版界線",
+      "items": [
+        "區分背景、工具、局部取捨與指引問題；新條件或原因未明如實記錄。",
+        "若目前基準已改變提案意思，先修提案；安裝及發布另有範圍。"
+      ],
+      "dot": "cyan"
+    },
+    {
+      "title": "不是每用一次就分析或加規則",
+      "items": [
+        "普通審查只附已見觀察；維護不要求另叫 reviewer 或跑模型測試。",
+        "計算實際同時載入的指引成本；沒有測量就記未知，沒有回報不等於成功。"
+      ],
+      "dot": "amber"
+    }
+  ]
+}

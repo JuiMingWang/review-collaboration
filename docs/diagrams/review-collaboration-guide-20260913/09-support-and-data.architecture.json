@@ -1,0 +1,214 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "09｜配套工具、私人紀錄與可分享的檔案",
+    "quality_profile": "showcase",
+    "viewBox": [
+      1030,
+      480
+    ]
+  },
+  "components": [
+    {
+      "id": "records",
+      "type": "database",
+      "label": "各專案的信件與採納紀錄",
+      "sublabel": ".review-collaboration/",
+      "tag": "project → topic → run → exchange",
+      "pos": [
+        40,
+        30
+      ],
+      "size": [
+        250,
+        84
+      ]
+    },
+    {
+      "id": "export",
+      "type": "backend",
+      "label": "只匯出明列的 48 個來源檔",
+      "sublabel": "scripts/export-clean.ps1",
+      "tag": "另產 release-manifest.json；不發布",
+      "pos": [
+        390,
+        30
+      ],
+      "size": [
+        250,
+        84
+      ]
+    },
+    {
+      "id": "dist",
+      "type": "messagebus",
+      "label": "可分享的乾淨技能副本",
+      "sublabel": "dist/ 下的指定版本資料夾",
+      "tag": "不含私人信件、路線與 node_modules",
+      "pos": [
+        740,
+        30
+      ],
+      "size": [
+        250,
+        84
+      ]
+    },
+    {
+      "id": "tests",
+      "type": "backend",
+      "label": "核對資料契約與 Windows 行為",
+      "sublabel": "tests/run-offline.mjs",
+      "tag": "tests/run-windows.ps1",
+      "pos": [
+        40,
+        170
+      ],
+      "size": [
+        250,
+        84
+      ]
+    },
+    {
+      "id": "source",
+      "type": "backend",
+      "label": "唯一維護的完整技能套件",
+      "sublabel": "skills/review-collaboration/",
+      "tag": "SKILL、references、templates、scripts",
+      "pos": [
+        390,
+        170
+      ],
+      "size": [
+        250,
+        84
+      ]
+    },
+    {
+      "id": "argv",
+      "type": "backend",
+      "label": "可選：把固定 argv 交給原生 CLI",
+      "sublabel": "argv-launcher.mjs · ArgvLauncher.cs",
+      "tag": "build-argv-launcher.ps1 建立 executable",
+      "pos": [
+        740,
+        170
+      ],
+      "size": [
+        250,
+        84
+      ]
+    },
+    {
+      "id": "lock",
+      "type": "security",
+      "label": "原子短鎖：避免同時覆寫紀錄",
+      "sublabel": "windows-lock.mjs · LockTransaction.cs",
+      "tag": "build-lock-helper.ps1 建立執行工具",
+      "pos": [
+        40,
+        310
+      ],
+      "size": [
+        250,
+        84
+      ]
+    },
+    {
+      "id": "private",
+      "type": "database",
+      "label": "本機路線、偏好與執行產物",
+      "sublabel": "套件內 _private/",
+      "tag": "runtime / work / operations；不公開",
+      "pos": [
+        390,
+        310
+      ],
+      "size": [
+        250,
+        84
+      ]
+    },
+    {
+      "id": "native",
+      "type": "external",
+      "label": "adapter 要啟動的原生 CLI",
+      "sublabel": "REVIEW_LAUNCH_TARGET / REVIEW_LAUNCH_ARGV",
+      "tag": "只在 adapter 缺額外參數入口時採用",
+      "pos": [
+        740,
+        310
+      ],
+      "size": [
+        250,
+        84
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "from": "source",
+      "to": "export",
+      "label": "準備分享時",
+      "variant": "emphasis"
+    },
+    {
+      "from": "export",
+      "to": "dist",
+      "label": "乾淨副本",
+      "variant": "emphasis"
+    },
+    {
+      "from": "source",
+      "to": "records",
+      "label": "依 project root 讀寫"
+    },
+    {
+      "from": "tests",
+      "to": "source",
+      "label": "驗證時檢查",
+      "labelDy": 28
+    },
+    {
+      "from": "source",
+      "to": "private",
+      "label": "本機執行產物",
+      "labelDy": 24
+    },
+    {
+      "from": "lock",
+      "to": "private",
+      "label": "編譯短鎖工具"
+    },
+    {
+      "from": "source",
+      "to": "argv",
+      "label": "有此缺口才用"
+    },
+    {
+      "from": "argv",
+      "to": "native",
+      "label": "傳遞 argv 與原始串流",
+      "labelDy": 24
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "紀錄如何讀",
+      "items": [
+        "index 找相關 topic；run 固定當次設定，exchange 保存一封完整往返。",
+        "adoption 保存採納理由；skill-improvements.md 另放改善提案，不進工具 state。"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "配套不是每輪必跑的工作",
+      "items": [
+        "測試及匯出按需執行；offline 契約測試不等於真實 reviewer 效果。",
+        "_private/work 只是 cwd，沒有讀取隔離；launcher 的程序清理由外層 Job 負責。"
+      ]
+    }
+  ]
+}

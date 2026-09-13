@@ -1,0 +1,697 @@
+{
+  "snapshot": "R11-2026-09-13",
+  "scope": "explicit-publication-allowlist",
+  "excludes": "Private profiles, correspondence, credentials, evidence, caches, and build outputs",
+  "files": [
+    {
+      "path": ".gitattributes",
+      "bytes": 84,
+      "sha256": "0d2eb5281d818b243ab82d895c23ee8616188186b51b39f49152ea0866f13bca"
+    },
+    {
+      "path": ".gitignore",
+      "bytes": 109,
+      "sha256": "a605b699ac882c104eb513a75585915ea8ac0fb8fd256288b8645ee2b47fffb1"
+    },
+    {
+      "path": "LICENSE",
+      "bytes": 1068,
+      "sha256": "76e8b7b8d3ca006c9418251f33af513e6f405605d580ee6afe74c8077d858caf"
+    },
+    {
+      "path": "README.md",
+      "bytes": 10515,
+      "sha256": "fa3aeb58002412d10f0baedf240faa673437c9d8c56162497e3101aa9a32c4cd"
+    },
+    {
+      "path": "README.zh-TW.md",
+      "bytes": 9064,
+      "sha256": "1e7355d6dba725b2f5491c0c0f8bbbd0c2659af566f30146bbf7f471acc25906"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/01-overview.html",
+      "bytes": 708549,
+      "sha256": "775af0d8d233eb2eef0ae969a8725ecc1f7c99ed68dd46434de60ebb948a5f73"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/01-overview.png",
+      "bytes": 144023,
+      "sha256": "63f034383d948a509c7389c713e9f4cca5cba6be17f24b0e821ab19addad1495"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/01-overview.workflow.json",
+      "bytes": 3084,
+      "sha256": "1a664bfe7988bf5332be43fe086068ad0a77c4634fde21e6e12fa3b699d9395d"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/02a-selection.html",
+      "bytes": 713691,
+      "sha256": "0ed5f0cb1f91b6a20fcde3110d7bc6425cae3f6653130d8b7f96872af4be9cff"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/02a-selection.png",
+      "bytes": 179245,
+      "sha256": "a067df3a633624abe7878ce221f6a019c52bad6b61566559f6065b5313db3b6b"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/02a-selection.workflow.json",
+      "bytes": 4060,
+      "sha256": "6b329cf788acb32dde502077d7072cb1558bea831324813b828bd6928acf6e8a"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/02b-connection.html",
+      "bytes": 713197,
+      "sha256": "2eebf5e6002117f740b621fccc0e804dfe2f0e3944e4185fd79347e051dc3f99"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/02b-connection.png",
+      "bytes": 178258,
+      "sha256": "b2862e59652068afd831cf107717395f2406fb92d936ba00230c75908508d3d5"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/02b-connection.workflow.json",
+      "bytes": 4074,
+      "sha256": "7d9093b6165ee3fa5a76b15230e715264e807da85bba3d177c682aaa7e0e866c"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/03-handoff.html",
+      "bytes": 713737,
+      "sha256": "79a575f326e1f996dea91c09d88d5ba153171d6620bd1c340d6eff6e7d74f3ab"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/03-handoff.png",
+      "bytes": 185796,
+      "sha256": "4426505aa64fe668d0cfbcbb874083a847a4f75c5d56b2afc687febbd0c80142"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/03-handoff.workflow.json",
+      "bytes": 4268,
+      "sha256": "dd0169f417ab77763b1ad50b822e142b1b65168e4784b2d4e574d8b2554d2ae1"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/04a-discussion.html",
+      "bytes": 714486,
+      "sha256": "7b36187954870ba280af24cefdf7e40b2274bc249420db8778d74b93fac74483"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/04a-discussion.png",
+      "bytes": 174690,
+      "sha256": "515d32f2bf6802d12af48b1461e4bd51abe511375d6024a2faa0f4dc34d347fe"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/04a-discussion.workflow.json",
+      "bytes": 4192,
+      "sha256": "c80d2b8f546264891457b5542aebec0fbd61174f4572f0bb7000d19b95734bc8"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/04b-adoption.html",
+      "bytes": 714096,
+      "sha256": "d4ac4e02a4a18f56dc8949828c7abf4f58826f5cb9292e943d3b68679200e9e7"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/04b-adoption.png",
+      "bytes": 180804,
+      "sha256": "0feccc38e93a438c48ab74541501320d3f7aabf37a788492b09b8650e46b580a"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/04b-adoption.workflow.json",
+      "bytes": 4207,
+      "sha256": "c784a0fb7473abba9594ce700e7479b6b08017d2231b201b392d377f7f3ef008"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/05a-send.html",
+      "bytes": 706532,
+      "sha256": "23f9ab272a7f96a97f8272cb386bfe4a6c758d947de75eac10592cf71e5012eb"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/05a-send.png",
+      "bytes": 129563,
+      "sha256": "46d37b210a5312d12b34101d97fc3219a95bf8fc6558d1eb5d91317ebcc35df4"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/05a-send.sequence.json",
+      "bytes": 2511,
+      "sha256": "31ca057759108e33f87efa045c3b5b9741c1cea556fdc2a37454d77826805d83"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/05b-finalize.html",
+      "bytes": 706177,
+      "sha256": "246e2f7178eb19013f031c96cdf3dfd190987a587601e6f0a3eb9c1339c7524c"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/05b-finalize.png",
+      "bytes": 130126,
+      "sha256": "d61ff2deb0ffb23ce9bef35b54157aa5be0991c76d1c01fb4f1024c516c4a296"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/05b-finalize.sequence.json",
+      "bytes": 2482,
+      "sha256": "2398d0009990151e055e0da6a1d42b20beee4e743e5326e4e988093e677ffacc"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/06-recovery.html",
+      "bytes": 715126,
+      "sha256": "072f32d4f2cf91b187ac52277176e2e75c81aed6de17fea7fa391cb02bf9e4cf"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/06-recovery.png",
+      "bytes": 186136,
+      "sha256": "96a7cf79a292597caea5c7a73fe12f3c2a209205340589ca718ab6c09f350233"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/06-recovery.workflow.json",
+      "bytes": 4337,
+      "sha256": "abef78956a8a39ea990089a13157f9159879c480fb0a19793fdd600e06ca5c64"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/07-improvement.html",
+      "bytes": 715302,
+      "sha256": "74a32d456bae5464661b5f959eef2eaa7ddf7c323bb5a4bf2dd4f5dff06760e8"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/07-improvement.png",
+      "bytes": 181588,
+      "sha256": "97c2cd828e28ca2819377718ef40e7667f885e93e121e5a75e81a28d0818a2f3"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/07-improvement.workflow.json",
+      "bytes": 4569,
+      "sha256": "849536051362e09b78d921ba95ddbcd697fddb6e76674a445c6ce0d5fdb2dd36"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/08-programs.architecture.json",
+      "bytes": 4648,
+      "sha256": "d5facb6ab69a0a38145a5cef591fa5043107581435d39c7dbbe17d7b7e16b903"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/08-programs.html",
+      "bytes": 715526,
+      "sha256": "e8311e5615ce5f3f91e90031f15b0ab40ce8f552343df8136060d8e4a94a8a6a"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/08-programs.png",
+      "bytes": 178366,
+      "sha256": "47ee473b3048c347627693b90cad7d23c827b16c1d61f789351120e89dba1258"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/09-support-and-data.architecture.json",
+      "bytes": 4626,
+      "sha256": "bf754d5b3c3a57356ffe146601e419b635f1bb882b182947dbdaf80ed706e961"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/09-support-and-data.html",
+      "bytes": 715471,
+      "sha256": "5a65b5e113574d3916ce7a110d1b8a3e3539db9eccdacadfa66bd44b62106a6e"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/09-support-and-data.png",
+      "bytes": 189961,
+      "sha256": "486bcb42f7d0d60ac6ac5c84c4064123056df273d64ba422041ff4a9be9b6a7e"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/ARCHIFY-LICENSE.txt",
+      "bytes": 1102,
+      "sha256": "b799ab081703e7821ae5096d2c1abdf14bbdc75e8ea1c4045998c36ed6db9706"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/README.md",
+      "bytes": 5316,
+      "sha256": "5fab7f3c48f823027cf4da5f208f99a7c7e5cd851b54c41b07c99484051225ef"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/SOURCE-MAP.md",
+      "bytes": 7495,
+      "sha256": "ee767572eb64bde8b4045f7175af280191a87664b489f58189eab82235050fd6"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/TOOLS.md",
+      "bytes": 4489,
+      "sha256": "4c4ef7b114005b758532d3ecfe8cc914b63a7e5c9811ca3b4be98e66f07060bf"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/VALIDATION.md",
+      "bytes": 5185,
+      "sha256": "27045a9ca0f3e3a0b769953459d2daab99b22ebe56d7f87bbbff669c7a9d05f1"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/en/01-overview.html",
+      "bytes": 708782,
+      "sha256": "4c27238a453627de34050fbbf00f16f1f81f49a8a40421a779694db38c89496b"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/en/01-overview.png",
+      "bytes": 159046,
+      "sha256": "04729497fc61e101c6710646ee02fcd2425c2e57f5e43b9e4cc887dbbde44e29"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/en/01-overview.workflow.json",
+      "bytes": 3182,
+      "sha256": "d5e8f37368bbd70eafe22e996b7cfe1cb03817c94bc47838090fc859f3c9cdd7"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/en/02a-selection.html",
+      "bytes": 713645,
+      "sha256": "b219358340aaa2d4a9cb7949899d1463105436541a1a6d1d74a33bde446cd0bc"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/en/02a-selection.png",
+      "bytes": 176085,
+      "sha256": "1e2fb496fdc9d661bc20e6afef01045bf9d698fdcf1ecfcf159a7b5e243ee90e"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/en/02a-selection.workflow.json",
+      "bytes": 4035,
+      "sha256": "eca407106743a289eea7fd9fc9ec43e7e3686677df327d736ac913be5f9499f1"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/en/02b-connection.html",
+      "bytes": 712861,
+      "sha256": "9d487d792578be92566f1c0c5d8a476f0946eccee74224d41cbb7b1513b9d420"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/en/02b-connection.png",
+      "bytes": 180192,
+      "sha256": "793267f3cb0289bb82cd94d47d331caddfa02fd37e4f5274d1604c3d0b559e50"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/en/02b-connection.workflow.json",
+      "bytes": 4080,
+      "sha256": "4ff927cea574805e5107d593a89cadcd4fc23554a5de4d33b4d20d91c7b46908"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/en/03-handoff.html",
+      "bytes": 713553,
+      "sha256": "0a3bee381e74ec41a31085eed435df38838189cc60a5da91c4320d14e56b6fa0"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/en/03-handoff.png",
+      "bytes": 182388,
+      "sha256": "a6c8cbc8adfa23ea0ed8e94f04593ac0bcc22b07c864d5da76c358b7a3598729"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/en/03-handoff.workflow.json",
+      "bytes": 4259,
+      "sha256": "a3ef926e60e7a50078175109cf047518433141554050b19040403354d987b67a"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/en/04a-discussion.html",
+      "bytes": 714471,
+      "sha256": "ff3d712968f03913dc858648a92418fd2befadd84f5cdbd3b089cad927f2af60"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/en/04a-discussion.png",
+      "bytes": 175796,
+      "sha256": "2f92e052585e2ca507651f712c6847b2b1a381fb7f2657503b4176d4cb871e70"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/en/04a-discussion.workflow.json",
+      "bytes": 4194,
+      "sha256": "022748b3c4842fcd461dfef6a1469423ba99e15223405a83497faf82918d3828"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/en/04b-adoption.html",
+      "bytes": 714364,
+      "sha256": "293bf523a34eab4a8355b9aafd129757c03774ed23aa2799adf752ef7d003b66"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/en/04b-adoption.png",
+      "bytes": 188220,
+      "sha256": "3f0ef963b881c3753a8af69e26e83c50339c3d722f9871041688568f5ddef757"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/en/04b-adoption.workflow.json",
+      "bytes": 4314,
+      "sha256": "682f5b6d971336b28ccb6542eb6020a70f13081b3319b9057194f733824f7f8b"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/en/05a-send.html",
+      "bytes": 706700,
+      "sha256": "195dc75562bd0c71d492643a86570836438e6f581e2a16f5d5c0200fc5b56932"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/en/05a-send.png",
+      "bytes": 139188,
+      "sha256": "5a71de9d2c3e7fa444459413b26b91b03a110f2c5f0de890e6913ba87f2b916a"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/en/05a-send.sequence.json",
+      "bytes": 2630,
+      "sha256": "d21618d8738cf3eb5d7d882721f5248070216fe065c624c292edc7e476ce2fe0"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/en/05b-finalize.html",
+      "bytes": 706357,
+      "sha256": "57677149bdfec564fead6bf206f976e8218b04f4371c7a19fafa3f010c507dd4"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/en/05b-finalize.png",
+      "bytes": 136303,
+      "sha256": "1edf6bcfc5385329cd662ae843490695f8864740aa9bfc522aba257de3d22a8f"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/en/05b-finalize.sequence.json",
+      "bytes": 2610,
+      "sha256": "5121bea3548109479d8adcd961d28bf3b5a5adc643e17185e8266848a3132276"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/en/06-recovery.html",
+      "bytes": 714915,
+      "sha256": "04f9cd7d5fb83063e2e9f40eac3a55a6ddbae9f26d6a6513992ecf058f4ad8fa"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/en/06-recovery.png",
+      "bytes": 180918,
+      "sha256": "20248b5ab2a31eb202824e16f55f8c1ceba506627fa47ea73961360e2debd658"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/en/06-recovery.workflow.json",
+      "bytes": 4333,
+      "sha256": "2f47d93061dd047c4d3941a57aeb1c82f23112463e9f60479a59a3907a1647df"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/en/07-improvement.html",
+      "bytes": 715352,
+      "sha256": "83175bea599839d8cca70c338223c645fcf0af92712afff54dbbee2849abf12f"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/en/07-improvement.png",
+      "bytes": 186917,
+      "sha256": "01c38c00c03b4fc94670dadd3a6ce922f3084196c14dccaa41f5c0736f8b9d5f"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/en/07-improvement.workflow.json",
+      "bytes": 4654,
+      "sha256": "0b8769eec474583daffdad83d9c8e53e97aed5bdb2cfc4088c49d39aa4744fe9"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/en/08-programs.architecture.json",
+      "bytes": 4751,
+      "sha256": "6ad5053665d09d10469a6ed28831ebdaab437e2922746e969366b3516adcdcd5"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/en/08-programs.html",
+      "bytes": 715606,
+      "sha256": "b8d746b0994804751429e49ea758c1f74ce2c2bb3619e772fe585e86b0998a34"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/en/08-programs.png",
+      "bytes": 167589,
+      "sha256": "ed61655e88f579d4648b4cff43b19406fd16201b0ac795878061157d6741e44c"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/en/09-support-and-data.architecture.json",
+      "bytes": 4719,
+      "sha256": "fef0270747ea8af392a2ca640babad7e4d4ea65cb0e13103db289970f976566e"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/en/09-support-and-data.html",
+      "bytes": 715587,
+      "sha256": "4a021e3f4fa754a462102999515cf13b51cc3a0ad715f349829b8ff7c8f6d900"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/en/09-support-and-data.png",
+      "bytes": 177913,
+      "sha256": "4bd2091ef70ab3f415da4832217e971712a02d4eed660dd6d35f363ccf077b67"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/en/README.md",
+      "bytes": 5456,
+      "sha256": "1b2b6e845a8ce46d9e94af13cfedd41fef855cfcc510dad5a10bc83069242d0a"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/en/SOURCE-MAP.md",
+      "bytes": 6992,
+      "sha256": "0b1bc2d9ef785912ded735dff70dab6efba10422d90f15e51831dc3066cda9ee"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/en/TOOLS.md",
+      "bytes": 5112,
+      "sha256": "5fe6dafb005fc76c02d1cb2a84e4824f3770fb79166f25d42c1b4ce35189f236"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/en/VALIDATION.md",
+      "bytes": 5488,
+      "sha256": "d97a77276eb67de1db6643e47a5b2291ee8fa8cfdbdcf93d37242fd1cad88070"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/en/index.html",
+      "bytes": 8535,
+      "sha256": "b6704faf8752fb6e0c4512e3a08c37ae500850ddd12de832a6aae0734afcc804"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/index.html",
+      "bytes": 8340,
+      "sha256": "b414ebd066c6d3fb52a1b3366f3eb49404af080d10ab77eb8bdb5c28d87b5151"
+    },
+    {
+      "path": "docs/diagrams/review-collaboration-guide-20260913/release-manifest.json",
+      "bytes": 13161,
+      "sha256": "e1251d18b1dce558b70c4783a87f85c383d78ff7144b5515fedaf7504f41e020"
+    },
+    {
+      "path": "skills/review-collaboration/LICENSE",
+      "bytes": 1068,
+      "sha256": "76e8b7b8d3ca006c9418251f33af513e6f405605d580ee6afe74c8077d858caf"
+    },
+    {
+      "path": "skills/review-collaboration/README.md",
+      "bytes": 4903,
+      "sha256": "0c39ebf676d2815cb42158b23ab554f2f099ccfe71b35c571d9e1489f10d722c"
+    },
+    {
+      "path": "skills/review-collaboration/SKILL.md",
+      "bytes": 9790,
+      "sha256": "48f0949ec95caf66e48cffad5eeaa3031ae2a00f60d7afdd2db5779fee6a3d0a"
+    },
+    {
+      "path": "skills/review-collaboration/package-lock.json",
+      "bytes": 1077,
+      "sha256": "8bee9a91f0661374743c64fb2c65e364d96f9ba4aabe0fd10852c5840a043ec9"
+    },
+    {
+      "path": "skills/review-collaboration/package.json",
+      "bytes": 276,
+      "sha256": "22cc0ce1f9b8ae2b11499386ed50a6144f6ccdc95f917ee4fb3507605fa68b68"
+    },
+    {
+      "path": "skills/review-collaboration/references/data-boundaries.md",
+      "bytes": 2438,
+      "sha256": "bcabc0a16093206eb7b3a9b987f28478435144ad3593f5eaae7dfe127f313fc6"
+    },
+    {
+      "path": "skills/review-collaboration/references/first-connection.md",
+      "bytes": 10480,
+      "sha256": "bd379aaa98ff9d01551fd1efdcec7f5f5fcf9bd3b40cad40ed18f9a3f918c24a"
+    },
+    {
+      "path": "skills/review-collaboration/references/mail-records.md",
+      "bytes": 6745,
+      "sha256": "2d95953758c80f1ae8cc892a6e6f6612f367ea19350073f1de780df3f72c319f"
+    },
+    {
+      "path": "skills/review-collaboration/references/reviewer-discovery.md",
+      "bytes": 2803,
+      "sha256": "4fb10841d2eb06e3659e2ee132d55bc528e9d98e11724266cabd45db8e8ba7f2"
+    },
+    {
+      "path": "skills/review-collaboration/references/verification.md",
+      "bytes": 8736,
+      "sha256": "c0e65b7953518b05163ffe81c0e92af4f8dfce375d74c23c6d8a21a3ec987e3f"
+    },
+    {
+      "path": "skills/review-collaboration/release-manifest.json",
+      "bytes": 10069,
+      "sha256": "e808e2e8c8ef3244a6dd78202d954abc420ec0bd354c424483dacb5c4105497d"
+    },
+    {
+      "path": "skills/review-collaboration/scripts/export-clean.ps1",
+      "bytes": 10080,
+      "sha256": "34a9033ac0ec75b65e69b15e8643d2bfacd1cac704154985dc69ba7855ce7e6c"
+    },
+    {
+      "path": "skills/review-collaboration/scripts/invoke-process.ps1",
+      "bytes": 11623,
+      "sha256": "2c78a98dea6a2212bde41eea6a6eef60c91a79976f4e92f7d41c86205502a4ac"
+    },
+    {
+      "path": "skills/review-collaboration/scripts/lib/ArgvLauncher.cs",
+      "bytes": 3617,
+      "sha256": "4b1ad33f17f062827d48e142fd034e285c1dc7d4bcb399c226554ab6e8f161aa"
+    },
+    {
+      "path": "skills/review-collaboration/scripts/lib/LockTransaction.cs",
+      "bytes": 3612,
+      "sha256": "adf6852edf9092b1eaf56484232bae216b91117ce58aaa1cedaad97c7dad090e"
+    },
+    {
+      "path": "skills/review-collaboration/scripts/lib/ProcessTransport.cs",
+      "bytes": 32262,
+      "sha256": "7166ff0322a2e8ab566f5e1543b3ed21c10af7101fc524527d2ce45434cd1d38"
+    },
+    {
+      "path": "skills/review-collaboration/scripts/lib/acp-client.mjs",
+      "bytes": 16304,
+      "sha256": "c4d49624979c64a0e8d210e4bc705ef6405ac07349d8eca4b7a182f5391d9baf"
+    },
+    {
+      "path": "skills/review-collaboration/scripts/lib/acp-route.mjs",
+      "bytes": 14256,
+      "sha256": "442dea258cfaa53f804eb2a3baa9b4fdb6b44816e14dc02dd611f23ed98037e3"
+    },
+    {
+      "path": "skills/review-collaboration/scripts/lib/argv-launcher.mjs",
+      "bytes": 2230,
+      "sha256": "5ed5fe429b15b3cdc74b0b755704a9c512ac01f7b0926aac94a09c69792b0e97"
+    },
+    {
+      "path": "skills/review-collaboration/scripts/lib/build-argv-launcher.ps1",
+      "bytes": 1047,
+      "sha256": "e3e98de837489e53e7e1eaf891e45b081ee25cd8010da8cb1d385daa7d2feefa"
+    },
+    {
+      "path": "skills/review-collaboration/scripts/lib/build-lock-helper.ps1",
+      "bytes": 1171,
+      "sha256": "c036deed2a94f4bdc340a375ec997ef281a0e7c8375d5ef9bed22a3f8adf5445"
+    },
+    {
+      "path": "skills/review-collaboration/scripts/lib/mail-contract.mjs",
+      "bytes": 23565,
+      "sha256": "0de8ded0e752486dcd9a7f9e1a716ee669fe168df8ba095ab144030f9f5ec1ac"
+    },
+    {
+      "path": "skills/review-collaboration/scripts/lib/mail-exchange.mjs",
+      "bytes": 13019,
+      "sha256": "9f9035986d7827fbb4f87f2859b1c948ddc37ce72d5f13675fd406a97763db93"
+    },
+    {
+      "path": "skills/review-collaboration/scripts/lib/mail-store.mjs",
+      "bytes": 64619,
+      "sha256": "a70f6af4dac64f45c616d66027c97410f7042698ade0aebe7b78042c49e6ada5"
+    },
+    {
+      "path": "skills/review-collaboration/scripts/lib/reviewer-profile.mjs",
+      "bytes": 5883,
+      "sha256": "84d088e3a9a6d3c2092f401066d9a13b88daa1dac6a984a978d14ecffbfbe670"
+    },
+    {
+      "path": "skills/review-collaboration/scripts/lib/safe-files.mjs",
+      "bytes": 3993,
+      "sha256": "3dde4bbc837fcc58f64d0093a326d4b04157077e5e652969e2deb83c32bac763"
+    },
+    {
+      "path": "skills/review-collaboration/scripts/lib/windows-lock.mjs",
+      "bytes": 3152,
+      "sha256": "b9246c6a2af1f455bdb241d5f53bd9be7fb572253bd455e7fc63349c5b7d489d"
+    },
+    {
+      "path": "skills/review-collaboration/scripts/review-mail.mjs",
+      "bytes": 14599,
+      "sha256": "5fda9fce92bbc6f054ddd1eb17a7fa9a7cfd5e00b0a4917999540c8cd4639da1"
+    },
+    {
+      "path": "skills/review-collaboration/scripts/review-mail.ps1",
+      "bytes": 12750,
+      "sha256": "f2c319af121c6bf04d68389de400632179631b65ce521fddfa852f14e0723e8d"
+    },
+    {
+      "path": "skills/review-collaboration/templates/background.md",
+      "bytes": 1118,
+      "sha256": "87735682b70a96ff21e7bfa162123aace3ec8b11dc6ebc6ab9e84f2f4d57d293"
+    },
+    {
+      "path": "skills/review-collaboration/templates/handoff.md",
+      "bytes": 1924,
+      "sha256": "5dfbca847fb77f8a1fae76213987887d3101c2da18d663378e918fe590f19f3f"
+    },
+    {
+      "path": "skills/review-collaboration/templates/request.md",
+      "bytes": 1549,
+      "sha256": "8c7815a8e5976ed8792955df4627862e59e6086817d025a41c73d3bbaabbe7ae"
+    },
+    {
+      "path": "skills/review-collaboration/tests/acp-auth.test.mjs",
+      "bytes": 7548,
+      "sha256": "0941e6e3b80d4b95abbe35c39181406cf5f8e21e7800ecedcff21fca103972a0"
+    },
+    {
+      "path": "skills/review-collaboration/tests/acp-client.test.mjs",
+      "bytes": 8974,
+      "sha256": "f7f04c73cd25ad93c13b9a03a5a72f459aaaed7a9df9a05fcf4842676855689d"
+    },
+    {
+      "path": "skills/review-collaboration/tests/acp-lifecycle.test.mjs",
+      "bytes": 10543,
+      "sha256": "23ecbbc74f1d27903a8fca1fa28ad5fdee7c0b6fb5e40390e8d5cde65c104200"
+    },
+    {
+      "path": "skills/review-collaboration/tests/argv-launcher.test.mjs",
+      "bytes": 4832,
+      "sha256": "883f5490d902c316a2771b6501e3eb1168c4c995b6860d1ecc7c7c7088c024f8"
+    },
+    {
+      "path": "skills/review-collaboration/tests/export.test.mjs",
+      "bytes": 6932,
+      "sha256": "6c478a86bab00e2be6c196f61d538c04242889ce23e3ff73eb519a9e19d375a6"
+    },
+    {
+      "path": "skills/review-collaboration/tests/fixtures/acp-fixture.mjs",
+      "bytes": 15892,
+      "sha256": "5fef8a3f63aeb6152a27aff1f5567be44032087948325af224b1e2ab94a33034"
+    },
+    {
+      "path": "skills/review-collaboration/tests/fixtures/fresh-host.md",
+      "bytes": 2440,
+      "sha256": "024a4a950160908cc7c038a1abb5e4b4dcf59fefd62149c6233e46e685e8d862"
+    },
+    {
+      "path": "skills/review-collaboration/tests/fixtures/make-test-route.mjs",
+      "bytes": 1504,
+      "sha256": "09db1941dee49e6bb13141d9f8f13f531f35d2e8137d4e9e1947cf03594ea16c"
+    },
+    {
+      "path": "skills/review-collaboration/tests/fixtures/profile-writer.mjs",
+      "bytes": 663,
+      "sha256": "ea4194f3370c5bd98c2ffe979f113debd5e1b819a9df7e256e7f2041a132604d"
+    },
+    {
+      "path": "skills/review-collaboration/tests/fixtures/store-worker.mjs",
+      "bytes": 7212,
+      "sha256": "a142b08854c5974e1cd4ae42365de5965fc9474751f0684710c548ed8a18ee78"
+    },
+    {
+      "path": "skills/review-collaboration/tests/mail-exchange.test.mjs",
+      "bytes": 25842,
+      "sha256": "d81b7330a5bcca824ea78173f4d7fd2d64216eec02caccd7261c278fe6083811"
+    },
+    {
+      "path": "skills/review-collaboration/tests/mail-store.test.mjs",
+      "bytes": 92836,
+      "sha256": "f864578fbd4a2def7a79c7af04bd0af8ef0dd0cd2dad7b602fa5655f3eef5551"
+    },
+    {
+      "path": "skills/review-collaboration/tests/profile-route.test.mjs",
+      "bytes": 11236,
+      "sha256": "d831dfa1a12bf509fa909c4b0d76c3d3662ef1e00d80abd6e2379801be0066e5"
+    },
+    {
+      "path": "skills/review-collaboration/tests/run-offline.mjs",
+      "bytes": 15099,
+      "sha256": "84237ff55acda187b1c399579b3a7e8df664e59b79908652019d7dacf167d0c0"
+    },
+    {
+      "path": "skills/review-collaboration/tests/run-windows.ps1",
+      "bytes": 25524,
+      "sha256": "65fc07a2ac84dcc042c9ddf126a3b6ecee744bb832dac26339341a203443a4d3"
+    },
+    {
+      "path": "skills/review-collaboration/tests/runner-guard.test.mjs",
+      "bytes": 7696,
+      "sha256": "6e0fd3be3c92ebce7e73d75dccbbee32a5c81071081dd633f059514f2038ae7b"
+    },
+    {
+      "path": "skills/review-collaboration/tests/safe-files.test.mjs",
+      "bytes": 3017,
+      "sha256": "5fc75a659764db6140b0a6436061cb1e84e604352d82b028923a5bf64a49027c"
+    }
+  ]
+}

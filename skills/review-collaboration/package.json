@@ -1,0 +1,12 @@
+{
+  "name": "review-collaboration-acp",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Windows ACP mail helper for review collaboration",
+  "license": "MIT",
+  "dependencies": {
+    "@agentclientprotocol/sdk": "1.4.0",
+    "zod": "4.6.2"
+  }
+}

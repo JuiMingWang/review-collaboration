@@ -1,0 +1,179 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "03｜送審準備：主端把什麼交給代理",
+    "quality_profile": "showcase"
+  },
+  "lanes": [
+    {
+      "id": "frame",
+      "label": "1–3：先寫會改變判斷的資訊"
+    },
+    {
+      "id": "authorize",
+      "label": "4–6：核對外送授權與議題紀錄"
+    },
+    {
+      "id": "handoff",
+      "label": "7–9：固定本輪設定，派出真正代理"
+    }
+  ],
+  "mainPath": [
+    "question",
+    "history",
+    "letter",
+    "authorize"
+  ],
+  "nodes": [
+    {
+      "id": "question",
+      "lane": "frame",
+      "col": 0,
+      "type": "frontend",
+      "label": "1 明確問題、目標及限制",
+      "sublabel": "已有方案就附理由；探索題不必硬造方案",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "history",
+      "lane": "frame",
+      "col": 1,
+      "type": "database",
+      "label": "2 查相關專案與議題紀錄",
+      "sublabel": "只讀相關 index、topic、必要原始證據",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "letter",
+      "lane": "frame",
+      "col": 2,
+      "type": "backend",
+      "label": "3 寫信並配對主張與證據",
+      "sublabel": "條件、版本、反證及重要未知；其餘給指引",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "authorize",
+      "lane": "authorize",
+      "col": 2,
+      "type": "security",
+      "label": "4 說明 reviewer 與實際材料",
+      "sublabel": "沿用已涵蓋授權；新私有來源需新授權",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "project",
+      "lane": "authorize",
+      "col": 1,
+      "type": "backend",
+      "label": "5 project-init 核對專案",
+      "sublabel": "建立或沿用套件外的 .review-collaboration",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "topic",
+      "lane": "authorize",
+      "col": 0,
+      "type": "backend",
+      "label": "6 同一決策沿用 topic",
+      "sublabel": "不同議題才 topic-create，註明相關議題",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "run",
+      "lane": "handoff",
+      "col": 0,
+      "type": "backend",
+      "label": "7 run-open 保存本輪快照",
+      "sublabel": "保存 host key、reviewer、route、設定與期限",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "packet",
+      "lane": "handoff",
+      "col": 1,
+      "type": "backend",
+      "label": "8 建立有界的代理交接包",
+      "sublabel": "附程序版本、IDs、可讀與可外送材料界線",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "delegate",
+      "lane": "handoff",
+      "col": 2,
+      "type": "backend",
+      "label": "9 呼叫主工具原生 subagent",
+      "sublabel": "交必要包；詳細工作留代理與紀錄 → 圖 04a",
+      "width": 220,
+      "height": 92
+    }
+  ],
+  "edges": [
+    {
+      "from": "question",
+      "to": "history"
+    },
+    {
+      "from": "history",
+      "to": "letter",
+      "label": "必要背景"
+    },
+    {
+      "from": "letter",
+      "to": "authorize"
+    },
+    {
+      "from": "authorize",
+      "to": "project",
+      "label": "授權涵蓋",
+      "role": "return"
+    },
+    {
+      "from": "project",
+      "to": "topic",
+      "label": "保存 project ID",
+      "role": "return"
+    },
+    {
+      "from": "topic",
+      "to": "run"
+    },
+    {
+      "from": "run",
+      "to": "packet",
+      "label": "保存 run ID"
+    },
+    {
+      "from": "packet",
+      "to": "delegate",
+      "label": "不帶整段主端對話"
+    }
+  ],
+  "cards": [
+    {
+      "title": "資訊不足時的處理",
+      "items": [
+        "直接提供會改變判斷的條件與證據；來源指引要說明能解答什麼。",
+        "短而相關的原文可以先附，避免反覆摘要再摘要。"
+      ],
+      "dot": "cyan"
+    },
+    {
+      "title": "送出前的界線",
+      "items": [
+        "尚缺重要授權就保留草稿，不送該材料；本機可讀不等於可外送。",
+        "交接提供步驟 3–4 或可讀路徑與 skill 版本；代理不能證明沒有被省略資訊。"
+      ],
+      "dot": "amber"
+    }
+  ]
+}

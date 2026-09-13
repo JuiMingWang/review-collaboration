@@ -1,0 +1,136 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "01 | External review supports the host's decision",
+    "quality_profile": "showcase",
+    "locale": "en"
+  },
+  "lanes": [
+    {
+      "id": "prepare",
+      "label": "User and host: define the question for this review"
+    },
+    {
+      "id": "discuss",
+      "label": "Delegate and reviewer: work through the evidence"
+    },
+    {
+      "id": "adopt",
+      "label": "Host: receive what is needed for the decision"
+    }
+  ],
+  "mainPath": [
+    "question",
+    "host",
+    "delegate",
+    "reviewer"
+  ],
+  "nodes": [
+    {
+      "id": "question",
+      "lane": "prepare",
+      "col": 0,
+      "type": "external",
+      "label": "1 User raises a question",
+      "sublabel": "Idea, plan, artifact, or disagreement",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "host",
+      "lane": "prepare",
+      "col": 1,
+      "type": "frontend",
+      "label": "2 Host frames and authorizes",
+      "sublabel": "Host: the agent talking with the user",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "delegate",
+      "lane": "prepare",
+      "col": 2,
+      "type": "backend",
+      "label": "3 Dispatch a native subagent",
+      "sublabel": "Send a bounded packet; spare host context",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "reviewer",
+      "lane": "discuss",
+      "col": 2,
+      "type": "external",
+      "label": "4 External reviewer replies",
+      "sublabel": "A different tool; both directions use ACP",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "brief",
+      "lane": "adopt",
+      "col": 1,
+      "type": "messagebus",
+      "label": "5 Delegate checks and reports",
+      "sublabel": "Results, reasons, evidence, limits, dissent",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "decision",
+      "lane": "adopt",
+      "col": 2,
+      "type": "frontend",
+      "label": "6 Host checks and decides",
+      "sublabel": "note saves decisions and observations",
+      "width": 220,
+      "height": 92
+    }
+  ],
+  "edges": [
+    {
+      "from": "question",
+      "to": "host"
+    },
+    {
+      "from": "host",
+      "to": "delegate",
+      "label": "Figures 02–03 ready"
+    },
+    {
+      "from": "delegate",
+      "to": "reviewer",
+      "label": "Authorized letter"
+    },
+    {
+      "from": "reviewer",
+      "to": "brief",
+      "label": "Delegate checks reply",
+      "role": "return"
+    },
+    {
+      "from": "brief",
+      "to": "decision",
+      "label": "Evidence and conditions"
+    }
+  ],
+  "cards": [
+    {
+      "title": "Choose the detail you need",
+      "items": [
+        "02a–02b: choose and connect the reviewer. 03: prepare and delegate.",
+        "04: discussion and adoption. 05–06: delivery, completion, and recovery."
+      ],
+      "dot": "cyan"
+    },
+    {
+      "title": "Purpose and limits",
+      "items": [
+        "07: improvements when the user requests maintenance. 08–09: programs and data.",
+        "The skill preserves letters and delivery evidence; correctness and artifact changes remain separate."
+      ],
+      "dot": "amber"
+    }
+  ]
+}

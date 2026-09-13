@@ -1,0 +1,175 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "02b | Verify the handshake, authentication, and reply separately",
+    "quality_profile": "showcase",
+    "locale": "en"
+  },
+  "lanes": [
+    {
+      "id": "prepare",
+      "label": "Verify the selected endpoint and permitted material"
+    },
+    {
+      "id": "auth",
+      "label": "Authenticate only when needed; login is not a model test"
+    },
+    {
+      "id": "proof",
+      "label": "Save a usable route only with complete evidence"
+    }
+  ],
+  "mainPath": [
+    "candidate",
+    "material",
+    "initialize"
+  ],
+  "nodes": [
+    {
+      "id": "candidate",
+      "lane": "prepare",
+      "col": 0,
+      "type": "backend",
+      "label": "1 Verify entry and version",
+      "sublabel": "acp-route.mjs pins a route candidate",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "material",
+      "lane": "prepare",
+      "col": 2,
+      "type": "security",
+      "label": "2 Check startup and tools",
+      "sublabel": "Bind material controls to the route",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "initialize",
+      "lane": "prepare",
+      "col": 5,
+      "type": "backend",
+      "label": "3 probe initialize",
+      "sublabel": "No prompts; ACP handshake proof only",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "failure",
+      "lane": "auth",
+      "col": 0,
+      "type": "security",
+      "label": "Failure: retain evidence",
+      "sublabel": "One grounded repair, then diagnose",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "inspect",
+      "lane": "auth",
+      "col": 2,
+      "type": "backend",
+      "label": "4 authenticate inspect",
+      "sublabel": "List login methods; zero sessions",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "login",
+      "lane": "auth",
+      "col": 5,
+      "type": "backend",
+      "label": "5 authenticate login",
+      "sublabel": "Verified method; authorized login",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "saved",
+      "lane": "proof",
+      "col": 2,
+      "type": "database",
+      "label": "7 Save route and proof level",
+      "sublabel": "Reply and outer cleanup evidence",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "live",
+      "lane": "proof",
+      "col": 5,
+      "type": "backend",
+      "label": "6 probe live synthetic reply",
+      "sublabel": "Authorized input; reply, stop, cleanup",
+      "width": 220,
+      "height": 92
+    }
+  ],
+  "edges": [
+    {
+      "from": "candidate",
+      "to": "material",
+      "label": "Entry verified"
+    },
+    {
+      "from": "material",
+      "to": "initialize",
+      "label": "Material controls checked"
+    },
+    {
+      "from": "initialize",
+      "to": "inspect",
+      "label": "Login required",
+      "role": "return"
+    },
+    {
+      "from": "inspect",
+      "to": "login",
+      "label": "Method verified",
+      "route": "straight"
+    },
+    {
+      "from": "initialize",
+      "to": "live",
+      "label": "No login required"
+    },
+    {
+      "from": "login",
+      "to": "live",
+      "label": "Authenticated"
+    },
+    {
+      "from": "live",
+      "to": "saved",
+      "label": "Complete success",
+      "role": "return"
+    },
+    {
+      "from": "live",
+      "to": "failure",
+      "label": "Failed or uncertain",
+      "role": "error",
+      "variant": "security"
+    }
+  ],
+  "cards": [
+    {
+      "title": "A missing prerequisite stops sending",
+      "items": [
+        "Keep the draft if the ACP endpoint, adapter, or material-control evidence is unverified.",
+        "No automatic npx download, PATH change, channel switch, or disabled security control."
+      ],
+      "dot": "amber"
+    },
+    {
+      "title": "What each success proves",
+      "items": [
+        "initialize sends no model question; authenticated confirms the official authentication request only.",
+        "Live proof covers that route. Native host delegation needs separate workflow evidence."
+      ],
+      "dot": "cyan"
+    }
+  ]
+}

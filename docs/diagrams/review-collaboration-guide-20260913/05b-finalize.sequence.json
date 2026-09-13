@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "05b｜正常收信：程序清理後才發布完成結果",
+    "quality_profile": "showcase",
+    "column_fit": "spread",
+    "viewBox": [
+      1080,
+      500
+    ]
+  },
+  "participants": [
+    {
+      "id": "helper",
+      "type": "frontend",
+      "label": "主端原生代理",
+      "sublabel": "準備已授權的信件"
+    },
+    {
+      "id": "wrapper",
+      "type": "messagebus",
+      "label": "有界程序入口",
+      "sublabel": "review-mail.ps1"
+    },
+    {
+      "id": "client",
+      "type": "backend",
+      "label": "Node 收發工具",
+      "sublabel": "review-mail.mjs"
+    },
+    {
+      "id": "reviewer",
+      "type": "external",
+      "label": "外部 reviewer",
+      "sublabel": "原生 ACP 或已核對 adapter"
+    },
+    {
+      "id": "records",
+      "type": "database",
+      "label": "專案信件紀錄",
+      "sublabel": ".review-collaboration"
+    }
+  ],
+  "messages": [
+    {
+      "from": "client",
+      "to": "wrapper",
+      "y": 180,
+      "label": "7 回合結束，交外層完成程序樹清理",
+      "variant": "return"
+    },
+    {
+      "from": "wrapper",
+      "to": "records",
+      "y": 220,
+      "label": "8 保存原呼叫的 transport/receipt.json"
+    },
+    {
+      "from": "wrapper",
+      "to": "client",
+      "y": 260,
+      "label": "9 另開有界 finalize 核對原證據"
+    },
+    {
+      "from": "client",
+      "to": "records",
+      "y": 300,
+      "label": "10 關聯 input、reply、receipt 雜湊，發布 completion.json"
+    },
+    {
+      "from": "client",
+      "to": "wrapper",
+      "y": 340,
+      "label": "11 正常回信且證據完整：reply-ready",
+      "variant": "return"
+    },
+    {
+      "from": "wrapper",
+      "to": "helper",
+      "y": 380,
+      "label": "12 回傳 mail-result.json",
+      "variant": "return"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "讀圖順序",
+      "items": [
+        "從 05a 保存回信後接續；外層先清理程序，再另開有界 finalize。",
+        "主端讀到 reply-ready 仍需圖 04 的內容查證與採納。"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "失敗不補造成功，也不自動重送",
+      "items": [
+        "缺停止或清理證據、拒絕或取消都保留原狀態 → 圖 06。",
+        "reply-ready 只確認收發完整；代理查證及主端採納見圖 04。"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,3 @@
+# Preserve exported bytes and hashes across Windows checkouts.
+* -text
+*.png binary

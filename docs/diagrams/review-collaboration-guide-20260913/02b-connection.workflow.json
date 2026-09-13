@@ -1,0 +1,173 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "02b｜首次接入：握手、登入與回信分開核對",
+    "quality_profile": "showcase"
+  },
+  "lanes": [
+    {
+      "id": "prepare",
+      "label": "先核對指定工具及會外送的資料"
+    },
+    {
+      "id": "auth",
+      "label": "只在需要時認證；不把登入當成模型驗證"
+    },
+    {
+      "id": "proof",
+      "label": "取得完整證據才能保存可用路線"
+    }
+  ],
+  "mainPath": [
+    "candidate",
+    "material",
+    "initialize"
+  ],
+  "nodes": [
+    {
+      "id": "candidate",
+      "lane": "prepare",
+      "col": 0,
+      "type": "backend",
+      "label": "1 核對官方入口與相容版本",
+      "sublabel": "acp-route.mjs：建立並釘選候選路線",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "material",
+      "lane": "prepare",
+      "col": 1,
+      "type": "security",
+      "label": "2 核對啟動載入與工具範圍",
+      "sublabel": "保存 material-control；綁定路線指紋",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "initialize",
+      "lane": "prepare",
+      "col": 2,
+      "type": "backend",
+      "label": "3 probe initialize 握手",
+      "sublabel": "零 prompt；只證明 ACP 協議能接通",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "failure",
+      "lane": "auth",
+      "col": 0,
+      "type": "security",
+      "label": "缺件或失敗：保留原證據",
+      "sublabel": "一個候選、一次有根據修正；仍失敗另查",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "inspect",
+      "lane": "auth",
+      "col": 1,
+      "type": "backend",
+      "label": "4 authenticate inspect",
+      "sublabel": "只查官方宣告的登入方法；零 session",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "login",
+      "lane": "auth",
+      "col": 2,
+      "type": "backend",
+      "label": "5 authenticate login",
+      "sublabel": "用核對的方法；必要時使用者本人授權",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "saved",
+      "lane": "proof",
+      "col": 1,
+      "type": "database",
+      "label": "7 保存 route 與驗證層級",
+      "sublabel": "只有回信和外層清理證據完整才成立",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "live",
+      "lane": "proof",
+      "col": 2,
+      "type": "backend",
+      "label": "6 probe live 合成回信測試",
+      "sublabel": "已授權固定材料；核對回覆、停止及清理",
+      "width": 220,
+      "height": 92
+    }
+  ],
+  "edges": [
+    {
+      "from": "candidate",
+      "to": "material",
+      "label": "入口已核對"
+    },
+    {
+      "from": "material",
+      "to": "initialize",
+      "label": "資料控制有據"
+    },
+    {
+      "from": "initialize",
+      "to": "inspect",
+      "label": "需要登入",
+      "role": "return"
+    },
+    {
+      "from": "inspect",
+      "to": "login",
+      "label": "方法已核對"
+    },
+    {
+      "from": "initialize",
+      "to": "live",
+      "label": "不需登入"
+    },
+    {
+      "from": "login",
+      "to": "live",
+      "label": "認證完成"
+    },
+    {
+      "from": "live",
+      "to": "saved",
+      "label": "完整成功",
+      "role": "return"
+    },
+    {
+      "from": "live",
+      "to": "failure",
+      "label": "失敗或投遞未知",
+      "role": "error",
+      "variant": "security"
+    }
+  ],
+  "cards": [
+    {
+      "title": "任何前置缺件都停止",
+      "items": [
+        "無已核對的 ACP 入口／adapter 或資料控制證據，保留草稿。",
+        "不自動 npx 下載、改 PATH、切換通道或關閉安全功能。"
+      ],
+      "dot": "amber"
+    },
+    {
+      "title": "成功各自代表什麼",
+      "items": [
+        "initialize 不送模型題；authenticated 只證明官方認證請求完成。",
+        "live proof 僅認證該路線；完整主端派工另需實際流程證據。"
+      ],
+      "dot": "cyan"
+    }
+  ]
+}

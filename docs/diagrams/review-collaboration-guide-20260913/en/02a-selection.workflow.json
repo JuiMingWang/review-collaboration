@@ -1,0 +1,175 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "02a | Check host capability and choose a reviewer",
+    "quality_profile": "showcase",
+    "locale": "en"
+  },
+  "lanes": [
+    {
+      "id": "identify",
+      "label": "Host setup: actual tool identity and saved preference"
+    },
+    {
+      "id": "route",
+      "label": "Check whether the selected route is still usable"
+    },
+    {
+      "id": "ready",
+      "label": "Outcomes before any review letter is sent"
+    }
+  ],
+  "mainPath": [
+    "capability",
+    "resolve",
+    "choice"
+  ],
+  "nodes": [
+    {
+      "id": "capability",
+      "lane": "identify",
+      "col": 0,
+      "type": "frontend",
+      "label": "1 Check native subagents",
+      "sublabel": "Host tool and traceable session key",
+      "width": 280,
+      "height": 92
+    },
+    {
+      "id": "resolve",
+      "lane": "identify",
+      "col": 2,
+      "type": "backend",
+      "label": "2 resolve saved selection",
+      "sublabel": "Reuse it; otherwise ask for one reviewer",
+      "width": 280,
+      "height": 92
+    },
+    {
+      "id": "choice",
+      "lane": "identify",
+      "col": 5,
+      "type": "security",
+      "label": "3 Check the reviewer tool",
+      "sublabel": "A different model is still the same tool",
+      "width": 280,
+      "height": 92
+    },
+    {
+      "id": "blocked",
+      "lane": "route",
+      "col": 0,
+      "type": "security",
+      "label": "Stop; keep the draft",
+      "sublabel": "subagent-unavailable",
+      "width": 280,
+      "height": 92
+    },
+    {
+      "id": "connect",
+      "lane": "ready",
+      "col": 2,
+      "type": "backend",
+      "label": "First connection or recheck",
+      "sublabel": "02b: entry, login, material scope",
+      "width": 280,
+      "height": 92
+    },
+    {
+      "id": "routeCheck",
+      "lane": "route",
+      "col": 2,
+      "type": "security",
+      "label": "4 Check route evidence",
+      "sublabel": "Entry, version, argv, config, capabilities",
+      "width": 280,
+      "height": 92
+    },
+    {
+      "id": "ready",
+      "lane": "ready",
+      "col": 5,
+      "type": "messagebus",
+      "label": "5 Announce tool and settings",
+      "sublabel": "Go to 03; run freezes the selection",
+      "width": 280,
+      "height": 92
+    },
+    {
+      "id": "sameTool",
+      "lane": "route",
+      "col": 5,
+      "type": "security",
+      "label": "Reject same-tool review",
+      "sublabel": "Keep draft; user chooses another tool",
+      "width": 280,
+      "height": 92
+    }
+  ],
+  "edges": [
+    {
+      "from": "capability",
+      "to": "resolve",
+      "label": "Capability available"
+    },
+    {
+      "from": "resolve",
+      "to": "choice",
+      "label": "Saved or selected"
+    },
+    {
+      "from": "choice",
+      "to": "routeCheck",
+      "label": "Different tool"
+    },
+    {
+      "from": "capability",
+      "to": "blocked",
+      "label": "No native delegate",
+      "role": "error",
+      "variant": "security"
+    },
+    {
+      "from": "choice",
+      "to": "sameTool",
+      "label": "Same tool",
+      "role": "error",
+      "variant": "security"
+    },
+    {
+      "from": "routeCheck",
+      "to": "ready",
+      "label": "Evidence still valid"
+    },
+    {
+      "from": "routeCheck",
+      "to": "connect",
+      "label": "Recheck",
+      "role": "return"
+    },
+    {
+      "from": "connect",
+      "to": "ready",
+      "label": "02b checks complete"
+    }
+  ],
+  "cards": [
+    {
+      "title": "Saving a choice",
+      "items": [
+        "selection_override affects one run; profile-set changes the saved default.",
+        "profile-set needs expected_revision; a conflict must not overwrite another writer."
+      ],
+      "dot": "cyan"
+    },
+    {
+      "title": "Names do not prove capabilities",
+      "items": [
+        "Provider defaults send no model/thinking setters; unreported actual values stay unknown.",
+        "No automatic install or substitute reviewer. A new host session requires a new run."
+      ],
+      "dot": "amber"
+    }
+  ]
+}

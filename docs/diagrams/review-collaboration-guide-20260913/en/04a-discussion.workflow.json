@@ -1,0 +1,176 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "04a | How the delegate checks, asks, and stops",
+    "quality_profile": "showcase",
+    "locale": "en"
+  },
+  "lanes": [
+    {
+      "id": "discuss",
+      "label": "The reviewer replies freely; the delegate verifies the reasoning"
+    },
+    {
+      "id": "gap",
+      "label": "Resolve gaps from authorized sources first"
+    },
+    {
+      "id": "return",
+      "label": "Add an exchange only when it could change the choice"
+    }
+  ],
+  "mainPath": [
+    "send",
+    "claim",
+    "nextDecision"
+  ],
+  "nodes": [
+    {
+      "id": "send",
+      "lane": "discuss",
+      "col": 0,
+      "type": "messagebus",
+      "label": "1 exchange letter and reply",
+      "sublabel": "Verify receipts; normal flow 05, failures 06",
+      "width": 280,
+      "height": 92
+    },
+    {
+      "id": "claim",
+      "lane": "discuss",
+      "col": 2,
+      "type": "backend",
+      "label": "2 Check consequential claims",
+      "sublabel": "Truth, applicability, and value are distinct",
+      "width": 280,
+      "height": 92
+    },
+    {
+      "id": "nextDecision",
+      "lane": "discuss",
+      "col": 5,
+      "type": "security",
+      "label": "3 Need the reviewer again?",
+      "sublabel": "Missing contribution and decision impact",
+      "width": 280,
+      "height": 92
+    },
+    {
+      "id": "hostQuestion",
+      "lane": "gap",
+      "col": 0,
+      "type": "frontend",
+      "label": "Group questions for the host",
+      "sublabel": "Critical gaps, user choices, new authority",
+      "width": 280,
+      "height": 92
+    },
+    {
+      "id": "lookup",
+      "lane": "gap",
+      "col": 2,
+      "type": "backend",
+      "label": "Check authorized sources first",
+      "sublabel": "Compare options that may change the choice",
+      "width": 280,
+      "height": 92
+    },
+    {
+      "id": "conditional",
+      "lane": "return",
+      "col": 0,
+      "type": "backend",
+      "label": "Retain conditions and unknowns",
+      "sublabel": "Return supported parts; do not invent context",
+      "width": 280,
+      "height": 92
+    },
+    {
+      "id": "brief",
+      "lane": "return",
+      "col": 2,
+      "type": "messagebus",
+      "label": "4 Return results to 04b",
+      "sublabel": "Evidence for and against, limits, dissent",
+      "width": 280,
+      "height": 92
+    },
+    {
+      "id": "followup",
+      "lane": "return",
+      "col": 5,
+      "type": "backend",
+      "label": "Continue in a new exchange",
+      "sublabel": "Send needed changes; return to step 1",
+      "width": 280,
+      "height": 92
+    }
+  ],
+  "edges": [
+    {
+      "from": "send",
+      "to": "claim"
+    },
+    {
+      "from": "claim",
+      "to": "nextDecision",
+      "label": "Grounds checked"
+    },
+    {
+      "from": "claim",
+      "to": "lookup",
+      "label": "Needs evidence"
+    },
+    {
+      "from": "lookup",
+      "to": "nextDecision",
+      "label": "Resolved locally"
+    },
+    {
+      "from": "lookup",
+      "to": "hostQuestion",
+      "label": "Needs host input",
+      "role": "return"
+    },
+    {
+      "from": "hostQuestion",
+      "to": "conditional",
+      "label": "Still missing"
+    },
+    {
+      "from": "nextDecision",
+      "to": "brief",
+      "label": "Not needed",
+      "role": "return"
+    },
+    {
+      "from": "nextDecision",
+      "to": "followup",
+      "label": "Could change choice"
+    },
+    {
+      "from": "conditional",
+      "to": "brief",
+      "label": "State the limits"
+    }
+  ],
+  "cards": [
+    {
+      "title": "When another exchange is useful",
+      "items": [
+        "Missing grounds, a counterexample, or an alternative must affect the choice and need reviewer input.",
+        "After host clarification, return to step 2. Reuse authorized material within the agreed scope and budget."
+      ],
+      "dot": "cyan"
+    },
+    {
+      "title": "When to stop",
+      "items": [
+        "Return supported results and remaining disagreement; there is no fixed round or finding quota.",
+        "A viable original can still have a worthwhile alternative. Style preferences or repeated positions are insufficient."
+      ],
+      "dot": "amber"
+    }
+  ]
+}
