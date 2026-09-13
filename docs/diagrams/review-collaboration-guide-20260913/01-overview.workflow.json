@@ -1,0 +1,135 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "01｜用外部審查協助主端做決定",
+    "quality_profile": "showcase"
+  },
+  "lanes": [
+    {
+      "id": "prepare",
+      "label": "使用者與主端：決定這次要回答什麼"
+    },
+    {
+      "id": "discuss",
+      "label": "代理與 reviewer：深入討論"
+    },
+    {
+      "id": "adopt",
+      "label": "主端：只收回決策所需內容"
+    }
+  ],
+  "mainPath": [
+    "question",
+    "host",
+    "delegate",
+    "reviewer"
+  ],
+  "nodes": [
+    {
+      "id": "question",
+      "lane": "prepare",
+      "col": 0,
+      "type": "external",
+      "label": "1 使用者提出問題",
+      "sublabel": "想法、方案、成果或爭議皆可",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "host",
+      "lane": "prepare",
+      "col": 1,
+      "type": "frontend",
+      "label": "2 主端整理問題與授權",
+      "sublabel": "Host：目前與使用者對話的 agent",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "delegate",
+      "lane": "prepare",
+      "col": 2,
+      "type": "backend",
+      "label": "3 派原生 subagent",
+      "sublabel": "交接必要材料，保留主端上下文",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "reviewer",
+      "lane": "discuss",
+      "col": 2,
+      "type": "external",
+      "label": "4 外部 reviewer 回應",
+      "sublabel": "另一種工具；透過 ACP 收信與回信",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "brief",
+      "lane": "adopt",
+      "col": 1,
+      "type": "messagebus",
+      "label": "5 代理查證並整理結果",
+      "sublabel": "結論、理由、證據、條件及重要分歧",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "decision",
+      "lane": "adopt",
+      "col": 2,
+      "type": "frontend",
+      "label": "6 主端核對並決定採納",
+      "sublabel": "note 保存決定與已見的有用觀察",
+      "width": 220,
+      "height": 92
+    }
+  ],
+  "edges": [
+    {
+      "from": "question",
+      "to": "host"
+    },
+    {
+      "from": "host",
+      "to": "delegate",
+      "label": "圖 02–03 就緒"
+    },
+    {
+      "from": "delegate",
+      "to": "reviewer",
+      "label": "授權信件"
+    },
+    {
+      "from": "reviewer",
+      "to": "brief",
+      "label": "回信交代理查證",
+      "role": "return"
+    },
+    {
+      "from": "brief",
+      "to": "decision",
+      "label": "附證據及條件"
+    }
+  ],
+  "cards": [
+    {
+      "title": "依問題選圖",
+      "items": [
+        "02a–02b：選 reviewer 與接入；03：準備與交接。",
+        "04：討論及採納；05–06：信件正常路徑與異常。"
+      ],
+      "dot": "cyan"
+    },
+    {
+      "title": "skill 的作用與界線",
+      "items": [
+        "07：使用者另行要求時才整理改善提案；08–09：程式與資料。",
+        "保存討論及收發證據；不保證答案正確，也不自動修改成果。"
+      ],
+      "dot": "amber"
+    }
+  ]
+}

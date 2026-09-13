@@ -1,0 +1,179 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "06｜異常時先辨別狀態，再選可做的動作",
+    "quality_profile": "showcase"
+  },
+  "lanes": [
+    {
+      "id": "inspect",
+      "label": "讀既有證據；下面三路分別處理，不必全部執行"
+    },
+    {
+      "id": "actions",
+      "label": "status／recover／cancel 不送新的模型 prompt"
+    },
+    {
+      "id": "results",
+      "label": "保留真實狀態，必要時回主端說明限制"
+    }
+  ],
+  "mainPath": [
+    "status",
+    "classify",
+    "result"
+  ],
+  "nodes": [
+    {
+      "id": "status",
+      "lane": "inspect",
+      "col": 0,
+      "type": "database",
+      "label": "1 status 讀 run 或 exchange",
+      "sublabel": "讀 state 與 completion，核對原收據",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "classify",
+      "lane": "inspect",
+      "col": 1,
+      "type": "security",
+      "label": "2 辨別完成、忙碌或缺證據",
+      "sublabel": "已有文字、程序 exit 0 都不足以判定成功",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "result",
+      "lane": "inspect",
+      "col": 2,
+      "type": "messagebus",
+      "label": "完整且 reply-ready",
+      "sublabel": "可進圖 04；仍須查證內容與決定採納",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "recover",
+      "lane": "actions",
+      "col": 0,
+      "type": "backend",
+      "label": "recover 核對原呼叫並補結案",
+      "sublabel": "只在原證據可關聯時 finalize；不重送",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "cancel",
+      "lane": "actions",
+      "col": 1,
+      "type": "backend",
+      "label": "已結束就讀；需停止才 cancel",
+      "sublabel": "cancel 只寫 marker，不能宣稱已取消",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "continuity",
+      "lane": "actions",
+      "col": 2,
+      "type": "backend",
+      "label": "run-busy／session 失效",
+      "sublabel": "前者等原呼叫；後者需明確重建上下文",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "unknown",
+      "lane": "results",
+      "col": 0,
+      "type": "security",
+      "label": "仍 unconfirmed：保留未知",
+      "sublabel": "缺收據或證據不完整，不能換 ID 偷重送",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "stopped",
+      "lane": "results",
+      "col": 1,
+      "type": "backend",
+      "label": "status 讀結果與原停止原因",
+      "sublabel": "cancelled / refused / incomplete / failed",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "reconstruct",
+      "lane": "results",
+      "col": 2,
+      "type": "backend",
+      "label": "重建時另開 exchange",
+      "sublabel": "只送授權舊信摘錄；letters-reconstructed",
+      "width": 220,
+      "height": 92
+    }
+  ],
+  "edges": [
+    {
+      "from": "status",
+      "to": "classify"
+    },
+    {
+      "from": "classify",
+      "to": "result",
+      "label": "證據完整"
+    },
+    {
+      "from": "classify",
+      "to": "recover",
+      "label": "投遞或清理未知",
+      "role": "return"
+    },
+    {
+      "from": "classify",
+      "to": "cancel",
+      "label": "已結束或需停止"
+    },
+    {
+      "from": "classify",
+      "to": "continuity",
+      "label": "忙碌或接續失效"
+    },
+    {
+      "from": "recover",
+      "to": "unknown",
+      "label": "仍缺證據"
+    },
+    {
+      "from": "cancel",
+      "to": "stopped",
+      "label": "再查 status"
+    },
+    {
+      "from": "continuity",
+      "to": "reconstruct",
+      "label": "原生 session 失效"
+    }
+  ],
+  "cards": [
+    {
+      "title": "恢復成功與等待",
+      "items": [
+        "recover 能補出完整原結果就重新 status；它不是重新寄信。",
+        "run-busy 先保存新草稿、等原交換結束；同 run 只允許一封進行中。"
+      ],
+      "dot": "cyan"
+    },
+    {
+      "title": "接續與期限",
+      "items": [
+        "auto 接 previous_exchange_id 的原生 session；失效不自動換成重播歷史。",
+        "run-open 設 prompt 期限；外層加 15 秒，取消寬限 10 秒；逾時不保證遠端停止。"
+      ],
+      "dot": "amber"
+    }
+  ]
+}

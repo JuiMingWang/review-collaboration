@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "05a｜正常寄信：檢查、封存、送出與接收",
+    "quality_profile": "showcase",
+    "column_fit": "spread",
+    "viewBox": [
+      1080,
+      500
+    ]
+  },
+  "participants": [
+    {
+      "id": "helper",
+      "type": "frontend",
+      "label": "主端原生代理",
+      "sublabel": "準備已授權的信件"
+    },
+    {
+      "id": "wrapper",
+      "type": "messagebus",
+      "label": "有界程序入口",
+      "sublabel": "review-mail.ps1"
+    },
+    {
+      "id": "client",
+      "type": "backend",
+      "label": "Node 收發工具",
+      "sublabel": "review-mail.mjs"
+    },
+    {
+      "id": "reviewer",
+      "type": "external",
+      "label": "外部 reviewer",
+      "sublabel": "原生 ACP 或已核對 adapter"
+    },
+    {
+      "id": "records",
+      "type": "database",
+      "label": "專案信件紀錄",
+      "sublabel": ".review-collaboration"
+    }
+  ],
+  "messages": [
+    {
+      "from": "helper",
+      "to": "wrapper",
+      "y": 180,
+      "label": "1 exchange JSON 請求",
+      "variant": "emphasis"
+    },
+    {
+      "from": "wrapper",
+      "to": "client",
+      "y": 220,
+      "label": "2 在 Windows Job 啟動工具"
+    },
+    {
+      "from": "client",
+      "to": "records",
+      "y": 260,
+      "label": "3 檢查並封存原信、輸入及 dispatch；先記投遞 unknown"
+    },
+    {
+      "from": "client",
+      "to": "reviewer",
+      "y": 300,
+      "label": "4 初始化、必要認證、session、prompt",
+      "variant": "emphasis"
+    },
+    {
+      "from": "reviewer",
+      "to": "client",
+      "y": 340,
+      "label": "5 同一 ACP 連線回傳串流及停止原因",
+      "variant": "return"
+    },
+    {
+      "from": "client",
+      "to": "records",
+      "y": 380,
+      "label": "6 先存 partial；取得停止訊息後才存 reply 與 agent-result"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "讀圖順序",
+      "items": [
+        "本圖由上往下：代理呼叫入口，工具封存，再由原 ACP 連線收回文字。",
+        "下一張 05b 接續第 7 步：程序清理與完成證據核對。"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "失敗不補造成功，也不自動重送",
+      "items": [
+        "缺停止或清理證據、拒絕或取消都保留原狀態 → 圖 06。",
+        "reply-ready 只確認收發完整；代理查證及主端採納見圖 04。"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,215 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "09 | Supporting tools, private records, and shareable files",
+    "quality_profile": "showcase",
+    "viewBox": [
+      1030,
+      480
+    ],
+    "locale": "en"
+  },
+  "components": [
+    {
+      "id": "records",
+      "type": "database",
+      "label": "Per-project letters and adoption notes",
+      "sublabel": ".review-collaboration/",
+      "tag": "project → topic → run → exchange",
+      "pos": [
+        40,
+        30
+      ],
+      "size": [
+        250,
+        84
+      ]
+    },
+    {
+      "id": "export",
+      "type": "backend",
+      "label": "Export 48 allowlisted source files",
+      "sublabel": "scripts/export-clean.ps1",
+      "tag": "Also writes release-manifest.json; no upload",
+      "pos": [
+        390,
+        30
+      ],
+      "size": [
+        250,
+        84
+      ]
+    },
+    {
+      "id": "dist",
+      "type": "messagebus",
+      "label": "Clean shareable skill copy",
+      "sublabel": "Named version directory under dist/",
+      "tag": "No private letters, routes, or node_modules",
+      "pos": [
+        740,
+        30
+      ],
+      "size": [
+        250,
+        84
+      ]
+    },
+    {
+      "id": "tests",
+      "type": "backend",
+      "label": "Check contracts and Windows behavior",
+      "sublabel": "tests/run-offline.mjs",
+      "tag": "tests/run-windows.ps1",
+      "pos": [
+        40,
+        170
+      ],
+      "size": [
+        250,
+        84
+      ]
+    },
+    {
+      "id": "source",
+      "type": "backend",
+      "label": "One maintained skill package",
+      "sublabel": "skills/review-collaboration/",
+      "tag": "SKILL、references、templates、scripts",
+      "pos": [
+        390,
+        170
+      ],
+      "size": [
+        250,
+        84
+      ]
+    },
+    {
+      "id": "argv",
+      "type": "backend",
+      "label": "Optional: forward fixed argv to a CLI",
+      "sublabel": "argv-launcher.mjs · ArgvLauncher.cs",
+      "tag": "build-argv-launcher.ps1 builds the executable",
+      "pos": [
+        740,
+        170
+      ],
+      "size": [
+        250,
+        84
+      ]
+    },
+    {
+      "id": "lock",
+      "type": "security",
+      "label": "Atomic short locks prevent overwrites",
+      "sublabel": "windows-lock.mjs · LockTransaction.cs",
+      "tag": "build-lock-helper.ps1 builds the lock helper",
+      "pos": [
+        40,
+        310
+      ],
+      "size": [
+        250,
+        84
+      ]
+    },
+    {
+      "id": "private",
+      "type": "database",
+      "label": "Local routes, preferences, operations",
+      "sublabel": "Package-local _private/",
+      "tag": "runtime / work / operations; not public",
+      "pos": [
+        390,
+        310
+      ],
+      "size": [
+        250,
+        84
+      ]
+    },
+    {
+      "id": "native",
+      "type": "external",
+      "label": "Native CLI launched by the adapter",
+      "sublabel": "REVIEW_LAUNCH_TARGET / REVIEW_LAUNCH_ARGV",
+      "tag": "Only when the adapter lacks an extra-argv input",
+      "pos": [
+        740,
+        310
+      ],
+      "size": [
+        250,
+        84
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "from": "source",
+      "to": "export",
+      "label": "When sharing",
+      "variant": "emphasis"
+    },
+    {
+      "from": "export",
+      "to": "dist",
+      "label": "Clean copy",
+      "variant": "emphasis"
+    },
+    {
+      "from": "source",
+      "to": "records",
+      "label": "Read/write per project"
+    },
+    {
+      "from": "tests",
+      "to": "source",
+      "label": "When validating",
+      "labelDy": 28
+    },
+    {
+      "from": "source",
+      "to": "private",
+      "label": "Local runtime output",
+      "labelDy": 24
+    },
+    {
+      "from": "lock",
+      "to": "private",
+      "label": "Build lock helper"
+    },
+    {
+      "from": "source",
+      "to": "argv",
+      "label": "Only if needed"
+    },
+    {
+      "from": "argv",
+      "to": "native",
+      "label": "Forward argv and raw streams",
+      "labelDy": 24
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Finding records",
+      "items": [
+        "The index finds related topics; a run freezes its settings; an exchange saves one complete letter round trip.",
+        "adoption stores the decision rationale; skill-improvements.md keeps proposals outside tool-managed state."
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Supporting work runs only when needed",
+      "items": [
+        "Tests and export are on demand. Offline contract tests do not measure real reviewer effectiveness.",
+        "_private/work is only a cwd, not read isolation. The outer Windows Job owns launcher process cleanup."
+      ]
+    }
+  ]
+}

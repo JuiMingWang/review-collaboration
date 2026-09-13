@@ -1,10 +1,9 @@
-# 這份 skill 覆寫前的本機備份，屬於個人保險用檔案，不隨 repo 公開
-SKILL.md.backup-*
-
-# 實際跑審查時，v1 CLI 會在「被審查的目標專案」底下產生這個資料夾；
-# 萬一有人直接在這個 repo 自己的資料夾裡試跑，狀態檔不該進版本控制
-.review-collaboration/
-
-# 開發過程副檔案（測試、圖表工具、eval、開發規劃文件等）：
-# 本機保留、不隨公開 repo 上傳，見 _local-dev/README.md
-_local-dev/
+**/_private/
+**/node_modules/
+**/.review-collaboration/
+.local/
+evidence/
+.env
+.env.*
+*.log
+*.visual-check.*

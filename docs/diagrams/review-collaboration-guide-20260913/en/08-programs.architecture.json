@@ -1,0 +1,220 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "08 | Program responsibilities: what each tool does",
+    "quality_profile": "showcase",
+    "viewBox": [
+      1030,
+      480
+    ],
+    "locale": "en"
+  },
+  "components": [
+    {
+      "id": "transport",
+      "type": "security",
+      "label": "Deadlines and process-tree cleanup",
+      "sublabel": "scripts/invoke-process.ps1",
+      "tag": "ProcessTransport.cs",
+      "pos": [
+        40,
+        30
+      ],
+      "size": [
+        250,
+        84
+      ]
+    },
+    {
+      "id": "profile",
+      "type": "backend",
+      "label": "Tool identity and reviewer preferences",
+      "sublabel": "reviewer-profile.mjs",
+      "tag": "resolve / profile-set / one-run override",
+      "pos": [
+        390,
+        30
+      ],
+      "size": [
+        250,
+        84
+      ]
+    },
+    {
+      "id": "route",
+      "type": "security",
+      "label": "Routes and material-control evidence",
+      "sublabel": "acp-route.mjs",
+      "tag": "Discover candidate, probe, save verified results",
+      "pos": [
+        740,
+        30
+      ],
+      "size": [
+        250,
+        84
+      ]
+    },
+    {
+      "id": "wrapper",
+      "type": "messagebus",
+      "label": "JSON entry and process ownership",
+      "sublabel": "scripts/review-mail.ps1",
+      "tag": "Original invocation, deadline, bounded finalize",
+      "pos": [
+        40,
+        170
+      ],
+      "size": [
+        250,
+        84
+      ]
+    },
+    {
+      "id": "dispatch",
+      "type": "backend",
+      "label": "Validate and dispatch 12 actions",
+      "sublabel": "scripts/review-mail.mjs",
+      "tag": "Fields, same-tool rejection, route and run checks",
+      "pos": [
+        390,
+        170
+      ],
+      "size": [
+        250,
+        84
+      ]
+    },
+    {
+      "id": "exchange",
+      "type": "messagebus",
+      "label": "Archive, send once, check completion",
+      "sublabel": "mail-exchange.mjs",
+      "tag": "exchange / status / cancel / finalize",
+      "pos": [
+        740,
+        170
+      ],
+      "size": [
+        250,
+        84
+      ]
+    },
+    {
+      "id": "safe",
+      "type": "security",
+      "label": "Safe files and shared data contracts",
+      "sublabel": "safe-files.mjs · mail-contract.mjs",
+      "tag": "Paths, IDs, UTF-8, hashes, result classification",
+      "pos": [
+        40,
+        310
+      ],
+      "size": [
+        250,
+        84
+      ]
+    },
+    {
+      "id": "store",
+      "type": "database",
+      "label": "Records and immutable letters",
+      "sublabel": "mail-store.mjs",
+      "tag": "Revisions, short locks, notes, original recovery",
+      "pos": [
+        390,
+        310
+      ],
+      "size": [
+        250,
+        84
+      ]
+    },
+    {
+      "id": "client",
+      "type": "backend",
+      "label": "ACP handshake, authentication, sessions",
+      "sublabel": "acp-client.mjs",
+      "tag": "SDK streaming, prompts, cancel, stop reasons",
+      "pos": [
+        740,
+        310
+      ],
+      "size": [
+        250,
+        84
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "from": "wrapper",
+      "to": "dispatch",
+      "label": "Bounded call",
+      "variant": "emphasis"
+    },
+    {
+      "from": "dispatch",
+      "to": "exchange",
+      "label": "Mail actions",
+      "variant": "emphasis"
+    },
+    {
+      "from": "wrapper",
+      "to": "transport",
+      "label": "Start and clean"
+    },
+    {
+      "from": "dispatch",
+      "to": "profile",
+      "label": "Read selection"
+    },
+    {
+      "from": "profile",
+      "to": "route",
+      "label": "Load route"
+    },
+    {
+      "from": "exchange",
+      "to": "route",
+      "label": "Verify route"
+    },
+    {
+      "from": "exchange",
+      "to": "client",
+      "label": "Exchange model letters",
+      "variant": "emphasis",
+      "labelDy": 24
+    },
+    {
+      "from": "dispatch",
+      "to": "store",
+      "label": "Record actions",
+      "labelDy": 24
+    },
+    {
+      "from": "store",
+      "to": "safe",
+      "label": "Shared checks"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Reading the dependencies",
+      "items": [
+        "Main path: PowerShell entry → Node dispatcher → mail exchange → ACP client.",
+        "Arrows show primary dependencies; shared modules have other callers. This is not a complete import graph."
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Programs and agents have different responsibilities",
+      "items": [
+        "Programs preserve and verify delivery evidence. Agents compare options and decide whether to adopt.",
+        "Unqualified module names live in scripts/lib. Locks, optional launcher, tests, and export are in 09."
+      ]
+    }
+  ]
+}

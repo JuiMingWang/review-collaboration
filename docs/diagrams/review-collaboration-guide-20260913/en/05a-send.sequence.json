@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "05a | Normal delivery: check, archive, send, and receive",
+    "quality_profile": "showcase",
+    "column_fit": "spread",
+    "viewBox": [
+      1080,
+      500
+    ],
+    "locale": "en"
+  },
+  "participants": [
+    {
+      "id": "helper",
+      "type": "frontend",
+      "label": "Native delegate",
+      "sublabel": "Prepares authorized letters"
+    },
+    {
+      "id": "wrapper",
+      "type": "messagebus",
+      "label": "Bounded process entry",
+      "sublabel": "review-mail.ps1"
+    },
+    {
+      "id": "client",
+      "type": "backend",
+      "label": "Node mail tools",
+      "sublabel": "review-mail.mjs"
+    },
+    {
+      "id": "reviewer",
+      "type": "external",
+      "label": "External reviewer",
+      "sublabel": "Native ACP or verified adapter"
+    },
+    {
+      "id": "records",
+      "type": "database",
+      "label": "Project mail records",
+      "sublabel": ".review-collaboration"
+    }
+  ],
+  "messages": [
+    {
+      "from": "helper",
+      "to": "wrapper",
+      "y": 180,
+      "label": "1 exchange request JSON",
+      "variant": "emphasis"
+    },
+    {
+      "from": "wrapper",
+      "to": "client",
+      "y": 220,
+      "label": "2 Start tools in a Windows Job"
+    },
+    {
+      "from": "client",
+      "to": "records",
+      "y": 260,
+      "label": "3 Validate and archive letter, input, dispatch; mark delivery unknown first"
+    },
+    {
+      "from": "client",
+      "to": "reviewer",
+      "y": 300,
+      "label": "4 Initialize, authenticate if needed, session, prompt",
+      "variant": "emphasis"
+    },
+    {
+      "from": "reviewer",
+      "to": "client",
+      "y": 340,
+      "label": "5 Stream text and stop reason over the same ACP connection",
+      "variant": "return"
+    },
+    {
+      "from": "client",
+      "to": "records",
+      "y": 380,
+      "label": "6 Save partial text first; save reply and agent-result only after a stop message"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Reading order",
+      "items": [
+        "Read downward: the delegate calls the entry, tools archive the letter, and ACP carries the reply back.",
+        "05b continues at step 7 with process cleanup and completion evidence."
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Preserve failures; never invent success or resend blindly",
+      "items": [
+        "Missing stop/cleanup evidence, refusal, and cancellation retain their actual status; see 06.",
+        "reply-ready confirms receipt integrity only. Content checks and adoption are in 04."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,175 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "04b｜主端收到什麼，如何決定採納",
+    "quality_profile": "showcase"
+  },
+  "lanes": [
+    {
+      "id": "return",
+      "label": "代理回報：精簡不等於只剩一句結論"
+    },
+    {
+      "id": "accept",
+      "label": "主端驗收：對照目前任務與真實成果"
+    },
+    {
+      "id": "record",
+      "label": "保存決定並結束普通審查"
+    }
+  ],
+  "mainPath": [
+    "brief",
+    "integrity",
+    "current",
+    "decision",
+    "note"
+  ],
+  "nodes": [
+    {
+      "id": "brief",
+      "lane": "return",
+      "col": 0,
+      "type": "messagebus",
+      "label": "1 核對重要問題並回報處理結果",
+      "sublabel": "逐項有理由或明示未解；合併重複，保留證據",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "integrity",
+      "lane": "return",
+      "col": 1,
+      "type": "backend",
+      "label": "2 status 核對完成證據",
+      "sublabel": "reply-ready 只是收發完整，尚未語意採納",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "current",
+      "lane": "return",
+      "col": 2,
+      "type": "frontend",
+      "label": "3 對照目前目標與實際成果",
+      "sublabel": "重要來源按需查閱；操作失敗不可埋在附件",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "clarify",
+      "lane": "accept",
+      "col": 0,
+      "type": "backend",
+      "label": "只追問會影響採納的缺口",
+      "sublabel": "明確指出需補什麼；交圖 04a 處理",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "premise",
+      "lane": "accept",
+      "col": 1,
+      "type": "backend",
+      "label": "前提變了先 note premise-change",
+      "sublabel": "增加 topic revision；舊回信需重新評估",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "decision",
+      "lane": "accept",
+      "col": 2,
+      "type": "frontend",
+      "label": "4 接受、部分接受或拒絕",
+      "sublabel": "理由依證據、推理與適用性；不強迫共識",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "ordinaryEnd",
+      "lane": "record",
+      "col": 1,
+      "type": "backend",
+      "label": "6 普通審查結束",
+      "sublabel": "回報 reviewer、設定、結論、分歧與限制",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "note",
+      "lane": "record",
+      "col": 2,
+      "type": "database",
+      "label": "5 note adoption 保存理由",
+      "sublabel": "順手記已見有用觀察、證據與 skill 版本",
+      "width": 220,
+      "height": 92
+    }
+  ],
+  "edges": [
+    {
+      "from": "brief",
+      "to": "integrity",
+      "label": "附精確來源"
+    },
+    {
+      "from": "integrity",
+      "to": "current",
+      "label": "收發證據完整"
+    },
+    {
+      "from": "current",
+      "to": "decision",
+      "label": "前提未變"
+    },
+    {
+      "from": "current",
+      "to": "premise",
+      "label": "前提有變",
+      "role": "return",
+      "route": "drop"
+    },
+    {
+      "from": "premise",
+      "to": "decision",
+      "label": "重新評估後"
+    },
+    {
+      "from": "decision",
+      "to": "clarify",
+      "label": "重要缺口待補",
+      "role": "return"
+    },
+    {
+      "from": "decision",
+      "to": "note",
+      "label": "形成採納決定"
+    },
+    {
+      "from": "note",
+      "to": "ordinaryEnd",
+      "label": "保存後結束",
+      "role": "return"
+    }
+  ],
+  "cards": [
+    {
+      "title": "主端保留的必要資訊",
+      "items": [
+        "本次重要問題與疑慮都須有交代；可合併重複項，不能在摘要中消失。",
+        "資訊不能僅靠雜湊證明完整；缺失仍可能需要原始材料補足。"
+      ],
+      "dot": "cyan"
+    },
+    {
+      "title": "普通審查不額外啟動維護",
+      "items": [
+        "沒有每輪評估報告或自動改 skill；使用者另提維護才進圖 07。",
+        "溝通授權不等於編輯或發布成果授權；note 的 revision 衝突不得硬覆寫。"
+      ],
+      "dot": "amber"
+    }
+  ]
+}

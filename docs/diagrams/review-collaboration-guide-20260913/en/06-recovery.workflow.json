@@ -1,0 +1,180 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "06 | Read the actual state before choosing a recovery action",
+    "quality_profile": "showcase",
+    "locale": "en"
+  },
+  "lanes": [
+    {
+      "id": "inspect",
+      "label": "Read existing evidence; the three branches are alternatives"
+    },
+    {
+      "id": "actions",
+      "label": "status, recover, and cancel send no new model prompt"
+    },
+    {
+      "id": "results",
+      "label": "Preserve the actual state and report material limits to the host"
+    }
+  ],
+  "mainPath": [
+    "status",
+    "classify",
+    "result"
+  ],
+  "nodes": [
+    {
+      "id": "status",
+      "lane": "inspect",
+      "col": 0,
+      "type": "database",
+      "label": "1 Read status and evidence",
+      "sublabel": "State, completion, original receipt",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "classify",
+      "lane": "inspect",
+      "col": 1,
+      "type": "security",
+      "label": "2 Identify the actual state",
+      "sublabel": "Text or exit 0 is not completion proof",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "result",
+      "lane": "inspect",
+      "col": 2,
+      "type": "messagebus",
+      "label": "Complete and reply-ready",
+      "sublabel": "Go to 04; check content and adoption",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "recover",
+      "lane": "actions",
+      "col": 0,
+      "type": "backend",
+      "label": "recover original evidence",
+      "sublabel": "Finalize only correlated results; no resend",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "cancel",
+      "lane": "actions",
+      "col": 1,
+      "type": "backend",
+      "label": "Read ended; cancel if active",
+      "sublabel": "Marker requests a stop; not proof",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "continuity",
+      "lane": "actions",
+      "col": 2,
+      "type": "backend",
+      "label": "Busy run or expired session",
+      "sublabel": "Wait if busy; rebuild lost context",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "unknown",
+      "lane": "results",
+      "col": 0,
+      "type": "security",
+      "label": "Unconfirmed: keep unknown",
+      "sublabel": "No new IDs to bypass missing evidence",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "stopped",
+      "lane": "results",
+      "col": 1,
+      "type": "backend",
+      "label": "status: outcome and reason",
+      "sublabel": "cancelled / refused / incomplete / failed",
+      "width": 220,
+      "height": 92
+    },
+    {
+      "id": "reconstruct",
+      "lane": "results",
+      "col": 2,
+      "type": "backend",
+      "label": "Rebuild in a new exchange",
+      "sublabel": "Bounded excerpts; reconstructed letters",
+      "width": 220,
+      "height": 92
+    }
+  ],
+  "edges": [
+    {
+      "from": "status",
+      "to": "classify"
+    },
+    {
+      "from": "classify",
+      "to": "result",
+      "label": "Complete evidence"
+    },
+    {
+      "from": "classify",
+      "to": "recover",
+      "label": "Delivery/cleanup unknown",
+      "role": "return"
+    },
+    {
+      "from": "classify",
+      "to": "cancel",
+      "label": "Ended or needs stop"
+    },
+    {
+      "from": "classify",
+      "to": "continuity",
+      "label": "Busy or cannot resume"
+    },
+    {
+      "from": "recover",
+      "to": "unknown",
+      "label": "Evidence still missing"
+    },
+    {
+      "from": "cancel",
+      "to": "stopped",
+      "label": "Check status again"
+    },
+    {
+      "from": "continuity",
+      "to": "reconstruct",
+      "label": "Native session lost"
+    }
+  ],
+  "cards": [
+    {
+      "title": "Recovery and waiting",
+      "items": [
+        "After recover reconstructs a complete original result, read status again. Recovery does not resend the letter.",
+        "For run-busy, save the new draft and wait. One run permits only one active exchange."
+      ],
+      "dot": "cyan"
+    },
+    {
+      "title": "Continuity and deadlines",
+      "items": [
+        "auto uses the native session from previous_exchange_id; failure does not silently replay history.",
+        "run-open sets the prompt deadline; outer grace is 15 seconds, cancel grace 10. Timeout cannot guarantee remote stop."
+      ],
+      "dot": "amber"
+    }
+  ]
+}

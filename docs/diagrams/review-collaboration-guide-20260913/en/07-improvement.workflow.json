@@ -1,0 +1,190 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "07 | Evidence-based proposals, then a batch decision",
+    "quality_profile": "showcase",
+    "locale": "en"
+  },
+  "lanes": [
+    {
+      "id": "evidence",
+      "label": "This branch starts only when the user requests maintenance"
+    },
+    {
+      "id": "decision",
+      "label": "Turn improvement options into concrete, reviewable changes"
+    },
+    {
+      "id": "finish",
+      "label": "Make scoped edits and stop; use later outcomes at the next requested review"
+    }
+  ],
+  "mainPath": [
+    "request",
+    "cause",
+    "proposal"
+  ],
+  "nodes": [
+    {
+      "id": "request",
+      "lane": "evidence",
+      "col": 0,
+      "type": "database",
+      "label": "1 Read selected usage evidence",
+      "sublabel": "Adoption, corrections, sources, revision",
+      "width": 280,
+      "height": 92
+    },
+    {
+      "id": "cause",
+      "lane": "evidence",
+      "col": 2,
+      "type": "backend",
+      "label": "2 Locate the cause",
+      "sublabel": "Obtainable then; could affect choice?",
+      "width": 280,
+      "height": 92
+    },
+    {
+      "id": "proposal",
+      "lane": "evidence",
+      "col": 5,
+      "type": "backend",
+      "label": "3 Keep, delete, merge, or edit",
+      "sublabel": "Exact text and tradeoffs; add if needed",
+      "width": 280,
+      "height": 92
+    },
+    {
+      "id": "unchanged",
+      "lane": "decision",
+      "col": 0,
+      "type": "backend",
+      "label": "Keep unchanged without a case",
+      "sublabel": "Account for observations with evidence",
+      "width": 280,
+      "height": 92
+    },
+    {
+      "id": "ledger",
+      "lane": "decision",
+      "col": 2,
+      "type": "database",
+      "label": "4 Save consolidated proposals",
+      "sublabel": "record root / skill-improvements.md",
+      "width": 280,
+      "height": 92
+    },
+    {
+      "id": "batch",
+      "lane": "decision",
+      "col": 5,
+      "type": "external",
+      "label": "5 User decides as a batch",
+      "sublabel": "Accept, defer, or reject; record reasons",
+      "width": 280,
+      "height": 92
+    },
+    {
+      "id": "later",
+      "lane": "finish",
+      "col": 0,
+      "type": "backend",
+      "label": "Revisit at requested maintenance",
+      "sublabel": "Later outcomes may confirm or refute",
+      "width": 280,
+      "height": 92
+    },
+    {
+      "id": "stop",
+      "lane": "finish",
+      "col": 2,
+      "type": "backend",
+      "label": "7 Check adopted changes and stop",
+      "sublabel": "Links and revision; no endless reopening",
+      "width": 280,
+      "height": 92
+    },
+    {
+      "id": "apply",
+      "lane": "finish",
+      "col": 5,
+      "type": "backend",
+      "label": "6 Back up and apply scoped edits",
+      "sublabel": "Active runs keep the supplied procedure",
+      "width": 280,
+      "height": 92
+    }
+  ],
+  "edges": [
+    {
+      "from": "request",
+      "to": "cause"
+    },
+    {
+      "from": "cause",
+      "to": "proposal",
+      "label": "Change justified"
+    },
+    {
+      "from": "cause",
+      "to": "unchanged",
+      "label": "Keep guidance",
+      "role": "return"
+    },
+    {
+      "from": "proposal",
+      "to": "ledger",
+      "label": "Merge repeats",
+      "role": "return"
+    },
+    {
+      "from": "ledger",
+      "to": "batch",
+      "label": "Exact changes"
+    },
+    {
+      "from": "batch",
+      "to": "apply",
+      "label": "Accepted"
+    },
+    {
+      "from": "batch",
+      "to": "stop",
+      "label": "Defer or reject",
+      "role": "return"
+    },
+    {
+      "from": "apply",
+      "to": "stop",
+      "label": "Checks complete",
+      "role": "return"
+    },
+    {
+      "from": "stop",
+      "to": "later",
+      "label": "New evidence or scope",
+      "role": "return"
+    }
+  ],
+  "cards": [
+    {
+      "title": "Attribution and revision boundaries",
+      "items": [
+        "Separate context, tool faults, local choices, and guidance. Record changed conditions or uncertain attribution honestly.",
+        "Check the current base before backup and scoped edits; revise proposals if it changed. Installation and publication keep their own scope."
+      ],
+      "dot": "cyan"
+    },
+    {
+      "title": "No automatic evaluation or rule growth after every use",
+      "items": [
+        "Ordinary reviews retain observations already seen; maintenance requires no extra reviewer or model experiment.",
+        "Count the guidance actually loaded together. Unmeasured cost stays unknown; no feedback is not success.",
+        "Later outcomes can also leave the proposed benefit uncertain."
+      ],
+      "dot": "amber"
+    }
+  ]
+}

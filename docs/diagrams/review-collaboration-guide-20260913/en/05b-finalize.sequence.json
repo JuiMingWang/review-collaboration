@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "05b | Normal completion: publish only after process cleanup",
+    "quality_profile": "showcase",
+    "column_fit": "spread",
+    "viewBox": [
+      1080,
+      500
+    ],
+    "locale": "en"
+  },
+  "participants": [
+    {
+      "id": "helper",
+      "type": "frontend",
+      "label": "Native delegate",
+      "sublabel": "Prepares authorized letters"
+    },
+    {
+      "id": "wrapper",
+      "type": "messagebus",
+      "label": "Bounded process entry",
+      "sublabel": "review-mail.ps1"
+    },
+    {
+      "id": "client",
+      "type": "backend",
+      "label": "Node mail tools",
+      "sublabel": "review-mail.mjs"
+    },
+    {
+      "id": "reviewer",
+      "type": "external",
+      "label": "External reviewer",
+      "sublabel": "Native ACP or verified adapter"
+    },
+    {
+      "id": "records",
+      "type": "database",
+      "label": "Project mail records",
+      "sublabel": ".review-collaboration"
+    }
+  ],
+  "messages": [
+    {
+      "from": "client",
+      "to": "wrapper",
+      "y": 180,
+      "label": "7 Turn ends; outer wrapper cleans the process tree",
+      "variant": "return"
+    },
+    {
+      "from": "wrapper",
+      "to": "records",
+      "y": 220,
+      "label": "8 Save the original invocation's transport/receipt.json"
+    },
+    {
+      "from": "wrapper",
+      "to": "client",
+      "y": 260,
+      "label": "9 Start a separate bounded finalize operation"
+    },
+    {
+      "from": "client",
+      "to": "records",
+      "y": 300,
+      "label": "10 Correlate input, reply, and receipt hashes; publish completion.json"
+    },
+    {
+      "from": "client",
+      "to": "wrapper",
+      "y": 340,
+      "label": "11 Normal reply and complete evidence: reply-ready",
+      "variant": "return"
+    },
+    {
+      "from": "wrapper",
+      "to": "helper",
+      "y": 380,
+      "label": "12 Return mail-result.json",
+      "variant": "return"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Reading order",
+      "items": [
+        "Continue after 05a saved the reply. The outer wrapper cleans up before a separate bounded finalize.",
+        "Even after reply-ready, the host needs the content checks and adoption in 04."
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Preserve failures; never invent success or resend blindly",
+      "items": [
+        "Missing stop/cleanup evidence, refusal, and cancellation retain their actual status; see 06.",
+        "reply-ready confirms receipt integrity only. Content checks and adoption are in 04."
+      ]
+    }
+  ]
+}

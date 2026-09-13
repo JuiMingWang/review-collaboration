@@ -1,0 +1,219 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "08｜程式分工：每個工具負責什麼",
+    "quality_profile": "showcase",
+    "viewBox": [
+      1030,
+      480
+    ]
+  },
+  "components": [
+    {
+      "id": "transport",
+      "type": "security",
+      "label": "程序期限與整棵程序樹清理",
+      "sublabel": "scripts/invoke-process.ps1",
+      "tag": "ProcessTransport.cs",
+      "pos": [
+        40,
+        30
+      ],
+      "size": [
+        250,
+        84
+      ]
+    },
+    {
+      "id": "profile",
+      "type": "backend",
+      "label": "工具身分、預設選擇與版本衝突",
+      "sublabel": "reviewer-profile.mjs",
+      "tag": "resolve / profile-set / 單次覆寫",
+      "pos": [
+        390,
+        30
+      ],
+      "size": [
+        250,
+        84
+      ]
+    },
+    {
+      "id": "route",
+      "type": "security",
+      "label": "路線指紋、入口及資料控制證據",
+      "sublabel": "acp-route.mjs",
+      "tag": "發現候選、probe、保存核對結果",
+      "pos": [
+        740,
+        30
+      ],
+      "size": [
+        250,
+        84
+      ]
+    },
+    {
+      "id": "wrapper",
+      "type": "messagebus",
+      "label": "JSON 呼叫入口及程序擁有者",
+      "sublabel": "scripts/review-mail.ps1",
+      "tag": "原 invocation、期限及有界 finalize",
+      "pos": [
+        40,
+        170
+      ],
+      "size": [
+        250,
+        84
+      ]
+    },
+    {
+      "id": "dispatch",
+      "type": "backend",
+      "label": "檢查請求並分派 12 個 action",
+      "sublabel": "scripts/review-mail.mjs",
+      "tag": "欄位、同工具拒絕、route 與 run 檢查",
+      "pos": [
+        390,
+        170
+      ],
+      "size": [
+        250,
+        84
+      ]
+    },
+    {
+      "id": "exchange",
+      "type": "messagebus",
+      "label": "封信、送一次、狀態與完成核對",
+      "sublabel": "mail-exchange.mjs",
+      "tag": "exchange / status / cancel / finalize",
+      "pos": [
+        740,
+        170
+      ],
+      "size": [
+        250,
+        84
+      ]
+    },
+    {
+      "id": "safe",
+      "type": "security",
+      "label": "安全檔案與共用資料契約",
+      "sublabel": "safe-files.mjs · mail-contract.mjs",
+      "tag": "路徑、ID、UTF-8、雜湊及結果分類",
+      "pos": [
+        40,
+        310
+      ],
+      "size": [
+        250,
+        84
+      ]
+    },
+    {
+      "id": "store",
+      "type": "database",
+      "label": "專案、議題、回合與不可變信件",
+      "sublabel": "mail-store.mjs",
+      "tag": "版本、短鎖、notes 與恢復原證據",
+      "pos": [
+        390,
+        310
+      ],
+      "size": [
+        250,
+        84
+      ]
+    },
+    {
+      "id": "client",
+      "type": "backend",
+      "label": "ACP 握手、認證及 session 收發",
+      "sublabel": "acp-client.mjs",
+      "tag": "SDK 串流、prompt、取消與停止原因",
+      "pos": [
+        740,
+        310
+      ],
+      "size": [
+        250,
+        84
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "from": "wrapper",
+      "to": "dispatch",
+      "label": "有界呼叫",
+      "variant": "emphasis"
+    },
+    {
+      "from": "dispatch",
+      "to": "exchange",
+      "label": "信件動作",
+      "variant": "emphasis"
+    },
+    {
+      "from": "wrapper",
+      "to": "transport",
+      "label": "啟動與清理"
+    },
+    {
+      "from": "dispatch",
+      "to": "profile",
+      "label": "讀取選擇"
+    },
+    {
+      "from": "profile",
+      "to": "route",
+      "label": "載入 route"
+    },
+    {
+      "from": "exchange",
+      "to": "route",
+      "label": "核對路線"
+    },
+    {
+      "from": "exchange",
+      "to": "client",
+      "label": "送收模型信件",
+      "variant": "emphasis",
+      "labelDy": 24
+    },
+    {
+      "from": "dispatch",
+      "to": "store",
+      "label": "紀錄動作",
+      "labelDy": 24
+    },
+    {
+      "from": "store",
+      "to": "safe",
+      "label": "共用檢查"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "讀圖方式",
+      "items": [
+        "橫向主線：PowerShell 入口 → Node 分派 → 信件操作 → ACP client。",
+        "箭頭標主要依賴；底層共用模組也由其他模組引用，非完整 import 圖。"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "工具與 agent 的責任不同",
+      "items": [
+        "程式保存與核對收發證據，不比較方案價值、不決定採納。",
+        "未標目錄的模組在 scripts/lib；短鎖、可選 launcher、測試及匯出見圖 09。"
+      ]
+    }
+  ]
+}
