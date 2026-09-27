@@ -22,7 +22,8 @@ README 顯示靜態預覽。GitHub 會顯示 HTML 原始碼，不直接執行圖
 
 | 條件 | 需要準備什麼 |
 | --- | --- |
-| Windows 環境 | PowerShell 5.1、.NET Framework 編譯器及 Node.js。已測基準為 Node v24.18.0，其他版本需另行核對。 |
+| Windows 環境 | Windows PowerShell 5.1、.NET Framework 編譯器及 Node.js。已測基準為 Node v24.18.0，乾淨環境檢查另通過 Node 20 與 22；其他版本需另行核對。從 PowerShell 7 視窗啟動也可以，腳本本身仍在 Windows PowerShell 5.1 執行。 |
+| Windows 應用程式控制 | 第一次使用時，skill 會用自己的原始碼在本機編譯兩個小工具。Windows 11 的 Smart App Control 等原則可能不允許這類未簽章檔案啟動；此時會回報 `lock-helper-launch-failed`（或 `launcher-launch-failed`），且不保留被拒絕的檔案。 |
 | 主端 agent | 能讀取 skill、呼叫本機工具，並派出真正的原生 subagent。主端不需要 ACP server。 |
 | 外部 reviewer | 已安裝的 agent、可用的登入狀態，以及原生 ACP 或經核對的相容 adapter。一般 CLI 能啟動不代表 ACP 可用。 |
 | ACP 路線 | 核對實際入口、版本、設定及可接觸／外送的資料。發現候選、握手、登入、完整回信是不同證據。 |
@@ -96,7 +97,9 @@ npm.cmd ci --ignore-scripts
 
 ## 版本與驗證範圍
 
-本次為 **R12（2026-09-28）**，helper 的 package 版本仍為 `0.1.0`；R12 表示文件與來源快照，不是 npm 發布版本。相較 R11，審查會逐點討論到有結論（同意、依證據解決，或雙方說明理由後的分歧）或達續談上限為止，被駁回的論點附理由送回 reviewer；圖 03、04a、04b 已配合重繪。收發行為及依賴版本未改。
+本次為 **R13（2026-09-28）**，helper 的 package 版本仍為 `0.1.0`；R13 表示文件與來源快照，不是 npm 發布版本。相較 R12，修正在乾淨 Windows 環境安裝時發現的問題：安裝路徑較長時，.NET Framework 編譯器會先時好時壞、再完全失敗，現在改在短暫存資料夾編譯；編譯失敗會分別回報逾時、找不到編譯器或編譯錯誤；Windows 不允許啟動的小工具會被回報且不存入快取，不再讓之後每次呼叫都失敗；從 PowerShell 7 啟動時不再缺少 Windows PowerShell 的指令；Node 22 在含非 ASCII 字元的資料夾上跑測試不再崩潰。其餘 18 張圖以同一版 Viewer 重新產生，圖形不變。審查程序及依賴版本未改。
+
+[可攜性檢查](.github/workflows/portability-check.yml) 會在乾淨的 Windows 環境，以 Node 20、22、24 重複上面的安裝步驟，並包含含空格、中文與方括號的資料夾路徑。
 
 測試入口與指令見 [套件 README](skills/review-collaboration/README.md#verify-and-share)，相容性宣稱需依 [驗證層級與限制](skills/review-collaboration/references/verification.md)。圖稿另有 [驗證摘要](docs/diagrams/review-collaboration-guide-20260913/VALIDATION.md)；圖形檢查通過不能證明 token 更少、零資訊流失或每個任務都判斷正確。
 

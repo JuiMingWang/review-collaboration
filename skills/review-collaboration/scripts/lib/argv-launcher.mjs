@@ -1,6 +1,6 @@
 import {fileURLToPath} from 'node:url';
 import {dirname,join,resolve} from 'node:path';
-import {existsSync,mkdirSync,readFileSync,writeFileSync,renameSync} from 'node:fs';
+import {existsSync,mkdirSync,readFileSync,writeFileSync,renameSync,rmSync} from 'node:fs';
 import {safePath,privateWritable} from './safe-files.mjs';
 import {fail,sha256Hex,newUuid} from './mail-contract.mjs';
 import {runBuilder,failBuild} from './windows-lock.mjs';
@@ -10,14 +10,14 @@ const builder=fileURLToPath(new URL('./build-argv-launcher.ps1',import.meta.url)
 const cache=fileURLToPath(new URL('../../_private/runtime/',import.meta.url));
 export function prepareArgvLauncher(){
  const digest=sha256Hex(Buffer.concat([readFileSync(source),readFileSync(builder)]));
- const dir=join(cache,'argv-'+digest),exe=join(dir,'ArgvLauncher.exe');
+ const dir=join(cache,'argv-'+digest.slice(0,16)),exe=join(dir,'ArgvLauncher.exe');
  safePath(cache);
  if(!existsSync(dir)){
   privateWritable(dirname(cache));mkdirSync(cache,{recursive:true});
-  const staging=join(cache,'argv-'+digest+'-'+newUuid());mkdirSync(staging);
+  const staging=join(cache,'build-'+newUuid().slice(0,8));mkdirSync(staging);
   const output=join(staging,'ArgvLauncher.exe');
   const built=runBuilder(builder,output);
-  if(!built.ok)failBuild('launcher',built);
+  if(!built.ok){rmSync(staging,{recursive:true,force:true});failBuild('launcher',built);}
   writeFileSync(join(staging,'manifest.json'),JSON.stringify({source_sha256:digest,executable_sha256:sha256Hex(readFileSync(output))}),{flag:'wx'});
   try{renameSync(staging,dir);}catch(error){if(!existsSync(dir))throw error;}
  }

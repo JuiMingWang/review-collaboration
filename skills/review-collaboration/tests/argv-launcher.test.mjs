@@ -2,10 +2,10 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {spawn,spawnSync} from 'node:child_process';
 import {once} from 'node:events';
-import {mkdtempSync,writeFileSync,readFileSync,rmSync} from 'node:fs';
+import {mkdtempSync,mkdirSync,writeFileSync,readFileSync,readdirSync,rmSync,statSync,copyFileSync,existsSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
-import {fileURLToPath} from 'node:url';
+import {fileURLToPath,pathToFileURL} from 'node:url';
 import {prepareArgvLauncher} from '../scripts/lib/argv-launcher.mjs';
 import {runBuilder,failBuild} from '../scripts/lib/windows-lock.mjs';
 
@@ -15,15 +15,44 @@ test('a failed helper build names its cause instead of one catch-all failure',t=
  const slow=runBuilder(script('slow.ps1','Start-Sleep -Seconds 30'),join(root,'slow.exe'),1500);
  assert.equal(slow.reason,'timeout');assert.ok(slow.elapsed_ms<15000,'the build deadline must stop the builder');
  const lockBuilder=fileURLToPath(new URL('../scripts/lib/build-lock-helper.ps1',import.meta.url));
- const rejected=runBuilder(lockBuilder,join(root,'missing-dir','LockTransaction.exe'));
- assert.equal(rejected.reason,'compile-failed');assert.match(rejected.detail,/^compile-failed:CS\d+$/);
+ // The real builder names a compiler rejection; an unwritable output folder is one.
+ const direct=spawnSync('powershell.exe',['-NoProfile','-NonInteractive','-ExecutionPolicy','Bypass','-File',lockBuilder],{input:JSON.stringify({output_file:join(root,'missing-dir','LockTransaction.exe')}),encoding:'utf8',timeout:20000,windowsHide:true});
+ assert.equal(direct.status,1);assert.match(direct.stderr.trim(),/^compile-failed:CS\d+$/);
+ const rejected=runBuilder(script('reject.ps1',"[Console]::Error.WriteLine('compile-failed:CS1002');exit 1"),join(root,'reject.exe'));
+ assert.deepEqual([rejected.reason,rejected.detail],['compile-failed','compile-failed:CS1002']);
  const noCompiler=runBuilder(script('none.ps1',"[Console]::Error.WriteLine('compiler-unavailable:FileNotFoundException');exit 1"),join(root,'none.exe'));
  assert.equal(noCompiler.reason,'compiler-unavailable');
  const silent=runBuilder(script('silent.ps1','exit 0'),join(root,'silent.exe'));
  assert.deepEqual([silent.reason,silent.detail],['failed','exit 0']);
- for(const [built,code] of [[slow,'lock-helper-build-timeout'],[rejected,'lock-helper-compile-failed'],[noCompiler,'lock-helper-compiler-unavailable'],[silent,'lock-helper-build-failed']])
+ // Windows may refuse to start a freshly built file (for example Smart App Control).
+ // A file that cannot start stands in for that: it is reported and never kept.
+ const refused=runBuilder(script('refused.ps1',"$o=([Console]::In.ReadToEnd()|ConvertFrom-Json).output_file;[IO.File]::WriteAllText($o,'not a program')"),join(root,'refused.exe'));
+ assert.equal(refused.reason,'launch-failed');assert.equal(existsSync(join(root,'refused.exe')),false);
+ for(const [built,code] of [[slow,'lock-helper-build-timeout'],[rejected,'lock-helper-compile-failed'],[noCompiler,'lock-helper-compiler-unavailable'],[silent,'lock-helper-build-failed'],[refused,'lock-helper-launch-failed']])
   assert.throws(()=>failBuild('lock-helper',built),e=>e.code===code);
  assert.throws(()=>failBuild('launcher',slow),e=>e.code==='launcher-build-timeout');
+});
+
+test('helpers build and run when the skill folder has a long path',async t=>{
+ // The .NET Framework compiler writes temporary files beside its output and fails
+ // once that path nears 260 characters: at first only sometimes (CS1567), then always.
+ const root=mkdtempSync(join(tmpdir(),'review-long-'));t.after(()=>rmSync(root,{recursive:true,force:true}));
+ let pkg=root;for(let i=0;pkg.length<140;i++)pkg=join(pkg,'long-install-path-'+i);
+ const copy=(from,to)=>{if(statSync(from).isDirectory()){mkdirSync(to,{recursive:true});for(const n of readdirSync(from))copy(join(from,n),join(to,n));}else copyFileSync(from,to);};
+ copy(fileURLToPath(new URL('../scripts',import.meta.url)),join(pkg,'scripts'));
+ const {mutateLock}=await import(pathToFileURL(join(pkg,'scripts','lib','windows-lock.mjs')).href);
+ const {prepareArgvLauncher:prepareLong}=await import(pathToFileURL(join(pkg,'scripts','lib','argv-launcher.mjs')).href);
+ // Each call here is a fresh build. Where an application control policy (for example
+ // Smart App Control) refuses a new unsigned file, the build itself still succeeded;
+ // that refusal must be reported and the file not kept. A compile failure never passes.
+ const runtime=join(pkg,'_private','runtime');
+ const cached=()=>existsSync(runtime)?readdirSync(runtime).filter(n=>!n.startsWith('build-')):[];
+ const outcome=(call,refused)=>{try{return call();}catch(e){assert.equal(e.code,refused,e.message);return 'refused';}};
+ const before=cached().length;
+ const lock=outcome(()=>mutateLock(join(root,'probe.lock'),'create',{owner:{pid:process.pid,start_time_ms:0,nonce:'long-path'}}).result,'lock-helper-launch-failed');
+ assert.ok(lock==='created'||cached().length===before,'a refused helper is not cached');
+ const launcher=outcome(prepareLong,'launcher-launch-failed');
+ assert.ok(launcher==='refused'||launcher.startsWith(runtime));
 });
 
 test('native launcher preserves argv and duplex bytes, and propagates child failure',t=>{

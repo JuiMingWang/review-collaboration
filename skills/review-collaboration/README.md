@@ -4,7 +4,8 @@ Use your current agent as host and one selected external agent as reviewer. The 
 
 ## Prerequisites
 
-- Windows, PowerShell 5.1, .NET Framework compiler and Node.js. Tested Node: v24.18.0; the ACP SDK does not declare an engines range, so other Node versions need verification.
+- Windows, PowerShell 5.1, .NET Framework compiler and Node.js. Tested Node: v24.18.0; a clean-runner portability check also passes v20 and v22. The ACP SDK does not declare an engines range, so other Node versions need verification. Starting from a PowerShell 7 session is fine; the scripts run in Windows PowerShell 5.1.
+- The two helpers are compiled locally on first use. Windows application control (for example Smart App Control) may refuse to start them; the result is then `lock-helper-launch-failed` or `launcher-launch-failed`, and the refused file is not kept.
 - A host that can read this skill, call local tools and create a real native subagent.
 - An already authenticated reviewer plus a compatible ACP endpoint. An interactive `codex`, `claude`, `pi` or `agy` command alone does not establish an ACP route. A listed adapter is a candidate, not proof of local compatibility.
 - Writable ordinary local directories for this folder's `_private` and the project's `.review-collaboration`; NTFS hard-link support. Records cannot be inside the skill package. UNC/reparse paths are rejected.

@@ -35,28 +35,28 @@ Compare these hashes with any relocated copy of the skill. Code identifiers and 
 
 | File relative to skill root | SHA-256 |
 | --- | --- |
-| README.md | 75b5179311dab651f212f0b4c31a8d5f4d280401d2ae126c6198995d5752dc1a |
+| README.md | 6624944da7c3e00f235815dedf12477a5674cb4262afbfd882ca3a352bf23798 |
 | SKILL.md | 2da33f1a8388ed76da80b93e52309c6cbf101d464aedc687f29ce7b8f6d165c5 |
 | references/data-boundaries.md | bcabc0a16093206eb7b3a9b987f28478435144ad3593f5eaae7dfe127f313fc6 |
 | references/first-connection.md | bd379aaa98ff9d01551fd1efdcec7f5f5fcf9bd3b40cad40ed18f9a3f918c24a |
-| references/mail-records.md | 2d95953758c80f1ae8cc892a6e6f6612f367ea19350073f1de780df3f72c319f |
+| references/mail-records.md | 50e29d38bcf86b434791c46ac92401e9364a2b6b3b460e2fed2b4e9170f36ea2 |
 | references/verification.md | c0e65b7953518b05163ffe81c0e92af4f8dfce375d74c23c6d8a21a3ec987e3f |
-| scripts/export-clean.ps1 | 34a9033ac0ec75b65e69b15e8643d2bfacd1cac704154985dc69ba7855ce7e6c |
+| scripts/export-clean.ps1 | b44fc7bc088cd4c6469d5f05692f04fae1ef7026d62ecf0fcab9a3f7f974e078 |
 | scripts/invoke-process.ps1 | 2c78a98dea6a2212bde41eea6a6eef60c91a79976f4e92f7d41c86205502a4ac |
 | scripts/lib/ArgvLauncher.cs | 4b1ad33f17f062827d48e142fd034e285c1dc7d4bcb399c226554ab6e8f161aa |
 | scripts/lib/LockTransaction.cs | adf6852edf9092b1eaf56484232bae216b91117ce58aaa1cedaad97c7dad090e |
 | scripts/lib/ProcessTransport.cs | 7166ff0322a2e8ab566f5e1543b3ed21c10af7101fc524527d2ce45434cd1d38 |
 | scripts/lib/acp-client.mjs | c4d49624979c64a0e8d210e4bc705ef6405ac07349d8eca4b7a182f5391d9baf |
 | scripts/lib/acp-route.mjs | 442dea258cfaa53f804eb2a3baa9b4fdb6b44816e14dc02dd611f23ed98037e3 |
-| scripts/lib/argv-launcher.mjs | 5ed5fe429b15b3cdc74b0b755704a9c512ac01f7b0926aac94a09c69792b0e97 |
-| scripts/lib/build-argv-launcher.ps1 | e3e98de837489e53e7e1eaf891e45b081ee25cd8010da8cb1d385daa7d2feefa |
-| scripts/lib/build-lock-helper.ps1 | c036deed2a94f4bdc340a375ec997ef281a0e7c8375d5ef9bed22a3f8adf5445 |
+| scripts/lib/argv-launcher.mjs | e7abcad64c0d9582f99561e91cdc122b14858e1eb82903ef046da6d9a66401ce |
+| scripts/lib/build-argv-launcher.ps1 | a5cbe28134f8746a8627e3dd2e9fe7bbbdf71afbc407b817a9cdf42e98168382 |
+| scripts/lib/build-lock-helper.ps1 | 4869f243c429ed73caf793eb548b62f4a9307590aa962e17b5101dec5a074849 |
 | scripts/lib/mail-contract.mjs | 0de8ded0e752486dcd9a7f9e1a716ee669fe168df8ba095ab144030f9f5ec1ac |
 | scripts/lib/mail-exchange.mjs | 9f9035986d7827fbb4f87f2859b1c948ddc37ce72d5f13675fd406a97763db93 |
 | scripts/lib/mail-store.mjs | a70f6af4dac64f45c616d66027c97410f7042698ade0aebe7b78042c49e6ada5 |
 | scripts/lib/reviewer-profile.mjs | 84d088e3a9a6d3c2092f401066d9a13b88daa1dac6a984a978d14ecffbfbe670 |
 | scripts/lib/safe-files.mjs | 3dde4bbc837fcc58f64d0093a326d4b04157077e5e652969e2deb83c32bac763 |
-| scripts/lib/windows-lock.mjs | b9246c6a2af1f455bdb241d5f53bd9be7fb572253bd455e7fc63349c5b7d489d |
+| scripts/lib/windows-lock.mjs | 85395cca408399d55e037f70c3b5bc73719fc584e2741d2c8431f503c7a08408 |
 | scripts/review-mail.mjs | 5fda9fce92bbc6f054ddd1eb17a7fa9a7cfd5e00b0a4917999540c8cd4639da1 |
 | scripts/review-mail.ps1 | f2c319af121c6bf04d68389de400632179631b65ce521fddfa852f14e0723e8d |
 | templates/background.md | 87735682b70a96ff21e7bfa162123aace3ec8b11dc6ebc6ab9e84f2f4d57d293 |

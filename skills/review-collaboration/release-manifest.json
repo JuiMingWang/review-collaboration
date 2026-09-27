@@ -10,7 +10,7 @@
                   },
                   {
                       "path":  "README.md",
-                      "sha256":  "75B5179311DAB651F212F0B4C31A8D5F4D280401D2AE126C6198995D5752DC1A"
+                      "sha256":  "6624944DA7C3E00F235815DEDF12477A5674CB4262AFBFD882CA3A352BF23798"
                   },
                   {
                       "path":  "SKILL.md",
@@ -34,7 +34,7 @@
                   },
                   {
                       "path":  "references/mail-records.md",
-                      "sha256":  "2D95953758C80F1AE8CC892A6E6F6612F367EA19350073F1DE780DF3F72C319F"
+                      "sha256":  "50E29D38BCF86B434791C46AC92401E9364A2B6B3B460E2FED2B4E9170F36EA2"
                   },
                   {
                       "path":  "references/reviewer-discovery.md",
@@ -58,7 +58,7 @@
                   },
                   {
                       "path":  "scripts/export-clean.ps1",
-                      "sha256":  "34A9033AC0EC75B65E69B15E8643D2BFACD1CAC704154985DC69BA7855CE7E6C"
+                      "sha256":  "B44FC7BC088CD4C6469D5F05692F04FAE1EF7026D62ECF0FCAB9A3F7F974E078"
                   },
                   {
                       "path":  "scripts/invoke-process.ps1",
@@ -82,11 +82,11 @@
                   },
                   {
                       "path":  "scripts/lib/build-argv-launcher.ps1",
-                      "sha256":  "E3E98DE837489E53E7E1EAF891E45B081EE25CD8010DA8CB1D385DAA7D2FEEFA"
+                      "sha256":  "A5CBE28134F8746A8627E3DD2E9FE7BBBDF71AFBC407B817A9CDF42E98168382"
                   },
                   {
                       "path":  "scripts/lib/argv-launcher.mjs",
-                      "sha256":  "5ED5FE429B15B3CDC74B0B755704A9C512AC01F7B0926AAC94A09C69792B0E97"
+                      "sha256":  "E7ABCAD64C0D9582F99561E91CDC122B14858E1EB82903EF046DA6D9A66401CE"
                   },
                   {
                       "path":  "scripts/lib/LockTransaction.cs",
@@ -94,11 +94,11 @@
                   },
                   {
                       "path":  "scripts/lib/build-lock-helper.ps1",
-                      "sha256":  "C036DEED2A94F4BDC340A375EC997EF281A0E7C8375D5EF9BED22A3F8ADF5445"
+                      "sha256":  "4869F243C429ED73CAF793EB548B62F4A9307590AA962E17B5101DEC5A074849"
                   },
                   {
                       "path":  "scripts/lib/windows-lock.mjs",
-                      "sha256":  "B9246C6A2AF1F455BDB241D5F53BD9BE7FB572253BD455E7FC63349C5B7D489D"
+                      "sha256":  "85395CCA408399D55E037F70C3B5BC73719FC584E2741D2C8431F503C7A08408"
                   },
                   {
                       "path":  "scripts/lib/safe-files.mjs",
@@ -134,7 +134,7 @@
                   },
                   {
                       "path":  "tests/run-windows.ps1",
-                      "sha256":  "65FC07A2AC84DCC042C9DDF126A3B6ECEE744BB832DAC26339341A203443A4D3"
+                      "sha256":  "76680289CBF28FD730A5A54E9ECAFEBDF586C24F4E61B67526D5D0638B0C4E1D"
                   },
                   {
                       "path":  "tests/acp-client.test.mjs",
@@ -146,7 +146,7 @@
                   },
                   {
                       "path":  "tests/argv-launcher.test.mjs",
-                      "sha256":  "883F5490D902C316A2771B6501E3EB1168C4C995B6860D1ECC7C7C7088C024F8"
+                      "sha256":  "D558880883605FC6D77B7D5EB443EB1530078B1B6E346A08633225C7B8FCABE0"
                   },
                   {
                       "path":  "tests/acp-lifecycle.test.mjs",
@@ -154,11 +154,11 @@
                   },
                   {
                       "path":  "tests/mail-store.test.mjs",
-                      "sha256":  "F864578FBD4A2DEF7A79C7AF04BD0AF8EF0DD0CD2DAD7B602FA5655F3EEF5551"
+                      "sha256":  "A19110F98C611BE775E5FD432E15C29864BD021F5509CBBF205807DB5DE96742"
                   },
                   {
                       "path":  "tests/mail-exchange.test.mjs",
-                      "sha256":  "D81B7330A5BCCA824EA78173F4D7FD2D64216EEC02CACCD7261C278FE6083811"
+                      "sha256":  "D9353AF0DBC7DF09EAEBC536E88A74A9FF977A6CF284E236CE3FA1C9E7DE7BD8"
                   },
                   {
                       "path":  "tests/profile-route.test.mjs",
@@ -174,7 +174,7 @@
                   },
                   {
                       "path":  "tests/export.test.mjs",
-                      "sha256":  "6C478A86BAB00E2BE6C196F61D538C04242889CE23E3FF73EB519A9E19D375A6"
+                      "sha256":  "64FBFD406C0F2F4E296640552A43B3212436F04B1086A334FE984A31570C4233"
                   },
                   {
                       "path":  "tests/fixtures/acp-fixture.mjs",

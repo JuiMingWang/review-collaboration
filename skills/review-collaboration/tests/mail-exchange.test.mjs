@@ -13,6 +13,7 @@ import {fingerprintRoute,saveRoute} from '../scripts/lib/acp-route.mjs';
 import {saveProfile,readProfile,saveIdentity} from '../scripts/lib/reviewer-profile.mjs';
 import {sha256Hex} from '../scripts/lib/mail-contract.mjs';
 import {sendExchange,statusExchange,finalizeExchange} from '../scripts/lib/mail-exchange.mjs';
+import {mutateLock} from '../scripts/lib/windows-lock.mjs';
 
 const original=dirname(dirname(fileURLToPath(import.meta.url)));
 const root=join(original,'_private','t',randomUUID().slice(0,8));
@@ -21,7 +22,13 @@ const fixture=fileURLToPath(new URL('./fixtures/acp-fixture.mjs',import.meta.url
 const def={source:'provider-default',value:null};
 // Node 22 fs.cpSync crashes on Windows when a directory path has non-ASCII characters.
 function copyTree(from,to){if(statSync(from).isDirectory()){mkdirSync(to,{recursive:true});for(const n of readdirSync(from))copyTree(join(from,n),join(to,n));}else copyFileSync(from,to);}
-before(()=>{mkdirSync(root,{recursive:true});mkdirSync(pkg);copyTree(join(original,'scripts'),join(pkg,'scripts'));});
+// Reuse this package's compiled helpers, as an installation builds them once per version;
+// a fresh build for every test copy would meet Windows application control on every run.
+before(()=>{
+  mkdirSync(root,{recursive:true});mkdirSync(pkg);copyTree(join(original,'scripts'),join(pkg,'scripts'));
+  const probe=join(root,'helper-probe.lock');try{mutateLock(probe,'create',{owner:{probe:true}});}catch{}rmSync(probe,{force:true});
+  const runtime=join(original,'_private','runtime');if(existsSync(runtime))copyTree(runtime,join(privateRoot,'runtime'));
+});
 after(()=>{
   if(process.env.REVIEW_MAIL_TEST_EVIDENCE){
     const evidence=process.env.REVIEW_MAIL_TEST_EVIDENCE;mkdirSync(evidence,{recursive:true});

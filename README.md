@@ -22,7 +22,8 @@ The workflow needs a host with real native subagents and one external reviewer u
 
 | Requirement | What it means |
 | --- | --- |
-| Windows tooling | PowerShell 5.1, the .NET Framework compiler, and Node.js. Node v24.18.0 is the tested baseline; other versions need verification. |
+| Windows tooling | Windows PowerShell 5.1, the .NET Framework compiler, and Node.js. Node v24.18.0 is the tested baseline; a clean-machine check also passes Node 20 and 22. Other versions need verification. Starting from a PowerShell 7 window is fine; the scripts run in Windows PowerShell 5.1. |
+| Windows application control | On first use the skill compiles two small helpers from its own source. A policy such as Smart App Control on Windows 11 may refuse to start an unsigned file like this. The skill then reports `lock-helper-launch-failed` (or `launcher-launch-failed`) and does not keep the refused file. |
 | Host agent | Can read the skill, execute local tools, and dispatch a genuine native subagent. The host does **not** need an ACP server. |
 | External reviewer | Installed agent runtime, usable authentication, and native ACP or a verified compatible ACP adapter. An ordinary CLI that launches successfully is insufficient. |
 | ACP route | The bundled client must verify the selected endpoint, versions, configuration, and permitted material/tool access. Discovery, handshake, authentication, and a real reply are separate evidence levels. |
@@ -96,7 +97,9 @@ Ordinary use saves useful observations already seen; it does not run a separate 
 
 ## Verification and version
 
-This publication is **R12 (2026-09-28)**. The helper's package version remains `0.1.0`; R12 identifies the documented source snapshot, not an npm release. Relative to R11, a review run continues until each consequential point is settled (agreed, resolved by evidence, or reasoned disagreement) or the follow-up cap is reached; rejected points go back to the reviewer with reasons. Diagrams 03, 04a, and 04b were redrawn to match. Transport behavior and dependency pins are unchanged.
+This publication is **R13 (2026-09-28)**. The helper's package version remains `0.1.0`; R13 identifies the documented source snapshot, not an npm release. Relative to R12, it fixes problems found by installing on clean Windows machines. The compiled helpers are now built in a short temporary folder, because the .NET Framework compiler fails, first intermittently and then always, as the install path grows long. A failed build reports whether it timed out, found no compiler, or was rejected by the compiler. A helper that Windows refuses to start is reported and not cached, so it can no longer break every later call. Scripts started from a PowerShell 7 session keep Windows PowerShell's own commands, and the test suites no longer crash under Node 22 on folders with non-ASCII names. The remaining 18 diagrams were re-rendered with the same viewer; their graphics are unchanged. The review procedure and dependency pins are unchanged.
+
+The [portability check](.github/workflows/portability-check.yml) repeats the installation above on clean Windows runners with Node 20, 22, and 24, including a folder path with spaces, Chinese characters, and brackets.
 
 The supplied suites and their commands are documented in the [package README](skills/review-collaboration/README.md#verify-and-share). Read [verification levels and limits](skills/review-collaboration/references/verification.md) before making compatibility claims. Diagram checks are recorded separately in [VALIDATION.md](docs/diagrams/review-collaboration-guide-20260913/en/VALIDATION.md); they do not establish lower token cost, zero information loss, or reliable judgment on every task.
 

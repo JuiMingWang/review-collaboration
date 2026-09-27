@@ -44,6 +44,12 @@ New-Item -ItemType Directory -Path $evidenceFull -Force | Out-Null
 $testPackage = Join-Path $packageRoot ('_private\windows-' + [Guid]::NewGuid().ToString('N').Substring(0,8))
 New-Item -ItemType Directory -Path $testPackage | Out-Null
 Copy-Item -LiteralPath (Join-Path $packageRoot 'scripts') -Destination (Join-Path $testPackage 'scripts') -Recurse
+# Reuse this package's compiled helpers, as an installation builds them once per version.
+$runtime = Join-Path $packageRoot '_private\runtime'
+if (Test-Path -LiteralPath $runtime) {
+    New-Item -ItemType Directory -Path (Join-Path $testPackage '_private') | Out-Null
+    Copy-Item -LiteralPath $runtime -Destination (Join-Path $testPackage '_private\runtime') -Recurse
+}
 $mailScript = Join-Path $testPackage 'scripts\review-mail.ps1'
 
 $script:cases = @()
