@@ -1,0 +1,268 @@
+# Portability check: does a fresh Windows machine install this skill as the
+# README describes and pass the package's own offline and Windows suites?
+# Live reviewer exchanges need a personal agent login and are not run here.
+name: portability-check
+
+on:
+  push:
+    branches: [master, 'ci/**']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  fresh-install:
+    name: Node ${{ matrix.node }} / ${{ matrix.location }}
+    runs-on: windows-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        node: ['24.18.0', '22', '20']
+        location: [clone]
+        include:
+          # verification.md: move the folder to a path with spaces, Chinese and
+          # brackets, prepare dependencies there, run the suites from another cwd.
+          - node: '24.18.0'
+            location: moved
+          # Node 22's native fs.cpSync crashes on non-ASCII directory paths.
+          - node: '22'
+            location: moved
+    defaults:
+      run:
+        # README lists Windows PowerShell 5.1 as the required shell tooling.
+        shell: powershell
+    env:
+      REPO_URL: https://github.com/JuiMingWang/review-collaboration.git
+      LOCATION: ${{ matrix.location }}
+    steps:
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Report environment
+        run: |
+          # Native tools may write progress to stderr; exit codes are checked explicitly.
+          $ErrorActionPreference = 'Continue'
+          $os = Get-CimInstance Win32_OperatingSystem
+          $ps51 = powershell.exe -NoProfile -Command '$PSVersionTable.PSVersion.ToString()'
+          $fx = (Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full').Release
+          $csc = Test-Path -LiteralPath (Join-Path $env:WINDIR 'Microsoft.NET\Framework64\v4.0.30319\csc.exe')
+          $line = "os=$($os.Caption) $($os.Version); step-shell=$($PSVersionTable.PSVersion); powershell=$ps51; netfx-release=$fx; csc=$csc; node=$(node --version); npm=$(npm --version); $(git --version)"
+          Write-Output $line
+          Write-Output "::notice title=environment::$line"
+          Write-Output "TEMP=$env:TEMP"
+          Write-Output "PSModulePath=$env:PSModulePath"
+
+      - name: Install as the README documents
+        id: install
+        run: |
+          # Native tools may write progress to stderr; exit codes are checked explicitly.
+          $ErrorActionPreference = 'Continue'
+          [Console]::OutputEncoding = New-Object Text.UTF8Encoding($false)
+          # README "Set up": git clone, then npm ci --ignore-scripts in the skill folder.
+          $base = Join-Path $env:USERPROFILE 'rc-ci'
+          [IO.Directory]::CreateDirectory($base) | Out-Null
+          Set-Location -LiteralPath $base
+          git clone $env:REPO_URL
+          if ($LASTEXITCODE -ne 0) { throw 'git clone failed' }
+          # Test exactly the pushed commit, fetched the way a user would get it.
+          $tested = $env:GITHUB_SHA
+          git -C review-collaboration checkout --quiet --detach $tested
+          if ($LASTEXITCODE -ne 0) { throw 'checkout failed' }
+          Set-Location .\review-collaboration\skills\review-collaboration
+          $skill = (Get-Location).ProviderPath
+          if ($env:LOCATION -eq 'moved') {
+            # README: "If your host requires a copy in its skill directory, copy this whole folder and prepare dependencies there."
+            $zh = -join ([char]0x5BE9, [char]0x67E5, [char]0x6E2C, [char]0x8A66)
+            $dest = Join-Path $env:USERPROFILE "rc move [$zh] test\review-collaboration"
+            [IO.Directory]::CreateDirectory([IO.Path]::GetDirectoryName($dest)) | Out-Null
+            robocopy $skill $dest /E /NFL /NDL /NJH /NJS /NP | Out-Null
+            if ($LASTEXITCODE -ge 8) { throw "copy failed: robocopy $LASTEXITCODE" }
+            $skill = $dest
+            Set-Location -LiteralPath $skill
+          }
+          npm.cmd ci --ignore-scripts
+          if ($LASTEXITCODE -ne 0) { throw 'npm ci --ignore-scripts failed' }
+          $envLines = "SKILL_DIR=$skill" + "`n" + "EVIDENCE_BASE=$(Join-Path $env:USERPROFILE 'rc-evidence')" + "`n"
+          [IO.File]::AppendAllText($env:GITHUB_ENV, $envLines, (New-Object Text.UTF8Encoding($false)))
+          Write-Output "::notice title=install::tested commit $tested; skill folder $skill"
+          exit 0
+
+      - name: Smoke call of review-mail.ps1 (resolve, project-init, topic-create)
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: |
+          # Native tools may write progress to stderr; exit codes are checked explicitly.
+          $ErrorActionPreference = 'Continue'
+          $PSNativeCommandUseErrorActionPreference = $false
+          $utf8 = New-Object Text.UTF8Encoding($false)
+          [Console]::OutputEncoding = $utf8
+          $work = Join-Path $env:EVIDENCE_BASE 'smoke'
+          $project = Join-Path $work 'sample-project'
+          [IO.Directory]::CreateDirectory($project) | Out-Null
+          $entry = Join-Path $env:SKILL_DIR 'scripts\review-mail.ps1'
+          Set-Location -LiteralPath $env:USERPROFILE
+          function Clean([string]$s) { $s = ($s -replace '%', '%25') -replace "`r", '' -replace "`n", ' '; if ($s.Length -gt 900) { $s = $s.Substring(0, 900) }; $s }
+          function Invoke-Mail([string]$Name, $Body) {
+            $req = Join-Path $work "$Name.json"
+            [IO.File]::WriteAllText($req, ($Body | ConvertTo-Json -Depth 8), $utf8)
+            $out = & powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File $entry -RequestFile $req
+            $exit = $LASTEXITCODE
+            $last = @($out | Where-Object { "$_".Trim() }) | Select-Object -Last 1
+            Write-Host "$Name exit=$exit output=$last"
+            $parsed = $null
+            try { $parsed = $last | ConvertFrom-Json } catch { }
+            return [pscustomobject]@{ exit = $exit; result = $parsed; raw = "$last" }
+          }
+          $failures = @()
+
+          $r1 = Invoke-Mail 'resolve' @{ schema_version = 1; action = 'resolve'; args = @{ host_id = 'claude' } }
+          if (-not ($r1.result -and $r1.result.ok -eq $false -and $r1.result.code -eq 'selection-required')) { $failures += "resolve expected selection-required on a fresh install: exit=$($r1.exit) $($r1.raw)" }
+
+          $r2 = Invoke-Mail 'project-init' @{ schema_version = 1; action = 'project-init'; args = @{ project_root = $project } }
+          $recordRoot = if ($r2.result) { $r2.result.data.record_root } else { $null }
+          if (-not ($r2.exit -eq 0 -and $r2.result.ok -eq $true -and $r2.result.data.created -eq $true -and (Test-Path -LiteralPath (Join-Path $project '.review-collaboration\project.json')))) { $failures += "project-init: exit=$($r2.exit) $($r2.raw)" }
+
+          if ($recordRoot) {
+            $r3 = Invoke-Mail 'topic-create' @{ schema_version = 1; action = 'topic-create'; record_root = $recordRoot; args = @{ title = 'CI smoke topic' } }
+            if (-not ($r3.exit -eq 0 -and $r3.result.ok -eq $true -and $r3.result.data.topic_id)) { $failures += "topic-create: exit=$($r3.exit) $($r3.raw)" }
+          } else { $failures += 'topic-create not attempted: project-init returned no record_root' }
+
+          foreach ($f in $failures) { Write-Output "::error title=smoke::$(Clean $f)" }
+          if ($failures.Count -gt 0) { exit 1 }
+          Write-Output '::notice title=smoke::resolve=selection-required, project-init=created, topic-create=ok'
+          exit 0
+
+      - name: Offline suite (tests/run-offline.mjs)
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: |
+          # Native tools may write progress to stderr; exit codes are checked explicitly.
+          $ErrorActionPreference = 'Continue'
+          $PSNativeCommandUseErrorActionPreference = $false
+          function Clean([string]$s) { $s = ($s -replace '%', '%25') -replace "`r", '' -replace "`n", ' '; if ($s.Length -gt 900) { $s = $s.Substring(0, 900) }; $s }
+          [Console]::OutputEncoding = New-Object Text.UTF8Encoding($false)
+          $ev = Join-Path $env:EVIDENCE_BASE 'offline'
+          if ($env:LOCATION -eq 'moved') {
+            Set-Location -LiteralPath $env:USERPROFILE
+            $runner = Join-Path $env:SKILL_DIR 'tests\run-offline.mjs'
+          } else {
+            Set-Location -LiteralPath $env:SKILL_DIR
+            $runner = 'tests/run-offline.mjs'
+          }
+          node $runner --evidence-root $ev
+          $code = $LASTEXITCODE
+          $resultsPath = Join-Path $ev 'results.json'
+          if (-not (Test-Path -LiteralPath $resultsPath)) {
+            Write-Output "::error title=offline suite::results.json missing, runner exit $code"
+            exit 1
+          }
+          $r = Get-Content -LiteralPath $resultsPath -Raw -Encoding utf8 | ConvertFrom-Json
+          Write-Output "::notice title=offline suite::exit=$code node=$($r.node_version) passed=$($r.passed) failed=$($r.failed) not_run=$($r.not_run)"
+          foreach ($c in @($r.cases | Where-Object { $_.status -eq 'fail' })) {
+            $detail = ''
+            foreach ($stream in 'stdout.bin', 'stderr.bin') {
+              $p = Join-Path $ev "$($c.id)\transport-output\$stream"
+              if (Test-Path -LiteralPath $p) {
+                $lines = @(Get-Content -LiteralPath $p -Encoding utf8)
+                Write-Output "----- $($c.id) $stream -----"
+                $lines | ForEach-Object { Write-Output $_ }
+                $key = @($lines | Where-Object { $_ -match ('not ok|' + [char]0x2716 + '|Error|error:|code:|expected|actual') } | Select-Object -First 8)
+                if ($key.Count) { $detail += ' | ' + ($key -join ' | ') }
+              }
+            }
+            # Output of child PowerShell calls made by a test (e.g. export-clean.ps1).
+            $caseEvidence = Join-Path $ev "$($c.id)\cases"
+            if (Test-Path -LiteralPath $caseEvidence) {
+              foreach ($f in @(Get-ChildItem -LiteralPath $caseEvidence -Recurse -File -Filter 'last-output.txt' -ErrorAction SilentlyContinue)) {
+                $text = @(Get-Content -LiteralPath $f.FullName -Encoding utf8 | Where-Object { "$_".Trim() })
+                Write-Output "----- $($c.id) $($f.Directory.Name)\last-output.txt -----"
+                $text | ForEach-Object { Write-Output $_ }
+                if ($text.Count) { $detail = " | last-output: " + ($text -join ' ') + $detail }
+              }
+            }
+            $causes = @(Get-ChildItem -LiteralPath (Join-Path $ev $c.id) -Recurse -File -Filter 'stderr.bin' -ErrorAction SilentlyContinue | ForEach-Object { Get-Content -LiteralPath $_.FullName -Encoding utf8 } | Where-Object { $_ -match '^(lock-helper|launcher|lock-transaction)-' } | Select-Object -Unique -First 4)
+            if ($causes.Count) { $detail = " | build: " + ($causes -join ' ; ') + $detail }
+            $counts = if ($c.test_counts) { "tests=$($c.test_counts.tests) pass=$($c.test_counts.pass) fail=$($c.test_counts.fail)" } else { '' }
+            Write-Output "::error title=offline $($c.id)::$(Clean "$counts reason=$($c.reason)$detail")"
+          }
+          exit $code
+
+      - name: Windows suite (tests/run-windows.ps1 -Suite All)
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: |
+          # Native tools may write progress to stderr; exit codes are checked explicitly.
+          $ErrorActionPreference = 'Continue'
+          $PSNativeCommandUseErrorActionPreference = $false
+          function Clean([string]$s) { $s = ($s -replace '%', '%25') -replace "`r", '' -replace "`n", ' '; if ($s.Length -gt 900) { $s = $s.Substring(0, 900) }; $s }
+          [Console]::OutputEncoding = New-Object Text.UTF8Encoding($false)
+          $ev = Join-Path $env:EVIDENCE_BASE 'windows'
+          if ($env:LOCATION -eq 'moved') {
+            Set-Location -LiteralPath $env:USERPROFILE
+            $script = Join-Path $env:SKILL_DIR 'tests\run-windows.ps1'
+          } else {
+            Set-Location -LiteralPath $env:SKILL_DIR
+            $script = 'tests/run-windows.ps1'
+          }
+          powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File $script -Suite All -EvidenceRoot $ev
+          $code = $LASTEXITCODE
+          $resultsPath = Join-Path $ev 'results.json'
+          if (-not (Test-Path -LiteralPath $resultsPath)) {
+            Write-Output "::error title=windows suite::results.json missing, runner exit $code"
+            exit 1
+          }
+          $r = Get-Content -LiteralPath $resultsPath -Raw -Encoding utf8 | ConvertFrom-Json
+          $all = @($r.cases)
+          $bad = @($all | Where-Object { $_.status -ne 'pass' })
+          Write-Output "::notice title=windows suite::exit=$code cases=$($all.Count) failed=$($bad.Count) ids=$(($all | ForEach-Object { "$($_.id):$($_.status)" }) -join ',')"
+          foreach ($c in $bad) {
+            $detail = ''
+            foreach ($log in @(Get-ChildItem -LiteralPath (Join-Path $ev $c.id) -Filter '*.log' -File -ErrorAction SilentlyContinue)) {
+              $lines = @(Get-Content -LiteralPath $log.FullName -Encoding utf8)
+              Write-Output "----- $($c.id) $($log.Name) -----"
+              $lines | ForEach-Object { Write-Output $_ }
+              $last = @($lines | Where-Object { "$_".Trim() } | Select-Object -Last 1)
+              if ($last.Count) {
+                $j = $null
+                try { $j = $last[0] | ConvertFrom-Json } catch { }
+                if ($j -and $j.PSObject.Properties['ok']) {
+                  $h = $j.helper_result; $i = $j.initial_helper_result
+                  $detail += " | $($log.Name): ok=$($j.ok) code=$($j.code) problems=$(@($j.problems) -join ',') helper=$(if ($h) { $h.code }) initial=$(if ($i) { $i.code }) native=$($j.native_exit_code) transport=$($j.transport_status) timed_out=$($j.timed_out) remaining=$(if ($j.cleanup) { $j.cleanup.owned_processes_remaining })"
+                } else { $detail += " | $($log.Name): " + $last[0] }
+              }
+            }
+            $causes = @(Get-ChildItem -LiteralPath (Join-Path $ev $c.id) -Recurse -File -Filter 'stderr.bin' -ErrorAction SilentlyContinue | ForEach-Object { Get-Content -LiteralPath $_.FullName -Encoding utf8 } | Where-Object { $_ -match '^(lock-helper|launcher|lock-transaction)-' } | Select-Object -Unique -First 4)
+            if ($causes.Count) { $detail = " | build: " + ($causes -join ' ; ') + $detail }
+            Write-Output "::error title=windows $($c.id)::$(Clean "reason=$($c.reason)$detail")"
+          }
+          exit $code
+
+      - name: Export test launched from PowerShell 7
+        if: ${{ !cancelled() && steps.install.outcome == 'success' && matrix.node == '24.18.0' && matrix.location == 'clone' }}
+        shell: pwsh
+        run: |
+          $PSNativeCommandUseErrorActionPreference = $false
+          $diag = Join-Path $env:EVIDENCE_BASE 'diag-pwsh7'
+          [IO.Directory]::CreateDirectory($diag) | Out-Null
+          $env:REVIEW_MAIL_TEST_EVIDENCE = $diag
+          Set-Location -LiteralPath (Join-Path $env:SKILL_DIR 'tests')
+          node --test --test-reporter=tap export.test.mjs
+          $code = $LASTEXITCODE
+          $outs = @(Get-ChildItem -LiteralPath $diag -Recurse -File -Filter 'last-output.txt' | ForEach-Object { (Get-Content -LiteralPath $_.FullName -Raw).Trim() } | Where-Object { $_ } | Select-Object -Unique)
+          $first = ($env:PSModulePath -split ';' | Select-Object -First 2) -join ';'
+          $msg = "export.test.mjs from pwsh $($PSVersionTable.PSVersion): exit=$code; PSModulePath starts $first; export-clean output: $($outs -join ' | ')"
+          $msg = ($msg -replace '%', '%25') -replace "`r", '' -replace "`n", ' '
+          if ($msg.Length -gt 900) { $msg = $msg.Substring(0, 900) }
+          if ($code -ne 0) { Write-Output "::error title=pwsh7 export::$msg"; exit 1 }
+          Write-Output "::notice title=pwsh7 export::$msg"
+          exit 0
+
+      - name: Keep evidence of a failed run
+        if: ${{ failure() && steps.install.outcome == 'success' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: evidence-node${{ matrix.node }}-${{ matrix.location }}
+          path: ~/rc-evidence
+          retention-days: 5
+          if-no-files-found: ignore

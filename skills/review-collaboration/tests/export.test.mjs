@@ -1,7 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {spawn,spawnSync} from 'node:child_process';
-import {mkdtempSync,mkdirSync,cpSync,readFileSync,writeFileSync,existsSync,readdirSync,rmSync} from 'node:fs';
+import {mkdtempSync,mkdirSync,cpSync,copyFileSync,statSync,readFileSync,writeFileSync,existsSync,readdirSync,rmSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {dirname,join,resolve,relative} from 'node:path';
 import {fileURLToPath} from 'node:url';
@@ -18,11 +18,13 @@ const files=[
   'tests/run-offline.mjs','tests/run-windows.ps1','tests/acp-client.test.mjs','tests/acp-lifecycle.test.mjs','tests/mail-store.test.mjs','tests/mail-exchange.test.mjs','tests/profile-route.test.mjs','tests/safe-files.test.mjs','tests/runner-guard.test.mjs','tests/export.test.mjs',
   'tests/fixtures/acp-fixture.mjs','tests/fixtures/fresh-host.md','tests/fixtures/make-test-route.mjs','tests/fixtures/profile-writer.mjs','tests/fixtures/store-worker.mjs',
 ].sort();
+// Node 22 fs.cpSync crashes on Windows when a directory path has non-ASCII characters.
+function copyTree(from,to){if(statSync(from).isDirectory()){mkdirSync(to,{recursive:true});for(const n of readdirSync(from))copyTree(join(from,n),join(to,n));}else copyFileSync(from,to);}
 const hash=p=>createHash('sha256').update(readFileSync(p)).digest('hex');
 function fixture(t){
   const root=mkdtempSync(join(tmpdir(),'mail-export-'));const src=join(root,'source');mkdirSync(src);
   for(const f of files){const dest=join(src,f);mkdirSync(dirname(dest),{recursive:true});cpSync(join(pkg,f),dest);}
-  t.after(()=>{if(process.env.REVIEW_MAIL_TEST_EVIDENCE){const dest=join(process.env.REVIEW_MAIL_TEST_EVIDENCE,root.split(/[\\/]/).at(-1));mkdirSync(dirname(dest),{recursive:true});cpSync(root,dest,{recursive:true});}rmSync(root,{recursive:true,force:true});});
+  t.after(()=>{if(process.env.REVIEW_MAIL_TEST_EVIDENCE){const dest=join(process.env.REVIEW_MAIL_TEST_EVIDENCE,root.split(/[\\/]/).at(-1));mkdirSync(dirname(dest),{recursive:true});copyTree(root,dest);}rmSync(root,{recursive:true,force:true});});
   const dest=join(root,'搬移 copy [01]');return {root,src,dest};
 }
 function command(f){return ['-NoProfile','-NonInteractive','-ExecutionPolicy','Bypass','-File',join(f.src,'scripts/export-clean.ps1'),'-SourceRoot',f.src,'-Destination',f.dest];}
@@ -59,4 +61,14 @@ test('T7 X02 a staging copy failure cleans only owned staging and publishes noth
   const result=run(f);assert.notEqual(result.status,0);assert.match(result.stderr,/synthetic-staging-write-failure/);
   assert.equal(existsSync(f.dest),false);assert.equal(readFileSync(marker,'utf8'),'keep');
   assert.equal(readdirSync(f.root).some(n=>n.startsWith('.review-integrated-export-')),false);
+});
+test('T7 X01 export still works when Windows PowerShell starts below a PowerShell 7 session',t=>{
+  // PowerShell 7 puts its own module folders first. This manifest has the shape of
+  // its Utility module: Windows PowerShell loads it and then has no Get-FileHash.
+  const f=fixture(t),modules=join(f.root,'PowerShell','Modules'),utility=join(modules,'Microsoft.PowerShell.Utility');
+  mkdirSync(utility,{recursive:true});
+  writeFileSync(join(utility,'Microsoft.PowerShell.Utility.psd1'),"@{\nModuleVersion='7.0.0.0'\nGUID='1DA87E53-152B-403E-98DC-74D7B4D63D59'\nCompatiblePSEditions=@('Core')\nCmdletsToExport=@('Get-FileHash','New-Object','ConvertFrom-Json','ConvertTo-Json','Select-Object','Out-String','Write-Output','Add-Type')\nFunctionsToExport=@()\nNestedModules=@('Microsoft.PowerShell.Commands.Utility.dll')\n}\n");
+  const r=spawnSync('powershell.exe',command(f),{cwd:tmpdir(),windowsHide:true,shell:false,encoding:'utf8',timeout:20000,env:{...process.env,PSModulePath:modules+';'+(process.env.PSModulePath??'')}});
+  assert.ifError(r.error);writeFileSync(join(f.root,'last-output.txt'),r.stdout+r.stderr);
+  assert.equal(r.status,0,r.stdout+r.stderr);assert.ok(existsSync(join(f.dest,'release-manifest.json')));
 });

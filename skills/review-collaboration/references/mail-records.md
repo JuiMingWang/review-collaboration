@@ -13,6 +13,8 @@
 3. `reply.md.partial`：串流中途的正文；正常收到停止訊息後保存 `reply.md` 及 `agent-result.json`。沒有停止訊息不能憑部分文字補造完成回信。
 4. `transport/receipt.json`、`completion.json`：外層 Windows Job 清理完成後，由另一個有時限的 finalize 程序發布。completion 綁定 input、reply 與 receipt hash；讀取時重新核對。
 
+`reply.md` 原樣保存 reviewer 串流，開頭可能有 reviewer 工具自己的啟動警告（例如 Codex CLI 的 Code Mode 提示）；那是環境訊息，不是 reviewer 對問題的意見，除非影響回覆內容，不必另外追查或轉述。
+
 `reply-ready` 表示收發證據支持正常回信，semantic_acceptance 仍是 pending。其他 status 為 incomplete、refused、cancelled、failed、unconfirmed；delivery 另為 not-sent、unknown、replied。收到拒絕或取消的停止原因仍原樣保留；附帶錯誤須一起閱讀。
 
 已保存 agent-result、但外層收據尚未完成時，status 保持 unconfirmed。投遞未知時不自動重送。相同 exchange 再呼叫只比較既有封存並回報狀態；改信、改授權或改 continuity 都需要新 exchange。取消只寫相關 marker；收到 marker 不等於 reviewer 已取消。

@@ -1,9 +1,9 @@
-import {spawnSync} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
 import {dirname,join,resolve} from 'node:path';
 import {existsSync,mkdirSync,readFileSync,writeFileSync,renameSync} from 'node:fs';
 import {safePath,privateWritable} from './safe-files.mjs';
 import {fail,sha256Hex,newUuid} from './mail-contract.mjs';
+import {runBuilder,failBuild} from './windows-lock.mjs';
 
 const source=fileURLToPath(new URL('./ArgvLauncher.cs',import.meta.url));
 const builder=fileURLToPath(new URL('./build-argv-launcher.ps1',import.meta.url));
@@ -16,8 +16,8 @@ export function prepareArgvLauncher(){
   privateWritable(dirname(cache));mkdirSync(cache,{recursive:true});
   const staging=join(cache,'argv-'+digest+'-'+newUuid());mkdirSync(staging);
   const output=join(staging,'ArgvLauncher.exe');
-  const build=spawnSync('powershell.exe',['-NoProfile','-NonInteractive','-ExecutionPolicy','Bypass','-File',builder],{input:JSON.stringify({output_file:output}),encoding:'utf8',timeout:20000,maxBuffer:128*1024,shell:false,windowsHide:true});
-  if(build.error||build.status!==0||!existsSync(output))fail('launcher-build-failed','Windows .NET Framework compiler unavailable');
+  const built=runBuilder(builder,output);
+  if(!built.ok)failBuild('launcher',built);
   writeFileSync(join(staging,'manifest.json'),JSON.stringify({source_sha256:digest,executable_sha256:sha256Hex(readFileSync(output))}),{flag:'wx'});
   try{renameSync(staging,dir);}catch(error){if(!existsSync(dir))throw error;}
  }

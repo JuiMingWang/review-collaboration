@@ -17,13 +17,14 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   appendFileSync,
-  cpSync,
+  copyFileSync,
   existsSync,
   mkdirSync,
   mkdtempSync,
   readFileSync,
   readdirSync,
   rmSync,
+  statSync,
   writeFileSync,
 } from 'node:fs';
 import { spawn } from 'node:child_process';
@@ -59,6 +60,13 @@ import * as store from '../scripts/lib/mail-store.mjs';
 
 const testsRoot = dirname(fileURLToPath(import.meta.url));
 const WORKER = join(testsRoot, 'fixtures', 'store-worker.mjs');
+
+// Node 22 fs.cpSync crashes on Windows when a directory path has non-ASCII characters.
+function copyTree(from, to) {
+  if (!statSync(from).isDirectory()) return copyFileSync(from, to);
+  mkdirSync(to, { recursive: true });
+  for (const name of readdirSync(from)) copyTree(join(from, name), join(to, name));
+}
 
 const SYNTHETIC_SELECTION = {
   host_id: 'synthetic-host',
@@ -772,7 +780,7 @@ test('M06 a moved record folder is still readable from the topic id alone', asyn
   const movedProjectRoot = join(f.fixtureRoot, 'relocated', 'elsewhere');
   mkdirSync(movedProjectRoot, { recursive: true });
   const movedRoot = join(movedProjectRoot, '.review-collaboration');
-  cpSync(f.root, movedRoot, { recursive: true });
+  copyTree(f.root, movedRoot);
 
   // A fresh host knows the topic id and nothing else.
   const located = await locateTopic(movedRoot, f.topicId);

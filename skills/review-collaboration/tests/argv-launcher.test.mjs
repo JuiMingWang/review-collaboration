@@ -7,6 +7,24 @@ import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {prepareArgvLauncher} from '../scripts/lib/argv-launcher.mjs';
+import {runBuilder,failBuild} from '../scripts/lib/windows-lock.mjs';
+
+test('a failed helper build names its cause instead of one catch-all failure',t=>{
+ const root=mkdtempSync(join(tmpdir(),'review-build-'));t.after(()=>rmSync(root,{recursive:true,force:true}));
+ const script=(name,body)=>{const f=join(root,name);writeFileSync(f,body);return f;};
+ const slow=runBuilder(script('slow.ps1','Start-Sleep -Seconds 30'),join(root,'slow.exe'),1500);
+ assert.equal(slow.reason,'timeout');assert.ok(slow.elapsed_ms<15000,'the build deadline must stop the builder');
+ const lockBuilder=fileURLToPath(new URL('../scripts/lib/build-lock-helper.ps1',import.meta.url));
+ const rejected=runBuilder(lockBuilder,join(root,'missing-dir','LockTransaction.exe'));
+ assert.equal(rejected.reason,'compile-failed');assert.match(rejected.detail,/^compile-failed:CS\d+$/);
+ const noCompiler=runBuilder(script('none.ps1',"[Console]::Error.WriteLine('compiler-unavailable:FileNotFoundException');exit 1"),join(root,'none.exe'));
+ assert.equal(noCompiler.reason,'compiler-unavailable');
+ const silent=runBuilder(script('silent.ps1','exit 0'),join(root,'silent.exe'));
+ assert.deepEqual([silent.reason,silent.detail],['failed','exit 0']);
+ for(const [built,code] of [[slow,'lock-helper-build-timeout'],[rejected,'lock-helper-compile-failed'],[noCompiler,'lock-helper-compiler-unavailable'],[silent,'lock-helper-build-failed']])
+  assert.throws(()=>failBuild('lock-helper',built),e=>e.code===code);
+ assert.throws(()=>failBuild('launcher',slow),e=>e.code==='launcher-build-timeout');
+});
 
 test('native launcher preserves argv and duplex bytes, and propagates child failure',t=>{
  const root=mkdtempSync(join(tmpdir(),'review-launch-'));t.after(()=>rmSync(root,{recursive:true,force:true}));

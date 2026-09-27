@@ -4,7 +4,7 @@ import {test,before,after} from 'node:test';
 import assert from 'node:assert/strict';
 import {spawn} from 'node:child_process';
 import {randomUUID} from 'node:crypto';
-import {cpSync,mkdirSync,readFileSync,writeFileSync,existsSync,rmSync,readdirSync,renameSync} from 'node:fs';
+import {cpSync,copyFileSync,mkdirSync,readFileSync,writeFileSync,existsSync,rmSync,readdirSync,renameSync,statSync} from 'node:fs';
 import {join,dirname} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import fs from 'node:fs';
@@ -19,11 +19,13 @@ const root=join(original,'_private','t',randomUUID().slice(0,8));
 const pkg=join(root,'p'),privateRoot=join(pkg,'_private');
 const fixture=fileURLToPath(new URL('./fixtures/acp-fixture.mjs',import.meta.url));
 const def={source:'provider-default',value:null};
-before(()=>{mkdirSync(root,{recursive:true});mkdirSync(pkg);cpSync(join(original,'scripts'),join(pkg,'scripts'),{recursive:true});});
+// Node 22 fs.cpSync crashes on Windows when a directory path has non-ASCII characters.
+function copyTree(from,to){if(statSync(from).isDirectory()){mkdirSync(to,{recursive:true});for(const n of readdirSync(from))copyTree(join(from,n),join(to,n));}else copyFileSync(from,to);}
+before(()=>{mkdirSync(root,{recursive:true});mkdirSync(pkg);copyTree(join(original,'scripts'),join(pkg,'scripts'));});
 after(()=>{
   if(process.env.REVIEW_MAIL_TEST_EVIDENCE){
     const evidence=process.env.REVIEW_MAIL_TEST_EVIDENCE;mkdirSync(evidence,{recursive:true});
-    for(const name of readdirSync(root))if(name!=='p')cpSync(join(root,name),join(evidence,name),{recursive:true});
+    for(const name of readdirSync(root))if(name!=='p')copyTree(join(root,name),join(evidence,name));
   }
   rmSync(root,{recursive:true,force:true});
 });

@@ -19,6 +19,9 @@ param(
     [int]$CaseLimitMs = 180000
 )
 
+# Started from a PowerShell 7 session, Windows PowerShell inherits a module path
+# that finds 7.x built-in modules first and then lacks Get-FileHash.
+if ($PSVersionTable.PSEdition -ne 'Core') { $env:PSModulePath = "$PSHOME\Modules;$env:PSModulePath" }
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 [Console]::OutputEncoding = New-Object Text.UTF8Encoding($false)
