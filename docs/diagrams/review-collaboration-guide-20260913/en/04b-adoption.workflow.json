@@ -33,8 +33,8 @@
       "lane": "return",
       "col": 0,
       "type": "messagebus",
-      "label": "1 Account for material issues",
-      "sublabel": "Reasons or unresolved status; merge repeats",
+      "label": "1 Report settlement per point",
+      "sublabel": "State and both sides' reasons; merge repeats",
       "width": 280,
       "height": 92
     },
@@ -63,8 +63,8 @@
       "lane": "accept",
       "col": 0,
       "type": "backend",
-      "label": "Clarify adoption-critical gaps",
-      "sublabel": "State exactly what is needed; continue at 04a",
+      "label": "Clarify gaps or send rejections back",
+      "sublabel": "Points the reviewer still holds go to 04a",
       "width": 280,
       "height": 92
     },
@@ -84,7 +84,7 @@
       "col": 5,
       "type": "frontend",
       "label": "4 Accept, partly accept, reject",
-      "sublabel": "Weigh evidence and applicability",
+      "sublabel": "Weigh evidence; reviewer answers rejections",
       "width": 280,
       "height": 92
     },
@@ -140,7 +140,7 @@
     {
       "from": "decision",
       "to": "clarify",
-      "label": "Material gap remains",
+      "label": "Gap or rejection open",
       "role": "return"
     },
     {
@@ -159,9 +159,9 @@
     {
       "title": "What the host needs",
       "items": [
-        "Account for every decision-changing question and objection; merged duplicates must not hide unresolved issues.",
+        "Account for every decision-changing question and objection with its settlement state; merged duplicates must not hide unresolved issues.",
         "Hashes cannot prove semantic completeness; missing context may still require original material.",
-        "The final report also retains material disagreement; agreeing is not required."
+        "A rejection still open at the cap is recorded as a host-side disagreement with both positions."
       ],
       "dot": "cyan"
     },

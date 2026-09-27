@@ -63,7 +63,7 @@
       "col": 5,
       "type": "security",
       "label": "4 Explain recipient and material",
-      "sublabel": "New private sources need added authority",
+      "sublabel": "Covers follow-ups; new sources need authority",
       "width": 280,
       "height": 92
     },
@@ -103,7 +103,7 @@
       "col": 2,
       "type": "backend",
       "label": "8 Prepare bounded handoff",
-      "sublabel": "Procedure, IDs, read and send scopes",
+      "sublabel": "Procedure, IDs, send scopes, round cap",
       "width": 280,
       "height": 92
     },

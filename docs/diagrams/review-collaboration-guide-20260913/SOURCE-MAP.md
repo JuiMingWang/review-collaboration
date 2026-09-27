@@ -1,15 +1,15 @@
 # 圖稿來源與覆蓋對照
 
-基準是 R11，下面程式路徑均相對於技能根目錄。圖稿是人工依來源整理的說明，沒有加入新 action、新收發政策或每輪維護機制。未標字的箭頭只省略已由前後步驟完整表示的順序，不省略授權、跨界、決策或失敗條件。
+基準是 R12，下面程式路徑均相對於技能根目錄。圖稿是人工依來源整理的說明，沒有加入新 action、新收發政策或每輪維護機制。未標字的箭頭只省略已由前後步驟完整表示的順序，不省略授權、跨界、決策或失敗條件。
 
 | 圖稿 | 可搜尋的節點 ID／時序 | 主要一手來源 | 已核對的內容 |
 | --- | --- | --- | --- |
 | 01-overview | question、host、delegate、reviewer、brief、decision | SKILL.md | 角色分工、代理隔離、精簡回報與主端採納。 |
 | 02a-selection | capability、resolve、choice、sameTool、routeCheck | SKILL.md；scripts/lib/reviewer-profile.mjs；scripts/lib/acp-route.mjs | 原生能力、工具身分、預設／單次選擇、路線重驗與新 session。 |
 | 02b-connection | candidate、material、initialize、inspect、login、live、saved | references/first-connection.md；references/data-boundaries.md；scripts/review-mail.mjs | 零 prompt 握手與認證、合成 live probe、資料控制、缺件停止。 |
-| 03-handoff | question 至 delegate | SKILL.md 第 2–3 節；templates/background.md；templates/request.md；templates/handoff.md | 先附決策重要背景、分開閱讀與外送授權、記錄 IDs、程序版本與代理交接。 |
-| 04a-discussion | claim、lookup、hostQuestion、nextDecision、brief、followup | SKILL.md 第 3 節；templates/handoff.md | 先本機查證、具體替代案、主端問題、續談價值與預算停止。 |
-| 04b-adoption | brief、integrity、current、premise、decision、note | SKILL.md 第 4 節；references/mail-records.md；scripts/lib/mail-store.mjs | 逐項交代重要問題或明示未解；保留條件、前提版本、採納理由及既有觀察。 |
+| 03-handoff | question 至 delegate | SKILL.md 第 2–3 節；templates/background.md；templates/request.md；templates/handoff.md | 先附決策重要背景、分開閱讀與外送授權（含同議題續談）、記錄 IDs、程序版本、續談上限與代理交接。 |
+| 04a-discussion | claim、lookup、hostQuestion、nextDecision、brief、followup | SKILL.md 第 3 節；templates/handoff.md | 先本機查證、具體替代案、主端問題；未結論的論點附理由送回，直到都有結論或達續談上限。 |
+| 04b-adoption | brief、integrity、current、premise、decision、note | SKILL.md 第 4 節；references/mail-records.md；scripts/lib/mail-store.mjs | 逐點標明結論狀態與雙方理由，對方仍堅持的駁回在上限內送回；保留條件、前提版本、採納理由及既有觀察。 |
 | 05a-send | 時序第 1–6 步 | scripts/review-mail.ps1；scripts/review-mail.mjs；scripts/lib/mail-exchange.mjs；scripts/lib/acp-client.mjs | JSON 入口、唯一 invocation、不可變封存、prompt 前 unknown、同連線回信。 |
 | 05b-finalize | 時序第 7–12 步 | scripts/invoke-process.ps1；scripts/lib/ProcessTransport.cs；scripts/lib/mail-exchange.mjs；scripts/lib/mail-store.mjs | 外層清理、獨立有界 finalize、關聯收據、completion 與 reply-ready。 |
 | 06-recovery | classify、recover、cancel、continuity、unknown、reconstruct | references/mail-records.md；scripts/review-mail.mjs；scripts/lib/mail-exchange.mjs；scripts/lib/mail-store.mjs | status/recover/cancel 不送 prompt；忙碌、未知不重送、原生接續或明確重建。 |
@@ -21,7 +21,7 @@
 
 - 02b 展示一條可行的接入順序。authenticate 的獨立檢查只要求已核對入口與接入授權；它本身不以完整模型資料控制評估為前提，也不產生 live proof。圖中的資料控制檢查是送模型材料前的必要條件。
 - 任一接入前置缺件均停止；圖 02b 的共同失敗框及卡片統一說明，未把相同失敗線從每個節點重複畫出。現有有效路線由 02a 直接沿用。
-- 圖 04a 的「續談」終點明寫回步驟 1；主端補足背景後回步驟 2。R12 起，續談持續到每個重要論點都有結論（同意、被證據說服，或雙方陳述最終立場後的分歧）或達到往返上限（預設追加 4 次）；主端或代理不同意的論點須附理由寄回。圖稿仍是 R11 版，尚未重繪。
+- 圖 04a 的「續談」終點明寫回步驟 1；主端補足背景後回步驟 2。續談持續到每個重要論點都有結論（同意、被證據說服，或雙方陳述最終立場後的分歧）或達到往返上限（預設追加 4 次）；主端或代理不同意的論點須附理由寄回。圖中只畫「達續談上限」一條停止線；需使用者決定或新資料時的停止，由「缺口未解」節點表示。
 - 05a／05b 只畫正常收發順序，非正常停止與未知結果由 06 完整辨別。任何缺證據都不能補造正常回覆；相同 exchange 不因重呼叫而自動重寄。
 - 08 的模組箭頭是主要分工關係。recover 由入口協調 mail-store 及必要 finalize，並非 mail-exchange 單獨完成所有恢復邏輯。共用檢查也由其他模組引用。
 - 09 中測試、匯出、可選 argv launcher 都只在相關工作需要時使用。套件位置不是主端安裝註冊狀態，也不等同 reviewer 可連線；私人狀態與紀錄不能隨公開包分享。
@@ -33,8 +33,8 @@
 
 | 相對技能根目錄的檔案 | SHA-256 |
 | --- | --- |
-| README.md | 0c39ebf676d2815cb42158b23ab554f2f099ccfe71b35c571d9e1489f10d722c |
-| SKILL.md | 48f0949ec95caf66e48cffad5eeaa3031ae2a00f60d7afdd2db5779fee6a3d0a |
+| README.md | 75b5179311dab651f212f0b4c31a8d5f4d280401d2ae126c6198995d5752dc1a |
+| SKILL.md | 2da33f1a8388ed76da80b93e52309c6cbf101d464aedc687f29ce7b8f6d165c5 |
 | references/data-boundaries.md | bcabc0a16093206eb7b3a9b987f28478435144ad3593f5eaae7dfe127f313fc6 |
 | references/first-connection.md | bd379aaa98ff9d01551fd1efdcec7f5f5fcf9bd3b40cad40ed18f9a3f918c24a |
 | references/mail-records.md | 2d95953758c80f1ae8cc892a6e6f6612f367ea19350073f1de780df3f72c319f |
@@ -58,5 +58,5 @@
 | scripts/review-mail.mjs | 5fda9fce92bbc6f054ddd1eb17a7fa9a7cfd5e00b0a4917999540c8cd4639da1 |
 | scripts/review-mail.ps1 | f2c319af121c6bf04d68389de400632179631b65ce521fddfa852f14e0723e8d |
 | templates/background.md | 87735682b70a96ff21e7bfa162123aace3ec8b11dc6ebc6ab9e84f2f4d57d293 |
-| templates/handoff.md | 5dfbca847fb77f8a1fae76213987887d3101c2da18d663378e918fe590f19f3f |
-| templates/request.md | 8c7815a8e5976ed8792955df4627862e59e6086817d025a41c73d3bbaabbe7ae |
+| templates/handoff.md | fee1e25cd377d70672f282ae2a49489e2821b261506d516856a724c6e372c352 |
+| templates/request.md | 182ffcabe96721cb38f482b7075c2d2ead25a80ff2c07fd72e5fd4a4cf51ac26 |

@@ -2,7 +2,7 @@
   "schema_version": 2,
   "diagram_type": "workflow",
   "meta": {
-    "title": "04a｜代理如何查證、追問與停止討論",
+    "title": "04a｜代理如何查證並逐點討論到有結論",
     "quality_profile": "showcase"
   },
   "lanes": [
@@ -16,7 +16,7 @@
     },
     {
       "id": "return",
-      "label": "只為可能改變選擇的問題增加往返"
+      "label": "未結論的論點送回對方，直到有結論或達上限"
     }
   ],
   "mainPath": [
@@ -50,8 +50,8 @@
       "lane": "discuss",
       "col": 2,
       "type": "security",
-      "label": "3 還需要 reviewer 的貢獻？",
-      "sublabel": "必須能指出缺什麼，以及如何改變選擇",
+      "label": "3 每個重要論點都有結論？",
+      "sublabel": "同意、依證據解決，或理由分歧",
       "width": 220,
       "height": 92
     },
@@ -80,8 +80,8 @@
       "lane": "return",
       "col": 0,
       "type": "backend",
-      "label": "缺口未解：保留條件與未知",
-      "sublabel": "可先回報有支持的部分，不補造背景",
+      "label": "缺口未解：停止並保留立場",
+      "sublabel": "需使用者決定或新資料；不補造背景",
       "width": 220,
       "height": 92
     },
@@ -91,7 +91,7 @@
       "col": 1,
       "type": "messagebus",
       "label": "4 整理結果，交圖 04b 採納",
-      "sublabel": "支持證據、反證、條件與分歧均保留",
+      "sublabel": "每點標明結論狀態與雙方理由",
       "width": 220,
       "height": 92
     },
@@ -100,8 +100,8 @@
       "lane": "return",
       "col": 2,
       "type": "backend",
-      "label": "用新 exchange 續談",
-      "sublabel": "只帶必要增量或原文；回步驟 1",
+      "label": "用新 exchange 送回未結論點",
+      "sublabel": "附駁回或修正的理由；回步驟 1",
       "width": 220,
       "height": 92
     }
@@ -114,7 +114,8 @@
     {
       "from": "claim",
       "to": "nextDecision",
-      "label": "依據已核對"
+      "label": "依據已核對",
+      "route": "straight"
     },
     {
       "from": "claim",
@@ -124,7 +125,7 @@
     {
       "from": "lookup",
       "to": "nextDecision",
-      "label": "本機已解答"
+      "label": "本機已查證"
     },
     {
       "from": "lookup",
@@ -140,34 +141,45 @@
     {
       "from": "nextDecision",
       "to": "brief",
-      "label": "不需要",
-      "role": "return"
+      "label": "都有結論",
+      "role": "return",
+      "channelX": 880,
+      "channelY": 394,
+      "toSide": "top"
     },
     {
       "from": "nextDecision",
       "to": "followup",
-      "label": "有選擇影響"
+      "label": "仍有未結論",
+      "fromSide": "right",
+      "toSide": "right"
     },
     {
       "from": "conditional",
       "to": "brief",
       "label": "標明限制"
+    },
+    {
+      "from": "followup",
+      "to": "brief",
+      "label": "達續談上限",
+      "role": "return"
     }
   ],
   "cards": [
     {
-      "title": "什麼值得再談",
+      "title": "何時繼續往返",
       "items": [
-        "缺少的依據、反例或替代方案，必須可能改變本次選擇且需要 reviewer。",
-        "主端補足資訊後回步驟 2；已授權材料可重用，遵守本次範圍及預算。"
+        "任一重要論點未有結論就繼續；本機查證只準備下一封信，不算結論。",
+        "代理或主端駁回、縮小或修正的論點，附理由送回；對方回應後才算有結論。"
       ],
       "dot": "cyan"
     },
     {
       "title": "停止條件",
       "items": [
-        "能交代支持結果與剩餘分歧就可結束；不用固定輪數或湊問題數。",
-        "原方案可行仍可比較實質替代案；風格偏好或重複意見不足以續談。"
+        "每點都達三種結論之一即結束；在範圍與預算內，續談預設最多 4 次。",
+        "達上限、需使用者決定或新資料時停止並列雙方立場；不為結束而讓步。"
       ],
       "dot": "amber"
     }

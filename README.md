@@ -96,7 +96,7 @@ Ordinary use saves useful observations already seen; it does not run a separate 
 
 ## Verification and version
 
-This publication is **R11 (2026-09-13)**. The helper's package version remains `0.1.0`; R11 identifies the documented source snapshot, not an npm release. Relative to R10, procedural changes clarify material-issue coverage and attribution during maintenance. Transport behavior and dependency pins are unchanged.
+This publication is **R12 (2026-09-28)**. The helper's package version remains `0.1.0`; R12 identifies the documented source snapshot, not an npm release. Relative to R11, a review run continues until each consequential point is settled (agreed, resolved by evidence, or reasoned disagreement) or the follow-up cap is reached; rejected points go back to the reviewer with reasons. Diagrams 03, 04a, and 04b were redrawn to match. Transport behavior and dependency pins are unchanged.
 
 The supplied suites and their commands are documented in the [package README](skills/review-collaboration/README.md#verify-and-share). Read [verification levels and limits](skills/review-collaboration/references/verification.md) before making compatibility claims. Diagram checks are recorded separately in [VALIDATION.md](docs/diagrams/review-collaboration-guide-20260913/en/VALIDATION.md); they do not establish lower token cost, zero information loss, or reliable judgment on every task.
 

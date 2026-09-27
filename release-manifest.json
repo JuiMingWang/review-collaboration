@@ -20,13 +20,13 @@
     },
     {
       "path": "README.md",
-      "bytes": 10904,
-      "sha256": "796bce416d26c19fcdedff3be141201f3294576ce6e3a10c6505a9b5c31be5bd"
+      "bytes": 11075,
+      "sha256": "837ada8c05e3894361c128a6cee385e302a7b63f44d185a2e626e3fb1234c71b"
     },
     {
       "path": "README.zh-TW.md",
-      "bytes": 9427,
-      "sha256": "9e4067e531a6b62d26e68b76d887c4daead44abc1e69d96e86ce57f40438b876"
+      "bytes": 9578,
+      "sha256": "eaef82ffa1f90aa1ef6851c5aabf13e85b4248c9e0a4c12447b112c482ea7cc6"
     },
     {
       "path": "docs/diagrams/review-collaboration-guide-20260913/01-overview.html",
@@ -75,48 +75,48 @@
     },
     {
       "path": "docs/diagrams/review-collaboration-guide-20260913/03-handoff.html",
-      "bytes": 713737,
-      "sha256": "79a575f326e1f996dea91c09d88d5ba153171d6620bd1c340d6eff6e7d74f3ab"
+      "bytes": 810378,
+      "sha256": "b0fa3af6718dba94f53e86a94b96f5626b13100807ed4e59597049f19ff7395a"
     },
     {
       "path": "docs/diagrams/review-collaboration-guide-20260913/03-handoff.png",
-      "bytes": 185796,
-      "sha256": "4426505aa64fe668d0cfbcbb874083a847a4f75c5d56b2afc687febbd0c80142"
+      "bytes": 186910,
+      "sha256": "9ce427205a909e9f512ac2fb0a268606ac2b721dde849e083cd99e1b0cbb7c56"
     },
     {
       "path": "docs/diagrams/review-collaboration-guide-20260913/03-handoff.workflow.json",
-      "bytes": 4268,
-      "sha256": "dd0169f417ab77763b1ad50b822e142b1b65168e4784b2d4e574d8b2554d2ae1"
+      "bytes": 4280,
+      "sha256": "1ba7274a83badac3c61484f9b7ccb683ee4f4b75f4b97fd4d8b9aa7316602155"
     },
     {
       "path": "docs/diagrams/review-collaboration-guide-20260913/04a-discussion.html",
-      "bytes": 714486,
-      "sha256": "7b36187954870ba280af24cefdf7e40b2274bc249420db8778d74b93fac74483"
+      "bytes": 811807,
+      "sha256": "b6634c35c7787a96afa32eb97aa835741a3fadafbf60236ffc4fd7c3ee12ba80"
     },
     {
       "path": "docs/diagrams/review-collaboration-guide-20260913/04a-discussion.png",
-      "bytes": 174690,
-      "sha256": "515d32f2bf6802d12af48b1461e4bd51abe511375d6024a2faa0f4dc34d347fe"
+      "bytes": 177418,
+      "sha256": "04a812922b8ffbf4cde581ab9167d95ac16064fc7f985edb09bfc47d436d2d5e"
     },
     {
       "path": "docs/diagrams/review-collaboration-guide-20260913/04a-discussion.workflow.json",
-      "bytes": 4192,
-      "sha256": "c80d2b8f546264891457b5542aebec0fbd61174f4572f0bb7000d19b95734bc8"
+      "bytes": 4496,
+      "sha256": "ad1d087c1428a25aca30b2378fc900ad0a7e2183b737fd292621a2164a3e39ac"
     },
     {
       "path": "docs/diagrams/review-collaboration-guide-20260913/04b-adoption.html",
-      "bytes": 714096,
-      "sha256": "d4ac4e02a4a18f56dc8949828c7abf4f58826f5cb9292e943d3b68679200e9e7"
+      "bytes": 810848,
+      "sha256": "32307671b4bfee1917af0ef1b1f72247509ad9629578585a2c934121740c4c35"
     },
     {
       "path": "docs/diagrams/review-collaboration-guide-20260913/04b-adoption.png",
-      "bytes": 180804,
-      "sha256": "0feccc38e93a438c48ab74541501320d3f7aabf37a788492b09b8650e46b580a"
+      "bytes": 180870,
+      "sha256": "4914b6bd64d09b8bb7366a4ede15e0a639cbc343e81977b03df714b5ee68290b"
     },
     {
       "path": "docs/diagrams/review-collaboration-guide-20260913/04b-adoption.workflow.json",
-      "bytes": 4207,
-      "sha256": "c784a0fb7473abba9594ce700e7479b6b08017d2231b201b392d377f7f3ef008"
+      "bytes": 4315,
+      "sha256": "f59db1205e531a895dbb0ff32725e1841f118ceec840a34ebbe86cf3c8e4f6b3"
     },
     {
       "path": "docs/diagrams/review-collaboration-guide-20260913/05a-send.html",
@@ -216,12 +216,12 @@
     {
       "path": "docs/diagrams/review-collaboration-guide-20260913/README.md",
       "bytes": 5316,
-      "sha256": "5fab7f3c48f823027cf4da5f208f99a7c7e5cd851b54c41b07c99484051225ef"
+      "sha256": "3c16025ad90f60ed7a8827c59f999b8c74ed3f2d8827750eb9b2cc30107fe3fe"
     },
     {
       "path": "docs/diagrams/review-collaboration-guide-20260913/SOURCE-MAP.md",
-      "bytes": 7686,
-      "sha256": "b8e209ecaf67e734ad2cdde6e378393a42b53eea50b13ba7e65a392a760d8e6f"
+      "bytes": 7899,
+      "sha256": "af4356d957a3f5fc017aa42eb3af9583cec11c120e90453b50edfc8885d17861"
     },
     {
       "path": "docs/diagrams/review-collaboration-guide-20260913/TOOLS.md",
@@ -230,8 +230,8 @@
     },
     {
       "path": "docs/diagrams/review-collaboration-guide-20260913/VALIDATION.md",
-      "bytes": 5185,
-      "sha256": "27045a9ca0f3e3a0b769953459d2daab99b22ebe56d7f87bbbff669c7a9d05f1"
+      "bytes": 5929,
+      "sha256": "72911ef95dca24ac2264a9ca76faccda9b0b1b1e8cf89c8688ade04b98dea66c"
     },
     {
       "path": "docs/diagrams/review-collaboration-guide-20260913/en/01-overview.html",
@@ -280,48 +280,48 @@
     },
     {
       "path": "docs/diagrams/review-collaboration-guide-20260913/en/03-handoff.html",
-      "bytes": 713553,
-      "sha256": "0a3bee381e74ec41a31085eed435df38838189cc60a5da91c4320d14e56b6fa0"
+      "bytes": 810174,
+      "sha256": "9dbc32e5fc9364eebd05ddb893ee5ac13871afbc9633568a1f74222117397c50"
     },
     {
       "path": "docs/diagrams/review-collaboration-guide-20260913/en/03-handoff.png",
-      "bytes": 182388,
-      "sha256": "a6c8cbc8adfa23ea0ed8e94f04593ac0bcc22b07c864d5da76c358b7a3598729"
+      "bytes": 182457,
+      "sha256": "edb174bd268da99b42ba0ed1acd27c94cb1b7b6dcc342402e16b523b9011d3c5"
     },
     {
       "path": "docs/diagrams/review-collaboration-guide-20260913/en/03-handoff.workflow.json",
-      "bytes": 4259,
-      "sha256": "a3ef926e60e7a50078175109cf047518433141554050b19040403354d987b67a"
+      "bytes": 4266,
+      "sha256": "460751e0f67ef0814bbe0b1b3be3f6e44d8d16be4cc05d453cbf085941315edd"
     },
     {
       "path": "docs/diagrams/review-collaboration-guide-20260913/en/04a-discussion.html",
-      "bytes": 714471,
-      "sha256": "ff3d712968f03913dc858648a92418fd2befadd84f5cdbd3b089cad927f2af60"
+      "bytes": 811879,
+      "sha256": "6144af6b425676e0575f30f9508a8198d089f25ab6b13e735fd4227908c47ed4"
     },
     {
       "path": "docs/diagrams/review-collaboration-guide-20260913/en/04a-discussion.png",
-      "bytes": 175796,
-      "sha256": "2f92e052585e2ca507651f712c6847b2b1a381fb7f2657503b4176d4cb871e70"
+      "bytes": 177928,
+      "sha256": "dfc424864fd1fdf4ffe90346c2ac88773f10a5abe73fd8cdf419b5b3c21f92c7"
     },
     {
       "path": "docs/diagrams/review-collaboration-guide-20260913/en/04a-discussion.workflow.json",
-      "bytes": 4194,
-      "sha256": "022748b3c4842fcd461dfef6a1469423ba99e15223405a83497faf82918d3828"
+      "bytes": 4430,
+      "sha256": "74d90776417c4eb1a7119672c6d67851d7b35fe99d96259d607fcb47911a18d0"
     },
     {
       "path": "docs/diagrams/review-collaboration-guide-20260913/en/04b-adoption.html",
-      "bytes": 714364,
-      "sha256": "293bf523a34eab4a8355b9aafd129757c03774ed23aa2799adf752ef7d003b66"
+      "bytes": 811089,
+      "sha256": "5fa28e42ed4c0fc345ea3cda9493a84dd746aa254773c746a9650dce7e07daf5"
     },
     {
       "path": "docs/diagrams/review-collaboration-guide-20260913/en/04b-adoption.png",
-      "bytes": 188220,
-      "sha256": "3f0ef963b881c3753a8af69e26e83c50339c3d722f9871041688568f5ddef757"
+      "bytes": 189568,
+      "sha256": "62401a2a35883836780f435d81b2eaa97fdf4ccc35b4f645368a8e6036ee44c5"
     },
     {
       "path": "docs/diagrams/review-collaboration-guide-20260913/en/04b-adoption.workflow.json",
-      "bytes": 4314,
-      "sha256": "682f5b6d971336b28ccb6542eb6020a70f13081b3319b9057194f733824f7f8b"
+      "bytes": 4371,
+      "sha256": "b32e21b32aad29631504d7c23f7f7a1592d2caaa29518d3e6c574a42964492e4"
     },
     {
       "path": "docs/diagrams/review-collaboration-guide-20260913/en/05a-send.html",
@@ -416,12 +416,12 @@
     {
       "path": "docs/diagrams/review-collaboration-guide-20260913/en/README.md",
       "bytes": 5456,
-      "sha256": "1b2b6e845a8ce46d9e94af13cfedd41fef855cfcc510dad5a10bc83069242d0a"
+      "sha256": "86abe7a3676904aeed8be5d1d997504c4fc9819682eb7b6173386ef9a94427cf"
     },
     {
       "path": "docs/diagrams/review-collaboration-guide-20260913/en/SOURCE-MAP.md",
-      "bytes": 7277,
-      "sha256": "bed48ed095888cd91e882813b1589c2a40c16e006b4fe17e1f66c3fb6d045e69"
+      "bytes": 7486,
+      "sha256": "3350151567480de732c1dfbb08384618e0f16c5fc7e314e0894e9b3114eec873"
     },
     {
       "path": "docs/diagrams/review-collaboration-guide-20260913/en/TOOLS.md",
@@ -430,23 +430,23 @@
     },
     {
       "path": "docs/diagrams/review-collaboration-guide-20260913/en/VALIDATION.md",
-      "bytes": 5488,
-      "sha256": "d97a77276eb67de1db6643e47a5b2291ee8fa8cfdbdcf93d37242fd1cad88070"
+      "bytes": 6339,
+      "sha256": "6a3a804e933f78d8df9b2c59c93f9e55354d529d412a95de05f773b058b77299"
     },
     {
       "path": "docs/diagrams/review-collaboration-guide-20260913/en/index.html",
-      "bytes": 8535,
-      "sha256": "b6704faf8752fb6e0c4512e3a08c37ae500850ddd12de832a6aae0734afcc804"
+      "bytes": 8586,
+      "sha256": "b4b252dc2c79b6e393083c13e32feae0add858e97b404090742687d0414942ab"
     },
     {
       "path": "docs/diagrams/review-collaboration-guide-20260913/index.html",
-      "bytes": 8340,
-      "sha256": "b414ebd066c6d3fb52a1b3366f3eb49404af080d10ab77eb8bdb5c28d87b5151"
+      "bytes": 8370,
+      "sha256": "bcd1cbf3602ef0037550c03a09ee387e7f185cb9dcb01a00944c59ad0d202246"
     },
     {
       "path": "docs/diagrams/review-collaboration-guide-20260913/release-manifest.json",
       "bytes": 13161,
-      "sha256": "e1251d18b1dce558b70c4783a87f85c383d78ff7144b5515fedaf7504f41e020"
+      "sha256": "c914402668bf23ff3d6b05ae29b06ea04ad874caf07f09063d4adce983d757f8"
     },
     {
       "path": "skills/review-collaboration/LICENSE",

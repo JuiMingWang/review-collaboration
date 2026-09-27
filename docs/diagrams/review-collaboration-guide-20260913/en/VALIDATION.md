@@ -1,4 +1,4 @@
-# Diagram verification — R11, 2026-09-13
+# Diagram verification — R12, 2026-09-28
 
 The bilingual guide contains 12 diagrams per language. All final specifications and HTML artifacts pass Archify 2.17 showcase checks (9/9, zero errors and warnings), and the exact HTML bytes match passing browser receipts. The gallery index is checked separately and is not an Archify diagram.
 
@@ -7,6 +7,8 @@ Browser checks cover Windows Chrome at 1440×900, 1600×1000, 1920×1080, and 20
 Early compact English layouts failed readability or routing checks. They were abandoned after bounded repairs; a wider-node layout with adjusted logical ranks passed. Connection routing and recovery labels were then checked on their final renders. Failed candidates remain in private evidence and are not published as passing artifacts.
 
 Automated receipts retain `visualReview: pending`; assistant image inspection is a separate hash-bound record. These checks do not establish review quality, token savings, zero information loss, independent novice comprehension, mobile support, or every browser. This publication makes no new external-reviewer or native-host execution claim. Chinese authored text is translated in the English edition; fixed viewer UI may retain its English fallback.
+
+R12 redraws 03, 04a, and 04b in both languages (6 diagrams) to show settling each point, sending rejections back, and the round cap. The other nine diagrams per language keep their source, HTML, and PNG unchanged, with the R11 evidence above. The redraw used a later local build of Archify 2.17.0-dev.1: re-rendering the unmodified 04a source produced byte-identical SVG, while the viewer now embeds its fonts instead of loading them from the network, so these six HTML files are larger. All six pass showcase checks (9/9, zero errors and warnings) and visual-check containment at all four sizes, and their HTML bytes match the passing receipts. The primary assistant inspected light and dark screenshots; 04a received endpoint-side and channel pins to avoid shared or detoured routes. Public PNGs still copy the 2048×1320 light screenshot exactly.
 
 ## Exact artifacts
 
@@ -21,15 +23,15 @@ Automated receipts retain `visualReview: pending`; assistant image inspection is
 | 02b-connection.workflow.json | 4080 | 4ff927cea574805e5107d593a89cadcd4fc23554a5de4d33b4d20d91c7b46908 |
 | 02b-connection.html | 712861 | 9d487d792578be92566f1c0c5d8a476f0946eccee74224d41cbb7b1513b9d420 |
 | 02b-connection.png | 180192 | 793267f3cb0289bb82cd94d47d331caddfa02fd37e4f5274d1604c3d0b559e50 |
-| 03-handoff.workflow.json | 4259 | a3ef926e60e7a50078175109cf047518433141554050b19040403354d987b67a |
-| 03-handoff.html | 713553 | 0a3bee381e74ec41a31085eed435df38838189cc60a5da91c4320d14e56b6fa0 |
-| 03-handoff.png | 182388 | a6c8cbc8adfa23ea0ed8e94f04593ac0bcc22b07c864d5da76c358b7a3598729 |
-| 04a-discussion.workflow.json | 4194 | 022748b3c4842fcd461dfef6a1469423ba99e15223405a83497faf82918d3828 |
-| 04a-discussion.html | 714471 | ff3d712968f03913dc858648a92418fd2befadd84f5cdbd3b089cad927f2af60 |
-| 04a-discussion.png | 175796 | 2f92e052585e2ca507651f712c6847b2b1a381fb7f2657503b4176d4cb871e70 |
-| 04b-adoption.workflow.json | 4314 | 682f5b6d971336b28ccb6542eb6020a70f13081b3319b9057194f733824f7f8b |
-| 04b-adoption.html | 714364 | 293bf523a34eab4a8355b9aafd129757c03774ed23aa2799adf752ef7d003b66 |
-| 04b-adoption.png | 188220 | 3f0ef963b881c3753a8af69e26e83c50339c3d722f9871041688568f5ddef757 |
+| 03-handoff.workflow.json | 4266 | 460751e0f67ef0814bbe0b1b3be3f6e44d8d16be4cc05d453cbf085941315edd |
+| 03-handoff.html | 810174 | 9dbc32e5fc9364eebd05ddb893ee5ac13871afbc9633568a1f74222117397c50 |
+| 03-handoff.png | 182457 | edb174bd268da99b42ba0ed1acd27c94cb1b7b6dcc342402e16b523b9011d3c5 |
+| 04a-discussion.workflow.json | 4430 | 74d90776417c4eb1a7119672c6d67851d7b35fe99d96259d607fcb47911a18d0 |
+| 04a-discussion.html | 811879 | 6144af6b425676e0575f30f9508a8198d089f25ab6b13e735fd4227908c47ed4 |
+| 04a-discussion.png | 177928 | dfc424864fd1fdf4ffe90346c2ac88773f10a5abe73fd8cdf419b5b3c21f92c7 |
+| 04b-adoption.workflow.json | 4371 | b32e21b32aad29631504d7c23f7f7a1592d2caaa29518d3e6c574a42964492e4 |
+| 04b-adoption.html | 811089 | 5fa28e42ed4c0fc345ea3cda9493a84dd746aa254773c746a9650dce7e07daf5 |
+| 04b-adoption.png | 189568 | 62401a2a35883836780f435d81b2eaa97fdf4ccc35b4f645368a8e6036ee44c5 |
 | 05a-send.sequence.json | 2630 | d21618d8738cf3eb5d7d882721f5248070216fe065c624c292edc7e476ce2fe0 |
 | 05a-send.html | 706700 | 195dc75562bd0c71d492643a86570836438e6f581e2a16f5d5c0200fc5b56932 |
 | 05a-send.png | 139188 | 5a71de9d2c3e7fa444459413b26b91b03a110f2c5f0de890e6913ba87f2b916a |

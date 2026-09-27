@@ -96,7 +96,7 @@ npm.cmd ci --ignore-scripts
 
 ## 版本與驗證範圍
 
-本次為 **R11（2026-09-13）**，helper 的 package 版本仍為 `0.1.0`；R11 表示文件與來源快照，不是 npm 發布版本。相較 R10，流程只補強重要疑慮覆蓋與維護時的歸因，收發行為及依賴版本未改。
+本次為 **R12（2026-09-28）**，helper 的 package 版本仍為 `0.1.0`；R12 表示文件與來源快照，不是 npm 發布版本。相較 R11，審查會逐點討論到有結論（同意、依證據解決，或雙方說明理由後的分歧）或達續談上限為止，被駁回的論點附理由送回 reviewer；圖 03、04a、04b 已配合重繪。收發行為及依賴版本未改。
 
 測試入口與指令見 [套件 README](skills/review-collaboration/README.md#verify-and-share)，相容性宣稱需依 [驗證層級與限制](skills/review-collaboration/references/verification.md)。圖稿另有 [驗證摘要](docs/diagrams/review-collaboration-guide-20260913/VALIDATION.md)；圖形檢查通過不能證明 token 更少、零資訊流失或每個任務都判斷正確。
 

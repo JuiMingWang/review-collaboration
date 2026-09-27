@@ -62,7 +62,7 @@
       "col": 2,
       "type": "security",
       "label": "4 說明 reviewer 與實際材料",
-      "sublabel": "沿用已涵蓋授權；新私有來源需新授權",
+      "sublabel": "沿用已涵蓋授權，含同議題續談；新來源需新授權",
       "width": 220,
       "height": 92
     },
@@ -102,7 +102,7 @@
       "col": 1,
       "type": "backend",
       "label": "8 建立有界的代理交接包",
-      "sublabel": "附程序版本、IDs、可讀與可外送材料界線",
+      "sublabel": "附程序版本、IDs、外送界線與續談上限",
       "width": 220,
       "height": 92
     },

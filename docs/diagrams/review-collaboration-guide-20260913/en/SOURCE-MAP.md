@@ -2,16 +2,16 @@
 
 [繁體中文](../SOURCE-MAP.md) · [Reading guide](README.md)
 
-The source baseline is R11. Paths below are relative to the skill root. The diagrams are authored explanations, not additional actions or review rules. Unlabelled arrows only omit sequence already explicit in their endpoints; authorization and consequential branch conditions remain labelled.
+The source baseline is R12. Paths below are relative to the skill root. The diagrams are authored explanations, not additional actions or review rules. Unlabelled arrows only omit sequence already explicit in their endpoints; authorization and consequential branch conditions remain labelled.
 
 | Figure | Primary sources | Coverage |
 | --- | --- | --- |
 | 01 | SKILL.md | Roles, bounded delegation, concise evidence-bearing return, host adoption. |
 | 02a | SKILL.md; scripts/lib/reviewer-profile.mjs; scripts/lib/acp-route.mjs | Native host capability, tool identity, saved/one-time choice, revalidation, and new sessions. |
 | 02b | references/first-connection.md; references/data-boundaries.md; scripts/review-mail.mjs | Endpoint and material checks; zero-prompt handshake/authentication; authorized live probe; stop on missing prerequisites. |
-| 03 | SKILL.md sections 2–3; templates/background.md; templates/request.md; templates/handoff.md | Decision-changing context, read/send authority, IDs, procedure revision, and handoff. |
-| 04a | SKILL.md section 3; templates/handoff.md | Source checks, grounded alternatives, host questions, value of further discussion, and stopping. |
-| 04b | SKILL.md section 4; references/mail-records.md; scripts/lib/mail-store.mjs | Every material issue has a disposition or unresolved status; conditions, premise revision, reasons, and observations remain. |
+| 03 | SKILL.md sections 2–3; templates/background.md; templates/request.md; templates/handoff.md | Decision-changing context, read/send authority (including same-topic follow-ups), IDs, procedure revision, round cap, and handoff. |
+| 04a | SKILL.md section 3; templates/handoff.md | Source checks, grounded alternatives, host questions; unsettled points go back with reasons until settled or the round cap is reached. |
+| 04b | SKILL.md section 4; references/mail-records.md; scripts/lib/mail-store.mjs | Every material point has a settlement state and both sides' reasons; rejections the reviewer still holds go back within the cap; conditions, premise revision, reasons, and observations remain. |
 | 05a | scripts/review-mail.ps1; scripts/review-mail.mjs; scripts/lib/mail-exchange.mjs; scripts/lib/acp-client.mjs | Steps 1–6: unique invocation, immutable archive, unknown delivery before prompt, same-connection reply. |
 | 05b | scripts/invoke-process.ps1; scripts/lib/ProcessTransport.cs; scripts/lib/mail-exchange.mjs; scripts/lib/mail-store.mjs | Steps 7–12: outer cleanup, bounded finalization, correlation, completion, and reply-ready. |
 | 06 | references/mail-records.md; scripts/review-mail.mjs; scripts/lib/mail-exchange.mjs; scripts/lib/mail-store.mjs | Status/recover/cancel send no prompt; busy/unknown states, no blind resend, explicit context reconstruction. |
@@ -23,7 +23,7 @@ The source baseline is R11. Paths below are relative to the skill root. The diag
 
 - Figure 02b shows one valid setup order. Authentication inspection requires a verified endpoint and access authorization, but does not itself require a completed model-material assessment or produce live proof. Material control must be checked before sending model material.
 - Missing setup prerequisites stop sending. The shared failure node and cards cover these cases without repeating a failure arrow from every node. A still-valid route goes directly through 02a.
-- A follow-up in 04a explicitly returns to step 1. Host-supplied context returns to verification. From R12, follow-ups continue until every consequential point is settled (agreed, resolved by evidence, or reasoned disagreement after both final positions) or the round cap is reached (default 4 follow-ups); points the host or subagent rejects go back to the reviewer with reasons. The diagrams themselves are still R11 and have not been redrawn.
+- A follow-up in 04a explicitly returns to step 1. Host-supplied context returns to verification. Follow-ups continue until every consequential point is settled (agreed, resolved by evidence, or reasoned disagreement after both final positions) or the round cap is reached (default 4 follow-ups); points the host or subagent rejects go back to the reviewer with reasons. The diagram draws one stop line for the round cap; stopping for a user decision or new material is shown by the unresolved-gap node.
 - 05a/05b show the normal exchange only. Figure 06 handles non-normal stops and unknown delivery; missing evidence cannot be replaced with an invented normal result.
 - Figure 08 shows main responsibilities. The entry coordinates recover through mail-store and any needed finalization; mail-exchange is not the sole recovery implementation. Other modules also use shared checks.
 - Tests, export, and the optional argument launcher are used when needed. Package location does not prove host registration or reviewer connectivity. Private state is not part of the public share.
@@ -35,8 +35,8 @@ Compare these hashes with any relocated copy of the skill. Code identifiers and 
 
 | File relative to skill root | SHA-256 |
 | --- | --- |
-| README.md | 0c39ebf676d2815cb42158b23ab554f2f099ccfe71b35c571d9e1489f10d722c |
-| SKILL.md | 48f0949ec95caf66e48cffad5eeaa3031ae2a00f60d7afdd2db5779fee6a3d0a |
+| README.md | 75b5179311dab651f212f0b4c31a8d5f4d280401d2ae126c6198995d5752dc1a |
+| SKILL.md | 2da33f1a8388ed76da80b93e52309c6cbf101d464aedc687f29ce7b8f6d165c5 |
 | references/data-boundaries.md | bcabc0a16093206eb7b3a9b987f28478435144ad3593f5eaae7dfe127f313fc6 |
 | references/first-connection.md | bd379aaa98ff9d01551fd1efdcec7f5f5fcf9bd3b40cad40ed18f9a3f918c24a |
 | references/mail-records.md | 2d95953758c80f1ae8cc892a6e6f6612f367ea19350073f1de780df3f72c319f |
@@ -60,5 +60,5 @@ Compare these hashes with any relocated copy of the skill. Code identifiers and 
 | scripts/review-mail.mjs | 5fda9fce92bbc6f054ddd1eb17a7fa9a7cfd5e00b0a4917999540c8cd4639da1 |
 | scripts/review-mail.ps1 | f2c319af121c6bf04d68389de400632179631b65ce521fddfa852f14e0723e8d |
 | templates/background.md | 87735682b70a96ff21e7bfa162123aace3ec8b11dc6ebc6ab9e84f2f4d57d293 |
-| templates/handoff.md | 5dfbca847fb77f8a1fae76213987887d3101c2da18d663378e918fe590f19f3f |
-| templates/request.md | 8c7815a8e5976ed8792955df4627862e59e6086817d025a41c73d3bbaabbe7ae |
+| templates/handoff.md | fee1e25cd377d70672f282ae2a49489e2821b261506d516856a724c6e372c352 |
+| templates/request.md | 182ffcabe96721cb38f482b7075c2d2ead25a80ff2c07fd72e5fd4a4cf51ac26 |
