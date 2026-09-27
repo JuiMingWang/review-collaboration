@@ -39,6 +39,6 @@
 
 ## 來源與交付範圍
 
-圖稿對照 R12 現行原始文件與程式，不新增技能行為。詳見 [來源與覆蓋對照](SOURCE-MAP.md)、[驗證摘要](VALIDATION.md)。流程箭頭是程序說明，不能用圖稿檢查通過來證明真實審查品質或零資訊流失。
+圖稿對照 R13 現行原始文件與程式，不新增技能行為。詳見 [來源與覆蓋對照](SOURCE-MAP.md)、[驗證摘要](VALIDATION.md)。流程箭頭是程序說明，不能用圖稿檢查通過來證明真實審查品質或零資訊流失。
 
 作者文字為繁體中文。Archify 2.17 的固定 Viewer UI 與 HTML lang 回退為英文；部分通用圖例也沿用 renderer 的用語。圖稿包含 [Archify 授權](ARCHIFY-LICENSE.txt)。原始 visual-check 收據保存在專案的本機 evidence 工作包，未納入公開圖包。

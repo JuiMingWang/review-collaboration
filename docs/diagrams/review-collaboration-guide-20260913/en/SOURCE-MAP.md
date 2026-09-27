@@ -2,7 +2,7 @@
 
 [繁體中文](../SOURCE-MAP.md) · [Reading guide](README.md)
 
-The source baseline is R12. Paths below are relative to the skill root. The diagrams are authored explanations, not additional actions or review rules. Unlabelled arrows only omit sequence already explicit in their endpoints; authorization and consequential branch conditions remain labelled.
+The source baseline is R13. Paths below are relative to the skill root. The diagrams are authored explanations, not additional actions or review rules. Unlabelled arrows only omit sequence already explicit in their endpoints; authorization and consequential branch conditions remain labelled.
 
 | Figure | Primary sources | Coverage |
 | --- | --- | --- |

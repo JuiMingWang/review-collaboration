@@ -37,6 +37,6 @@ Each HTML diagram opens independently with zoom, search, and theme controls. PNG
 
 ## Sources and limits
 
-These diagrams explain R12 behavior; they do not add runtime actions or policies. See [source coverage](SOURCE-MAP.md) and [validation evidence](VALIDATION.md). Diagram checks do not establish real review quality, token savings, or zero information loss.
+These diagrams explain R13 behavior; they do not add runtime actions or policies. See [source coverage](SOURCE-MAP.md) and [validation evidence](VALIDATION.md). Diagram checks do not establish real review quality, token savings, or zero information loss.
 
 The English diagrams preserve the Chinese diagrams' roles, decisions, and sources, with layout and concise wording adapted for English. Supporting cards and this guide retain qualifications. Viewers were generated with Archify 2.17; its [license](../ARCHIFY-LICENSE.txt) is included. Raw browser receipts and private paths are excluded from the public package.
