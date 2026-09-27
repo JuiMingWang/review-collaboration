@@ -37,4 +37,4 @@ Read [verification](references/verification.md) for what is and is not proven. F
 
 To create a public copy, run `powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/export-clean.ps1 -SourceRoot <this-folder> -Destination <new-folder>`. It excludes `_private`, node_modules, project letters and local execution evidence. Review the exact exported files before publication. Exporting does not upload anything and a scan cannot prove the absence of every possible secret.
 
-The communication layer does not prescribe scores, consensus, review rounds or automatic code changes. Semantic review-method optimization is separate.
+The communication layer stays mechanical: it does not score, count rounds or change code. The review method in SKILL.md settles each consequential point — agreement, evidence-based resolution, or reasoned disagreement after both final positions — within a round cap. Semantic review-method optimization is separate.

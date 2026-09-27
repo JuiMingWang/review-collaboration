@@ -10,11 +10,11 @@
                   },
                   {
                       "path":  "README.md",
-                      "sha256":  "0C39EBF676D2815CB42158B23AB554F2F099CCFE71B35C571D9E1489F10D722C"
+                      "sha256":  "75B5179311DAB651F212F0B4C31A8D5F4D280401D2AE126C6198995D5752DC1A"
                   },
                   {
                       "path":  "SKILL.md",
-                      "sha256":  "48F0949EC95CAF66E48CFFAD5EEAA3031AE2A00F60D7AFDD2DB5779FEE6A3D0A"
+                      "sha256":  "2DA33F1A8388ED76DA80B93E52309C6CBF101D464AEDC687F29CE7B8F6D165C5"
                   },
                   {
                       "path":  "package.json",
@@ -50,11 +50,11 @@
                   },
                   {
                       "path":  "templates/request.md",
-                      "sha256":  "8C7815A8E5976ED8792955DF4627862E59E6086817D025A41C73D3BBAABBE7AE"
+                      "sha256":  "182FFCABE96721CB38F482B7075C2D2EAD25A80FF2C07FD72E5FD4A4CF51AC26"
                   },
                   {
                       "path":  "templates/handoff.md",
-                      "sha256":  "5DFBCA847FB77F8A1FAE76213987887D3101C2DA18D663378E918FE590F19F3F"
+                      "sha256":  "FEE1E25CD377D70672F282AE2A49489E2821B261506D516856A724C6E372C352"
                   },
                   {
                       "path":  "scripts/export-clean.ps1",

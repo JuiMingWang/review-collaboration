@@ -4,7 +4,7 @@
 
 Ask an external AI reviewer to examine an idea, plan, artifact, or disputed question while keeping the host agent's context focused. A native subagent handles the detailed discussion, verifies consequential claims, and returns conclusions with reasons, evidence, conditions, and unresolved disagreements. The host decides what to adopt.
 
-This is a **Windows agent skill with an ACP communication helper**. It preserves Markdown correspondence and delivery evidence in local project records. It does not require consensus, prescribe a fixed number of rounds, or automatically change your work.
+This is a **Windows agent skill with an ACP communication helper**. It preserves Markdown correspondence and delivery evidence in local project records. Each consequential point is discussed until it is settled — agreed, resolved by evidence, or left as a reasoned disagreement after both sides state final positions — within a round cap (default 4 follow-ups). Neither side concedes just to finish, and nothing changes your work automatically.
 
 [![Overview: user, host, native subagent, and external reviewer](docs/diagrams/review-collaboration-guide-20260913/en/01-overview.png)](docs/diagrams/review-collaboration-guide-20260913/en/01-overview.html)
 
@@ -14,7 +14,7 @@ The README embeds a static preview. GitHub displays HTML source rather than runn
 
 - Challenge assumptions or compare a concrete alternative before choosing a plan.
 - Review an artifact or recommendation against its actual evidence and constraints.
-- Explore an unfinished idea without inventing a proposal or forcing agreement.
+- Explore an unfinished idea without inventing a proposal or conceding without evidence.
 
 The workflow needs a host with real native subagents and one external reviewer using a different agent tool. Changing only the model does not count as a different tool.
 
@@ -56,8 +56,8 @@ For example, tell your host:
 If no reviewer preference exists, the host asks for one reviewer. It announces the reviewer and requested/observed settings, explains the material being sent, and reuses authorization already given.
 
 1. **Host prepares:** frame the question, include a proposal and reasons when available, supply decision-changing background, and define read/send boundaries.
-2. **Native subagent discusses:** send the letter, check relevant authorized sources, and compare grounded alternatives. Continue only when the missing contribution could affect the decision; group necessary questions to the host.
-3. **Subagent reports:** account for every material question or objection with reasons or an explicit unresolved status. Preserve evidence, conditions, and disagreement; full correspondence stays in records.
+2. **Native subagent discusses:** send the letter, check relevant authorized sources, and compare grounded alternatives. Send rejected or narrowed points back with reasons instead of deciding them one-sidedly, and continue until every consequential point is settled or the round cap is reached; group necessary questions to the host.
+3. **Subagent reports:** account for every material question or objection with its settlement state (agreed, resolved by evidence, reasoned disagreement, or unsettled at the cap) and both sides' reasons. Preserve evidence, conditions, and disagreement; full correspondence stays in records.
 4. **Host decides:** verify completion and consequential findings, accept/partly accept/reject, and record the decision. `reply-ready` proves receipt completeness, not correctness or adoption.
 
 ## Tools and files

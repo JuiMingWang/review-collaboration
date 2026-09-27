@@ -23,7 +23,7 @@ The source baseline is R11. Paths below are relative to the skill root. The diag
 
 - Figure 02b shows one valid setup order. Authentication inspection requires a verified endpoint and access authorization, but does not itself require a completed model-material assessment or produce live proof. Material control must be checked before sending model material.
 - Missing setup prerequisites stop sending. The shared failure node and cards cover these cases without repeating a failure arrow from every node. A still-valid route goes directly through 02a.
-- A follow-up in 04a explicitly returns to step 1. Host-supplied context returns to verification. Neither branch requires a fixed number of rounds or agreement.
+- A follow-up in 04a explicitly returns to step 1. Host-supplied context returns to verification. From R12, follow-ups continue until every consequential point is settled (agreed, resolved by evidence, or reasoned disagreement after both final positions) or the round cap is reached (default 4 follow-ups); points the host or subagent rejects go back to the reviewer with reasons. The diagrams themselves are still R11 and have not been redrawn.
 - 05a/05b show the normal exchange only. Figure 06 handles non-normal stops and unknown delivery; missing evidence cannot be replaced with an invented normal result.
 - Figure 08 shows main responsibilities. The entry coordinates recover through mail-store and any needed finalization; mail-exchange is not the sole recovery implementation. Other modules also use shared checks.
 - Tests, export, and the optional argument launcher are used when needed. Package location does not prove host registration or reviewer connectivity. Private state is not part of the public share.
