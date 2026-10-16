@@ -1,5 +1,5 @@
 {
-  "snapshot": "R13-2026-09-28",
+  "snapshot": "R14-2026-10-16",
   "scope": "explicit-publication-allowlist",
   "excludes": "Private profiles, correspondence, credentials, evidence, caches, and build outputs",
   "files": [
@@ -25,13 +25,13 @@
     },
     {
       "path": "README.md",
-      "bytes": 12215,
-      "sha256": "6d24ead98b3a7190dfa9d832e46819705ad8816311255260be5bc958b6cb8712"
+      "bytes": 13280,
+      "sha256": "403919558f6b1e12ab5354dff14ea86ce1ab1d5196cef05f0b9d6fe9630b362a"
     },
     {
       "path": "README.zh-TW.md",
-      "bytes": 10606,
-      "sha256": "5066247ba618c0be041c51bca1aeef22aad06d623eec7913cecfd11ea2990b3c"
+      "bytes": 11660,
+      "sha256": "3e8e1d4db0ce352aaec683e2484aa3d93271cf50f72bc9cb32df525323e5f02c"
     },
     {
       "path": "docs/diagrams/review-collaboration-guide-20260913/01-overview.html",
@@ -460,13 +460,13 @@
     },
     {
       "path": "skills/review-collaboration/README.md",
-      "bytes": 5467,
-      "sha256": "6624944da7c3e00f235815dedf12477a5674cb4262afbfd882ca3a352bf23798"
+      "bytes": 6569,
+      "sha256": "b1a037832674e013308883d1372de83f4c9862c8143575cf9ca30ec1bd88fb03"
     },
     {
       "path": "skills/review-collaboration/SKILL.md",
-      "bytes": 11099,
-      "sha256": "2da33f1a8388ed76da80b93e52309c6cbf101d464aedc687f29ce7b8f6d165c5"
+      "bytes": 11989,
+      "sha256": "3809b5f47b51f0dac7664c6c18058aa6c0a78466b4b6cda31e09b0741d166114"
     },
     {
       "path": "skills/review-collaboration/package-lock.json",
@@ -480,18 +480,18 @@
     },
     {
       "path": "skills/review-collaboration/references/data-boundaries.md",
-      "bytes": 2438,
-      "sha256": "bcabc0a16093206eb7b3a9b987f28478435144ad3593f5eaae7dfe127f313fc6"
+      "bytes": 4091,
+      "sha256": "813e77fe6066d9d147b4c16905fcb6837b0f5f2be8424e6aee064bb5bcd67375"
     },
     {
       "path": "skills/review-collaboration/references/first-connection.md",
-      "bytes": 10480,
-      "sha256": "bd379aaa98ff9d01551fd1efdcec7f5f5fcf9bd3b40cad40ed18f9a3f918c24a"
+      "bytes": 12858,
+      "sha256": "371578b37d3d87e195add24a2999fcf241aa7c6b5a951290053fcd7b66b3fb85"
     },
     {
       "path": "skills/review-collaboration/references/mail-records.md",
-      "bytes": 7002,
-      "sha256": "50e29d38bcf86b434791c46ac92401e9364a2b6b3b460e2fed2b4e9170f36ea2"
+      "bytes": 8133,
+      "sha256": "7d1f325447526ceedbdc7ebca4c7cac16278a17ffa3faa0320ee7c47643ad3f6"
     },
     {
       "path": "skills/review-collaboration/references/reviewer-discovery.md",
@@ -505,13 +505,13 @@
     },
     {
       "path": "skills/review-collaboration/release-manifest.json",
-      "bytes": 10069,
-      "sha256": "14c2359fd290a359f6891a9b38fa2f0e580139392d1a153ff81a21d9b6e5d21e"
+      "bytes": 10496,
+      "sha256": "422fb63f2c60e480b9dcec38753b375e903d3313b7aab55d3cdc928d548af4bc"
     },
     {
       "path": "skills/review-collaboration/scripts/export-clean.ps1",
-      "bytes": 10332,
-      "sha256": "b44fc7bc088cd4c6469d5f05692f04fae1ef7026d62ecf0fcab9a3f7f974e078"
+      "bytes": 10416,
+      "sha256": "176c47cda6b5af4bd688912026de292ead93409c5cd801480d18339658b3e57c"
     },
     {
       "path": "skills/review-collaboration/scripts/invoke-process.ps1",
@@ -529,19 +529,24 @@
       "sha256": "adf6852edf9092b1eaf56484232bae216b91117ce58aaa1cedaad97c7dad090e"
     },
     {
+      "path": "skills/review-collaboration/scripts/lib/LowIntegrityLauncher.cs",
+      "bytes": 10384,
+      "sha256": "a047d1d2c8c9c5f488461af0423ef401d6aa29d94ff3bdbe82c03ed7eb2466ee"
+    },
+    {
       "path": "skills/review-collaboration/scripts/lib/ProcessTransport.cs",
       "bytes": 32262,
       "sha256": "7166ff0322a2e8ab566f5e1543b3ed21c10af7101fc524527d2ce45434cd1d38"
     },
     {
       "path": "skills/review-collaboration/scripts/lib/acp-client.mjs",
-      "bytes": 16304,
-      "sha256": "c4d49624979c64a0e8d210e4bc705ef6405ac07349d8eca4b7a182f5391d9baf"
+      "bytes": 20052,
+      "sha256": "409f809304ae21281108f0cc044b1d35f77d7b64535459ecfaa104387346115d"
     },
     {
       "path": "skills/review-collaboration/scripts/lib/acp-route.mjs",
-      "bytes": 14256,
-      "sha256": "442dea258cfaa53f804eb2a3baa9b4fdb6b44816e14dc02dd611f23ed98037e3"
+      "bytes": 18960,
+      "sha256": "cdabac6b04c9eff06a32b21d74dc7902ca090c148bbb6a068953bda1b420bfec"
     },
     {
       "path": "skills/review-collaboration/scripts/lib/argv-launcher.mjs",
@@ -565,13 +570,13 @@
     },
     {
       "path": "skills/review-collaboration/scripts/lib/mail-exchange.mjs",
-      "bytes": 13019,
-      "sha256": "9f9035986d7827fbb4f87f2859b1c948ddc37ce72d5f13675fd406a97763db93"
+      "bytes": 13141,
+      "sha256": "ba61db3e74aa7a6962554c2d4651649608b6a05347b3768e97a3a64fadc4268e"
     },
     {
       "path": "skills/review-collaboration/scripts/lib/mail-store.mjs",
-      "bytes": 64619,
-      "sha256": "a70f6af4dac64f45c616d66027c97410f7042698ade0aebe7b78042c49e6ada5"
+      "bytes": 64827,
+      "sha256": "0cb74796681f68fe6f611ae45d6d9d15e983018d5e9fbd41cf83831e0cbb6335"
     },
     {
       "path": "skills/review-collaboration/scripts/lib/reviewer-profile.mjs",
@@ -589,9 +594,14 @@
       "sha256": "85395cca408399d55e037f70c3b5bc73719fc584e2741d2c8431f503c7a08408"
     },
     {
+      "path": "skills/review-collaboration/scripts/low-integrity-launch.ps1",
+      "bytes": 1306,
+      "sha256": "9b9dd5663215163526506caa15b5fb7a7bfd8987a5b8fe93cb8ce60a3dfff795"
+    },
+    {
       "path": "skills/review-collaboration/scripts/review-mail.mjs",
-      "bytes": 14599,
-      "sha256": "5fda9fce92bbc6f054ddd1eb17a7fa9a7cfd5e00b0a4917999540c8cd4639da1"
+      "bytes": 15807,
+      "sha256": "3365f7929f534f0b12230562988a76b1a9b2eff90a4ae67e416f0f77430daa85"
     },
     {
       "path": "skills/review-collaboration/scripts/review-mail.ps1",
@@ -605,13 +615,13 @@
     },
     {
       "path": "skills/review-collaboration/templates/handoff.md",
-      "bytes": 2180,
-      "sha256": "fee1e25cd377d70672f282ae2a49489e2821b261506d516856a724c6e372c352"
+      "bytes": 2259,
+      "sha256": "6b6e7ee35c527c28cdbb2fa626283077253456f6ec14d7420f0afcf6730f526b"
     },
     {
       "path": "skills/review-collaboration/templates/request.md",
-      "bytes": 1720,
-      "sha256": "182ffcabe96721cb38f482b7075c2d2ead25a80ff2c07fd72e5fd4a4cf51ac26"
+      "bytes": 1962,
+      "sha256": "a35322fb7f12c194c2ce9503c5cabefa3780d6144f63d6bf78372202de6886e6"
     },
     {
       "path": "skills/review-collaboration/tests/acp-auth.test.mjs",
@@ -625,8 +635,8 @@
     },
     {
       "path": "skills/review-collaboration/tests/acp-lifecycle.test.mjs",
-      "bytes": 10543,
-      "sha256": "23ecbbc74f1d27903a8fca1fa28ad5fdee7c0b6fb5e40390e8d5cde65c104200"
+      "bytes": 13590,
+      "sha256": "99912535d18ea37694363b1d23b9891dc5562d04343ea4fd9395b75fbcaa4958"
     },
     {
       "path": "skills/review-collaboration/tests/argv-launcher.test.mjs",
@@ -635,13 +645,13 @@
     },
     {
       "path": "skills/review-collaboration/tests/export.test.mjs",
-      "bytes": 8444,
-      "sha256": "64fbfd406c0f2f4e296640552a43b3212436f04b1086a334fe984a31570c4233"
+      "bytes": 8517,
+      "sha256": "2d9c82f930f52e2f69692b3675cb419c003c4c19c88b00855212d64c89140c40"
     },
     {
       "path": "skills/review-collaboration/tests/fixtures/acp-fixture.mjs",
-      "bytes": 15892,
-      "sha256": "5fef8a3f63aeb6152a27aff1f5567be44032087948325af224b1e2ab94a33034"
+      "bytes": 17275,
+      "sha256": "a989b9c059effdb36a1b8f5397a7d20631cd87c5d7f52c4c589a080c75b95697"
     },
     {
       "path": "skills/review-collaboration/tests/fixtures/fresh-host.md",
@@ -675,8 +685,8 @@
     },
     {
       "path": "skills/review-collaboration/tests/profile-route.test.mjs",
-      "bytes": 11236,
-      "sha256": "d831dfa1a12bf509fa909c4b0d76c3d3662ef1e00d80abd6e2379801be0066e5"
+      "bytes": 12356,
+      "sha256": "fe3391baef7e7f3b9a2ca8c517c7037bf579095648c1e03e4de6b2efd91b5a8d"
     },
     {
       "path": "skills/review-collaboration/tests/run-offline.mjs",

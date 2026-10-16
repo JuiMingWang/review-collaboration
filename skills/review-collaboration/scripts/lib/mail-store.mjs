@@ -696,7 +696,7 @@ export async function locateTopic(recordRoot, topicId) {
  * a run that is already open.
  */
 export async function openRun(recordRoot, options = {}) {
-  const { topic_id, host_id, host_session_key, selection, route, timeouts } = options;
+  const { topic_id, host_id, host_session_key, selection, route, timeouts, reading } = options;
   assertUuid(topic_id, 'topic_id');
   if (!existsSync(topicFile(recordRoot, topic_id))) fail('topic-not-found', `no topic ${topic_id} in ${recordRoot}`);
   if (typeof host_id !== 'string' || host_id.length === 0) fail('invalid-run', 'host_id must be a non-empty string');
@@ -730,6 +730,9 @@ export async function openRun(recordRoot, options = {}) {
       selection,
       route,
       timeouts: { ...DEFAULT_TIMEOUTS, ...(timeouts ?? {}) },
+      // How the reviewer gets material: 'letters' (archived text only) or
+      // 'direct-read' (Low-integrity reviewer reads files under read_root).
+      reading: reading ?? { mode: 'letters' },
       opened_at: new Date().toISOString(),
     }),
     'run.json',

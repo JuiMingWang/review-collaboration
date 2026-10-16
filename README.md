@@ -71,10 +71,11 @@ If no reviewer preference exists, the host asks for one reviewer. It announces t
 | `acp-client.mjs` / `mail-exchange.mjs` | ACP handshake/authentication/session text, single-send correspondence, cancellation, and reply evidence. |
 | `mail-store.mjs` / `mail-contract.mjs` / `safe-files.mjs` | Project/topic/run records, immutable letters, IDs, hashes, and local path checks. |
 | `invoke-process.ps1` / `ProcessTransport.cs` | Windows process deadlines and cleanup of the invocation's process tree. |
+| `low-integrity-launch.ps1` / `LowIntegrityLauncher.cs` | Starts a read-access route's reviewer at Low integrity, so Windows refuses its writes outside its own folders. |
 | `windows-lock.mjs` and lock helper | Atomic short transactions that prevent concurrent record overwrites. |
 | `argv-launcher.mjs` and launcher helper | Optional bridge when an adapter accepts an executable path but cannot supply the required CLI arguments. |
 | `tests/run-offline.mjs` / `tests/run-windows.ps1` | Reproducible communication and Windows behavior checks; no proof of review quality. |
-| `scripts/export-clean.ps1` | Exports 48 allowlisted source files plus a hash manifest; does not publish them. |
+| `scripts/export-clean.ps1` | Exports 50 allowlisted source files plus a hash manifest; does not publish them. |
 
 Paths are relative to the skill folder; unqualified modules are under `scripts/lib/` and `invoke-process.ps1` is under `scripts/`.
 
@@ -93,11 +94,15 @@ See the [complete tool map](docs/diagrams/review-collaboration-guide-20260913/en
 
 Project letters and adoption notes live in the project's `.review-collaboration/`. Local routes, preferences, compiled helpers, and operation receipts live in the installed skill's `_private/`. Keep both private, along with credentials and `node_modules`. Local read access does not authorize sending a file to the reviewer, and a separate working directory is not read isolation. See [data boundaries](skills/review-collaboration/references/data-boundaries.md).
 
+Optional read-access mode: after a reviewer's read-access route passes its synthetic check, `run-open` with `read_root` lets the reviewer open the project's files itself, so letters can name paths instead of pasting text. The reviewer runs at Windows Low integrity and can write only to its own folders under `_private/reviewers`; it can still read any file the user can read. Without a verified route, or if Low-integrity start fails, the run uses letters.
+
 Ordinary use saves useful observations already seen; it does not run a separate evaluation after each review. When you request maintenance, the agent consolidates relevant evidence into concrete keep/delete/merge/rewrite/add proposals. You decide which to adopt as a batch. Attribution first checks whether the relevant information was obtainable at the time and could have changed the decision. The skill does not rewrite itself in the background or guarantee continuous improvement.
 
 ## Verification and version
 
-This publication is **R13 (2026-09-28)**. The helper's package version remains `0.1.0`; R13 identifies the documented source snapshot, not an npm release. Relative to R12, it fixes problems found by installing on clean Windows machines. The compiled helpers are now built in a short temporary folder, because the .NET Framework compiler fails, first intermittently and then always, as the install path grows long. A failed build reports whether it timed out, found no compiler, or was rejected by the compiler. A helper that Windows refuses to start is reported and not cached, so it can no longer break every later call. Scripts started from a PowerShell 7 session keep Windows PowerShell's own commands, and the test suites no longer crash under Node 22 on folders with non-ASCII names. The remaining 18 diagrams were re-rendered with the same viewer; their graphics are unchanged. The review procedure and dependency pins are unchanged.
+This publication is **R14 (2026-10-16)**. The helper's package version remains `0.1.0`; R14 identifies the documented source snapshot, not an npm release. Relative to R13, it adds an optional read-access mode: after a reviewer's read-access route passes a synthetic check, `run-open` with `read_root` lets the reviewer open the project's files itself, so letters name paths instead of pasting text and the reviewer no longer needs an extra round to request material. The reviewer process tree runs at Windows Low integrity, so Windows refuses its writes outside its own folders under `_private/reviewers`; the launcher is loaded in memory and builds no executable. Any missing verification or failed Low-integrity start falls back to the existing letter mode. R14 also keeps the reviewer's output pipe open until ACP shutdown completes, so a valid reply is no longer followed by a broken-pipe failure. The review procedure and dependency pins are unchanged. The diagrams still describe R13 and do not show read-access mode.
+
+R13 (2026-09-28) fixed problems found by installing on clean Windows machines: compiled helpers are built in a short temporary folder, build failures are classified, a helper Windows refuses to start is reported and not cached, PowerShell 7 sessions keep Windows PowerShell's commands, and Node 22 no longer crashes the suites on non-ASCII folders.
 
 The [portability check](.github/workflows/portability-check.yml) repeats the installation above on clean Windows runners with Node 20, 22, and 24, including a folder path with spaces, Chinese characters, and brackets.
 

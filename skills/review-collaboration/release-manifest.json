@@ -10,11 +10,11 @@
                   },
                   {
                       "path":  "README.md",
-                      "sha256":  "6624944DA7C3E00F235815DEDF12477A5674CB4262AFBFD882CA3A352BF23798"
+                      "sha256":  "B1A037832674E013308883D1372DE83F4C9862C8143575CF9CA30EC1BD88FB03"
                   },
                   {
                       "path":  "SKILL.md",
-                      "sha256":  "2DA33F1A8388ED76DA80B93E52309C6CBF101D464AEDC687F29CE7B8F6D165C5"
+                      "sha256":  "3809B5F47B51F0DAC7664C6C18058AA6C0A78466B4B6CDA31E09B0741D166114"
                   },
                   {
                       "path":  "package.json",
@@ -26,15 +26,15 @@
                   },
                   {
                       "path":  "references/data-boundaries.md",
-                      "sha256":  "BCABC0A16093206EB7B3A9B987F28478435144AD3593F5EAAE7DFE127F313FC6"
+                      "sha256":  "813E77FE6066D9D147B4C16905FCB6837B0F5F2BE8424E6AEE064BB5BCD67375"
                   },
                   {
                       "path":  "references/first-connection.md",
-                      "sha256":  "BD379AAA98FF9D01551FD1EFDCEC7F5F5FCF9BD3B40CAD40ED18F9A3F918C24A"
+                      "sha256":  "371578B37D3D87E195ADD24A2999FCF241AA7C6B5A951290053FCD7B66B3FB85"
                   },
                   {
                       "path":  "references/mail-records.md",
-                      "sha256":  "50E29D38BCF86B434791C46AC92401E9364A2B6B3B460E2FED2B4E9170F36EA2"
+                      "sha256":  "7D1F325447526CEEDBDC7EBCA4C7CAC16278A17FFA3FAA0320EE7C47643AD3F6"
                   },
                   {
                       "path":  "references/reviewer-discovery.md",
@@ -50,15 +50,15 @@
                   },
                   {
                       "path":  "templates/request.md",
-                      "sha256":  "182FFCABE96721CB38F482B7075C2D2EAD25A80FF2C07FD72E5FD4A4CF51AC26"
+                      "sha256":  "A35322FB7F12C194C2CE9503C5CABEFA3780D6144F63D6BF78372202DE6886E6"
                   },
                   {
                       "path":  "templates/handoff.md",
-                      "sha256":  "FEE1E25CD377D70672F282AE2A49489E2821B261506D516856A724C6E372C352"
+                      "sha256":  "6B6E7EE35C527C28CDBB2FA626283077253456F6EC14D7420F0AFCF6730F526B"
                   },
                   {
                       "path":  "scripts/export-clean.ps1",
-                      "sha256":  "B44FC7BC088CD4C6469D5F05692F04FAE1EF7026D62ECF0FCAB9A3F7F974E078"
+                      "sha256":  "176C47CDA6B5AF4BD688912026DE292EAD93409C5CD801480D18339658B3E57C"
                   },
                   {
                       "path":  "scripts/invoke-process.ps1",
@@ -66,15 +66,23 @@
                   },
                   {
                       "path":  "scripts/review-mail.mjs",
-                      "sha256":  "5FDA9FCE92BBC6F054DDD1EB17A7FA9A7CFD5E00B0A4917999540C8CD4639DA1"
+                      "sha256":  "3365F7929F534F0B12230562988A76B1A9B2EFF90A4AE67E416F0F77430DAA85"
                   },
                   {
                       "path":  "scripts/review-mail.ps1",
                       "sha256":  "F2C319AF121C6BF04D68389DE400632179631B65CE521FDDFA852F14E0723E8D"
                   },
                   {
+                      "path":  "scripts/low-integrity-launch.ps1",
+                      "sha256":  "9B9DD5663215163526506CAA15B5FB7A7BFD8987A5B8FE93CB8CE60A3DFFF795"
+                  },
+                  {
                       "path":  "scripts/lib/ProcessTransport.cs",
                       "sha256":  "7166FF0322A2E8AB566F5E1543B3ED21C10AF7101FC524527D2CE45434CD1D38"
+                  },
+                  {
+                      "path":  "scripts/lib/LowIntegrityLauncher.cs",
+                      "sha256":  "A047D1D2C8C9C5F488461AF0423EF401D6AA29D94FF3BDBE82C03ED7EB2466EE"
                   },
                   {
                       "path":  "scripts/lib/ArgvLauncher.cs",
@@ -110,7 +118,7 @@
                   },
                   {
                       "path":  "scripts/lib/mail-store.mjs",
-                      "sha256":  "A70F6AF4DAC64F45C616D66027C97410F7042698ADE0AEBE7B78042C49E6ADA5"
+                      "sha256":  "0CB74796681F68FE6F611AE45D6D9D15E983018D5E9FBD41CF83831E0CBB6335"
                   },
                   {
                       "path":  "scripts/lib/reviewer-profile.mjs",
@@ -118,15 +126,15 @@
                   },
                   {
                       "path":  "scripts/lib/acp-route.mjs",
-                      "sha256":  "442DEA258CFAA53F804EB2A3BAA9B4FDB6B44816E14DC02DD611F23ED98037E3"
+                      "sha256":  "CDABAC6B04C9EFF06A32B21D74DC7902CA090C148BBB6A068953BDA1B420BFEC"
                   },
                   {
                       "path":  "scripts/lib/acp-client.mjs",
-                      "sha256":  "C4D49624979C64A0E8D210E4BC705EF6405AC07349D8ECA4B7A182F5391D9BAF"
+                      "sha256":  "409F809304AE21281108F0CC044B1D35F77D7B64535459ECFAA104387346115D"
                   },
                   {
                       "path":  "scripts/lib/mail-exchange.mjs",
-                      "sha256":  "9F9035986D7827FBB4F87F2859B1C948DDC37CE72D5F13675FD406A97763DB93"
+                      "sha256":  "BA61DB3E74AA7A6962554C2D4651649608B6A05347B3768E97A3A64FADC4268E"
                   },
                   {
                       "path":  "tests/run-offline.mjs",
@@ -150,7 +158,7 @@
                   },
                   {
                       "path":  "tests/acp-lifecycle.test.mjs",
-                      "sha256":  "23ECBBC74F1D27903A8FCA1FA28AD5FDEE7C0B6FB5E40390E8D5CDE65C104200"
+                      "sha256":  "99912535D18EA37694363B1D23B9891DC5562D04343EA4FD9395B75FBCAA4958"
                   },
                   {
                       "path":  "tests/mail-store.test.mjs",
@@ -162,7 +170,7 @@
                   },
                   {
                       "path":  "tests/profile-route.test.mjs",
-                      "sha256":  "D831DFA1A12BF509FA909C4B0D76C3D3662EF1E00D80ABD6E2379801BE0066E5"
+                      "sha256":  "FE3391BAEF7E7F3B9A2CA8C517C7037BF579095648C1E03E4DE6B2EFD91B5A8D"
                   },
                   {
                       "path":  "tests/safe-files.test.mjs",
@@ -174,11 +182,11 @@
                   },
                   {
                       "path":  "tests/export.test.mjs",
-                      "sha256":  "64FBFD406C0F2F4E296640552A43B3212436F04B1086A334FE984A31570C4233"
+                      "sha256":  "2D9C82F930F52E2F69692B3675CB419C003C4C19C88B00855212D64C89140C40"
                   },
                   {
                       "path":  "tests/fixtures/acp-fixture.mjs",
-                      "sha256":  "5FEF8A3F63AEB6152A27AFF1F5567BE44032087948325AF224B1E2AB94A33034"
+                      "sha256":  "A989B9C059EFFDB36A1B8F5397A7D20631CD87C5D7F52C4C589A080C75B95697"
                   },
                   {
                       "path":  "tests/fixtures/fresh-host.md",

@@ -71,10 +71,11 @@ npm.cmd ci --ignore-scripts
 | `acp-client.mjs`／`mail-exchange.mjs` | ACP 握手、登入、session 文字、單次送信、取消與回信證據。 |
 | `mail-store.mjs`／`mail-contract.mjs`／`safe-files.mjs` | 專案／議題／run 紀錄、不可變信件、IDs、雜湊及本機路徑檢查。 |
 | `invoke-process.ps1`／`ProcessTransport.cs` | 控制 Windows 程序期限，清理本次呼叫的程序樹。 |
+| `low-integrity-launch.ps1`／`LowIntegrityLauncher.cs` | 讀取模式路線以 Windows 低完整性等級啟動 reviewer，讓它除了自己的資料夾之外寫不了任何檔案。 |
 | `windows-lock.mjs` 與 lock helper | 原子短鎖，避免多個寫入者同時覆蓋紀錄。 |
 | `argv-launcher.mjs` 與 launcher helper | adapter 只能接 executable 路徑、無法傳必要 CLI 參數時使用的可選橋接工具。 |
 | `tests/run-offline.mjs`／`tests/run-windows.ps1` | 重現收發契約與 Windows 行為檢查；不證明審查品質。 |
-| `scripts/export-clean.ps1` | 只輸出白名單內 48 個來源檔與雜湊清單，不執行發布。 |
+| `scripts/export-clean.ps1` | 只輸出白名單內 50 個來源檔與雜湊清單，不執行發布。 |
 
 以上路徑相對技能資料夾；未標目錄的模組位於 `scripts/lib/`，`invoke-process.ps1` 位於 `scripts/`。
 
@@ -93,11 +94,15 @@ npm.cmd ci --ignore-scripts
 
 信件與採納紀錄放在各專案的 `.review-collaboration/`；路線、偏好、編譯工具與執行收據放在已安裝技能的 `_private/`。這些資料、憑證及 `node_modules` 都不應公開。本機可讀不等於可送 reviewer；另設工作目錄也不是讀取隔離。詳見 [資料界線](skills/review-collaboration/references/data-boundaries.md)。
 
+可選的讀取模式：reviewer 的讀取模式路線通過合成檢查後，`run-open` 帶入 `read_root`，reviewer 就能自己開啟專案檔案，信件只需寫路徑、不必貼全文。reviewer 以 Windows 低完整性等級執行，只能寫入 `_private/reviewers` 底下自己的資料夾，但仍讀得到使用者讀得到的檔案。沒有已驗證的路線，或低等級啟動失敗時，自動改用寫信模式。
+
 普通審查只保存已經看到的有用觀察，不會每輪另做效果分析。使用者要求維護時，agent 才整理相關證據，提出不改、刪除、合併、改寫或新增的具體方案，集中決定採用。歸因前先確認資訊當時可取得、且可能改變判斷；不因結果不好就直接加規則。這不是背景自我改寫，也不保證每次修改都更好。
 
 ## 版本與驗證範圍
 
-本次為 **R13（2026-09-28）**，helper 的 package 版本仍為 `0.1.0`；R13 表示文件與來源快照，不是 npm 發布版本。相較 R12，修正在乾淨 Windows 環境安裝時發現的問題：安裝路徑較長時，.NET Framework 編譯器會先時好時壞、再完全失敗，現在改在短暫存資料夾編譯；編譯失敗會分別回報逾時、找不到編譯器或編譯錯誤；Windows 不允許啟動的小工具會被回報且不存入快取，不再讓之後每次呼叫都失敗；從 PowerShell 7 啟動時不再缺少 Windows PowerShell 的指令；Node 22 在含非 ASCII 字元的資料夾上跑測試不再崩潰。其餘 18 張圖以同一版 Viewer 重新產生，圖形不變。審查程序及依賴版本未改。
+本次為 **R14（2026-10-16）**，helper 的 package 版本仍為 `0.1.0`；R14 表示文件與來源快照，不是 npm 發布版本。相較 R13，新增可選的讀取模式：reviewer 的讀取模式路線通過合成檢查後，`run-open` 帶入 `read_root`，reviewer 就能自己開啟專案檔案，信件只需寫路徑、不必貼全文，reviewer 也不必為了要資料多跑一輪。reviewer 的程序樹以 Windows 低完整性等級執行，除了 `_private/reviewers` 底下自己的資料夾之外，寫入一律由 Windows 拒絕；啟動器在記憶體中載入，不產生執行檔。缺少驗證或低等級啟動失敗時，自動退回原本的寫信模式。R14 也讓 reviewer 的輸出管道保持開啟到 ACP 關閉完成，正常回信後不再出現管道中斷的誤判。審查程序及依賴版本未改。圖稿仍描述 R13，未包含讀取模式。
+
+R13（2026-09-28）修正乾淨 Windows 環境安裝時發現的問題：小工具改在短暫存資料夾編譯、編譯失敗分因回報、Windows 不允許啟動的小工具會回報且不快取、從 PowerShell 7 啟動不再缺指令、Node 22 在非 ASCII 資料夾跑測試不再崩潰。
 
 [可攜性檢查](.github/workflows/portability-check.yml) 會在乾淨的 Windows 環境，以 Node 20、22、24 重複上面的安裝步驟，並包含含空格、中文與方括號的資料夾路徑。
 

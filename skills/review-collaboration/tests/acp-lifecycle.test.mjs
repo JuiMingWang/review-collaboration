@@ -1,10 +1,12 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {mkdtempSync,readFileSync,writeFileSync,rmSync,existsSync} from 'node:fs';
+import {mkdtempSync,mkdirSync,readFileSync,writeFileSync,rmSync,existsSync} from 'node:fs';
+import {spawnSync} from 'node:child_process';
+import {randomUUID} from 'node:crypto';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {runAcpInitialize,runAcpTurn} from '../scripts/lib/acp-client.mjs';
+import {runAcpInitialize,runAcpTurn,lowIntegrityPreflight} from '../scripts/lib/acp-client.mjs';
 import {sha256Hex} from '../scripts/lib/mail-contract.mjs';
 const defaults={model:{source:'provider-default',value:null},thinking:{source:'provider-default',value:null}};
 const blocks=[{type:'text',text:'Synthetic lifecycle letter.'}];
@@ -52,6 +54,25 @@ test('T4 A04 wrong session, malformed JSON and premature EOF never succeed',asyn
     assert.ok(r.errorCode);assert.equal(r.promptsSubmitted,1);assert.equal(f.events().filter(e=>e.event==='prompt').length,1);
     if(scenario==='wrong-session')assert.equal(r.replyText,'');
   }
+});
+test('a completed reviewer can flush shutdown output without a false process failure',async t=>{
+  const f=setup(t,'shutdown-update');const r=await runAcpTurn(f.route,defaults,blocks,f.context);
+  assert.equal(r.errorCode,null);assert.equal(r.stopReason,'end_turn');
+  assert.deepEqual(r.reviewerProcess,{exitCode:0,closeReason:'graceful'});
+  assert.equal(r.replyText,'Reply before graceful shutdown.');
+});
+test('a completed reply does not conceal a real reviewer shutdown failure',async t=>{
+  const f=setup(t,'shutdown-failure');const r=await runAcpTurn(f.route,defaults,blocks,f.context);
+  assert.equal(r.stopReason,'end_turn');assert.equal(r.errorCode,'reviewer-process-failed');
+  assert.deepEqual(r.reviewerProcess,{exitCode:23,closeReason:'unexpected'});
+});
+test('an inherited stdout pipe cannot hide a real reviewer exit failure',async t=>{
+  const f=setup(t,'shutdown-failure-held-stdout');let descendantPid;
+  t.after(()=>{if(descendantPid)try{process.kill(descendantPid);}catch(error){if(error.code!=='ESRCH')throw error;}});
+  const r=await runAcpTurn(f.route,defaults,blocks,f.context);
+  descendantPid=f.events().find(event=>event.event==='descendants-spawned')?.child_pid;
+  assert.equal(r.stopReason,'end_turn');assert.equal(r.errorCode,'reviewer-process-failed');
+  assert.deepEqual(r.reviewerProcess,{exitCode:23,closeReason:'unexpected'});
 });
 test('T4 A05 default means no setters and observed remains unknown',async t=>{
   const f=setup(t,'echo');const r=await runAcpTurn(f.route,defaults,blocks,f.context);
@@ -101,6 +122,24 @@ test('T4 A09 permission allows only a hash-bound read; no implicit fs delegation
   const r=await runAcpTurn(f.route,defaults,blocks,{...f.context,authorizedSnapshots:[{absolute_path:path,sha256:sha256Hex(readFileSync(path))}]});
   assert.equal(r.errorCode,null);assert.deepEqual(r.permissionDecisions.map(p=>p.decided),['allowed','denied','denied']);
   assert.ok(f.events().find(e=>e.event==='unsupported-fs').response.error);
+});
+test('read-access route: Windows refuses the reviewer write; only reads inside the read root are approved',{skip:process.platform!=='win32'},async t=>{
+  const f=setup(t,'permission');
+  // The low-integrity endpoint may write only its event log, in a folder labelled low.
+  const low=join(f.dir,'low');mkdirSync(low);
+  assert.equal(spawnSync('icacls',[low,'/setintegritylevel','(OI)(CI)low'],{windowsHide:true}).status,0);
+  const log=join(low,'events.jsonl'),args=f.route.launch.arguments;args[args.indexOf(f.log)]=log;
+  const root=join(f.dir,'read-root');mkdirSync(root);
+  const inside=join(root,'plan.md'),target=join(root,'reviewer-write.txt');writeFileSync(inside,'synthetic plan');
+  args.push('--allowed-file',inside,'--write-target',target);
+  const route={...f.route,read_access:{letter_route_ids:[randomUUID()],writable_dirs:[low]}};
+  assert.deepEqual(await lowIntegrityPreflight(f.dir),{ok:true,code:null});
+  const r=await runAcpTurn(route,defaults,blocks,{...f.context,deadlineMs:30000,readRoot:root});
+  assert.equal(r.errorCode,null);assert.equal(r.replyText,'Permission checks completed.');
+  assert.deepEqual(r.permissionDecisions.map(p=>[p.decided,p.reason]),[['allowed','read-root'],['denied','outside-verified-read'],['denied','outside-verified-read']]);
+  const write=readFileSync(log,'utf8').trim().split('\n').map(JSON.parse).find(e=>e.event==='write-attempt');
+  assert.equal(write.code,'EPERM');assert.equal(existsSync(target),false);
+  writeFileSync(target,'host write');assert.equal(readFileSync(target,'utf8'),'host write');
 });
 test('T4 A10 ignored cancel is bounded with partial content and no confirmed stop',async t=>{
   const f=setup(t,'ignore-cancel');const r=await runAcpTurn(f.route,defaults,blocks,f.context);

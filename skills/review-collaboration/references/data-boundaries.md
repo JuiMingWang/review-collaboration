@@ -6,7 +6,17 @@
 
 ACP、空白工作目錄及關閉 client fs/terminal delegation，都不能阻止 reviewer 程序自行讀取全域規則、hooks、extensions 或檔案。啟動前必須先核對具體 adapter 的控制方式與認證來源。不能搬 auth、關閉安全功能或改用私人專案來湊測試通過。
 
-material-control 是私人評估紀錄，格式為 schema_version=1、route_fingerprint、scope=text-and-listed-snapshots、startup_control、tool_control、sources（HTTPS 原始依據）及 synthetic_only。route 保存 evidence_ref 與 evidence_sha256；不存在、變動或不相符就停止。這只是可追溯評估及操作准入，不是 OS 隔離證明。合成 canary 未出現也不能證明完全沒有額外讀取。
+material-control 是私人評估紀錄，格式為 schema_version=1、route_fingerprint、scope、startup_control、tool_control、sources（HTTPS 原始依據）及 synthetic_only。scope 在寫信模式 route 為 `text-and-listed-snapshots`，在讀取模式 route 為 `low-integrity-read`。route 保存 evidence_ref 與 evidence_sha256；不存在、變動或不相符就停止。這只是可追溯評估及操作准入，不是 OS 隔離證明。合成 canary 未出現也不能證明完全沒有額外讀取。
+
+## 直接讀取模式（direct-read）
+
+使用者把一個資料夾當作 `read_root` 交給 run-open，代表同意 reviewer 自行開啟該資料夾內的檔案，信件因此可以只寫路徑。此模式的界線：
+
+- **寫入**：讀取模式 route 一律經 `scripts/low-integrity-launch.ps1` 以低完整性等級啟動整個 reviewer 程序樹，由 Windows 拒絕寫入一般（medium）檔案與資料夾。只有 route 的 `read_access.writable_dirs` 可寫，這些資料夾放在 skill 的 `_private\reviewers`，標為低等級可寫，用來存放 reviewer 自己的登入、對話紀錄與暫存檔。總表見 `_private\reviewers\README.md`。
+- **讀取**：低等級程序仍讀得到使用者讀得到的大部分檔案，包含其他專案與憑證檔，而且能連網。read_root 只是告訴 reviewer 從哪裡讀，不是讀取上限。資料夾內若有不能給這個 reviewer 看的內容，不要用此模式。
+- **規則檔**：reviewer 仍在空白的 per-run 工作目錄啟動，主資料夾只以 ACP `additionalDirectories`（agent 有宣告支援時）或信中的絕對路徑提供，不會被當成啟動目錄而自動載入其中的 AGENTS.md／CLAUDE.md。首次連線的合成檢查會驗證這一點。
+- **權限請求**：client 仍不宣告 fs／terminal 能力；只核准 read_root 內或已授權快照的讀取請求，其他一律拒絕。
+- **退回**：沒有已驗證的讀取模式 route，或低等級啟動檢查失敗時，run 自動使用寫信模式；讀取模式 route 不會在一般等級下啟動。
 
 正文／信件／來源位置／native session reference／操作證據留在專案 `.review-collaboration`；host 偏好、路線、身分證據及編譯快取留在 skill 的 `_private`。不得把兩者放進公開匯出。設定不保存帳號、token 或環境變數中的秘密。發行前仍須完成 T7 的逐檔匯出驗證。
 

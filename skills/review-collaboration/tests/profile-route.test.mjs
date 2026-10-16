@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url';
 import { randomUUID } from 'node:crypto';
 import {sha256Hex} from '../scripts/lib/mail-contract.mjs';
 import { normalizeIdentity, saveIdentity, saveProfile, readProfile, resolveSelection, selectOnce, importLegacy } from '../scripts/lib/reviewer-profile.mjs';
-import { fingerprintRoute, validateRoute, saveRoute, loadRoute, selectRegistryEntry, fetchRegistryEntry, recordDiscoveryAttempt, probeRoute } from '../scripts/lib/acp-route.mjs';
+import { fingerprintRoute, validateRoute, saveRoute, loadRoute, selectRegistryEntry, fetchRegistryEntry, recordDiscoveryAttempt, probeRoute, chooseReadRoute } from '../scripts/lib/acp-route.mjs';
 import { initProject, createTopic, openRun, readRun } from '../scripts/lib/mail-store.mjs';
 
 const fixture = fileURLToPath(new URL('./fixtures/acp-fixture.mjs', import.meta.url));
@@ -41,6 +41,19 @@ test('Route startup controls are fingerprint-bound data, not credential or shell
   f.route.fingerprint=fingerprintRoute(f.route);assert.equal(validateRoute(f.route).fingerprint,f.route.fingerprint);
   const changed=structuredClone(f.route);changed.session_meta.fixture.tools=['write'];assert.throws(()=>validateRoute(changed),{code:'revalidation-required'});
   for(const env of [{SYNTHETIC:'one',synthetic:'two'},{API_KEY:'synthetic-secret'},{BAD:5}]){const r=structuredClone(f.route);r.launch.environment=env;assert.throws(()=>fingerprintRoute(r),{code:'unsafe-launch'});}
+});
+
+test('Read-access routes: declarations are checked, writable folders are fingerprint-bound, and unverified routes fall back with a reason',async t=>{
+  const f=setup(t);
+  const empty=structuredClone(f.route);empty.read_access={letter_route_ids:[],writable_dirs:[f.root]};
+  assert.throws(()=>validateRoute(empty),{code:'invalid-route'});
+  const read=structuredClone(f.route);read.route_id=randomUUID();read.read_access={letter_route_ids:[f.route.route_id],writable_dirs:[f.root]};
+  read.fingerprint=fingerprintRoute(read);assert.equal(validateRoute(read).fingerprint,read.fingerprint);
+  const moved=structuredClone(read);moved.read_access.writable_dirs=[join(f.root,'elsewhere')];
+  assert.throws(()=>validateRoute(moved),{code:'revalidation-required'});
+  assert.deepEqual(await chooseReadRoute(f.priv,f.route),{route:null,reason:'read-route-missing'});
+  mkdirSync(join(f.priv,'routes'),{recursive:true});writeFileSync(join(f.priv,'routes',read.route_id+'.json'),JSON.stringify(read));
+  assert.deepEqual(await chooseReadRoute(f.priv,f.route),{route:null,reason:'blocked-material-control'});
 });
 
 test('P02 unknown tools need explicit canonical identity evidence, not model inference',async t=>{

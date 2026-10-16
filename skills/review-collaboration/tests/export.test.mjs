@@ -13,8 +13,8 @@ const files=[
   'LICENSE','README.md','SKILL.md','package.json','package-lock.json',
   'references/data-boundaries.md','references/first-connection.md','references/mail-records.md','references/reviewer-discovery.md','references/verification.md',
   'templates/background.md','templates/request.md','templates/handoff.md',
-  'scripts/export-clean.ps1','scripts/invoke-process.ps1','scripts/review-mail.mjs','scripts/review-mail.ps1',
-  'scripts/lib/ProcessTransport.cs','scripts/lib/LockTransaction.cs','scripts/lib/build-lock-helper.ps1','scripts/lib/windows-lock.mjs','scripts/lib/safe-files.mjs','scripts/lib/mail-contract.mjs','scripts/lib/mail-store.mjs','scripts/lib/reviewer-profile.mjs','scripts/lib/acp-route.mjs','scripts/lib/acp-client.mjs','scripts/lib/mail-exchange.mjs',
+  'scripts/export-clean.ps1','scripts/invoke-process.ps1','scripts/review-mail.mjs','scripts/review-mail.ps1','scripts/low-integrity-launch.ps1',
+  'scripts/lib/ProcessTransport.cs','scripts/lib/LowIntegrityLauncher.cs','scripts/lib/LockTransaction.cs','scripts/lib/build-lock-helper.ps1','scripts/lib/windows-lock.mjs','scripts/lib/safe-files.mjs','scripts/lib/mail-contract.mjs','scripts/lib/mail-store.mjs','scripts/lib/reviewer-profile.mjs','scripts/lib/acp-route.mjs','scripts/lib/acp-client.mjs','scripts/lib/mail-exchange.mjs',
   'tests/run-offline.mjs','tests/run-windows.ps1','tests/acp-client.test.mjs','tests/acp-lifecycle.test.mjs','tests/mail-store.test.mjs','tests/mail-exchange.test.mjs','tests/profile-route.test.mjs','tests/safe-files.test.mjs','tests/runner-guard.test.mjs','tests/export.test.mjs',
   'tests/fixtures/acp-fixture.mjs','tests/fixtures/fresh-host.md','tests/fixtures/make-test-route.mjs','tests/fixtures/profile-writer.mjs','tests/fixtures/store-worker.mjs',
 ].sort();

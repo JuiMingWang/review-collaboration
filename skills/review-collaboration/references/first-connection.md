@@ -59,6 +59,17 @@ profile-set 的 selection 必須有 host_id、reviewer_tool_id、route_id、mode
 
 live probe 在 prompt 送出前保存 `probe-submission.json`（delivery=unknown），回合返回後保存 `probe-outcome.json` 的投遞數、停止原因、正常化錯誤及已回報設定。失敗也保留，只有成功且外層收據完整才產生 probe-proof。沒有 outcome 而已有 submission 時，不可推論未送出並直接重試。診斷檔不保存原始帳號標籤／stderr；需深入診斷时另開有界且明確範圍的工作。
 
+## 讀取模式路線
+
+寫信模式路線驗證完成後，可為同一個 reviewer 另建一條**讀取模式路線**，讓 run-open 帶 `read_root` 時由 reviewer 自行讀檔。這是一條獨立的 route（新 route_id）；原寫信路線不改，任何檢查失敗都退回原路線。做法對所有 ACP agent 相同，各 agent 只差在 route 資料：
+
+1. **專用可寫資料夾**：在 `_private\reviewers\<tool>\` 建這個 reviewer 讀取模式專用的設定／登入資料夾（例如 `CODEX_HOME`、`CLAUDE_CONFIG_DIR` 指向它），以及共用的 `_private\reviewers\low-tmp`。用 `icacls "<資料夾>" /setintegritylevel (OI)(CI)low` 標成低等級可寫，並在 `_private\reviewers\README.md` 登記位置、用途與清理方式。資料夾設定須先取得使用者同意；登入由使用者本人在該資料夾完成，不複製既有憑證。讀取模式需要的工具設定（例如開啟讀檔工具或指令）只放在這個專用資料夾，不改寫信模式的設定，以免寫信模式變寬鬆。
+2. **候選 route**：複製寫信 route 的 launch、source、configuration、authentication，environment 加上專用資料夾與 `TEMP`／`TMP`=low-tmp，必要時調整 session_meta 只開讀取工具，並加上 `read_access:{letter_route_ids:[對應的寫信 route],writable_dirs:[專用資料夾, low-tmp]}`。用 `fingerprintRoute` 重算。
+3. **資料控制評估**：material assessment 的 scope 改為 `low-integrity-read`，寫明啟動載入控制、工具範圍，以及寫入由低完整性等級擋下；`synthetic_only=true`。
+4. **live probe**：用同一個 probe action（mode=live）。讀取模式 route 一律以低完整性等級啟動，probe 會建立合成資料夾：要求 reviewer 讀出其中 token、嘗試建立與修改檔案，並在資料夾放入含另一個 token 的 AGENTS.md／CLAUDE.md。必須同時符合「讀到 token」「回覆中沒有規則檔 token」「資料夾內容完全未變」，才保存 live-verified 證據（`probe-proof.json` 的 `read_access.ok=true`）。
+
+run-open 只採用 `read_access.ok=true`、fingerprint 相符、可寫資料夾存在，且當下低等級啟動檢查通過的讀取模式路線。adapter、CLI 或專用資料夾內被 runtime_files 釘選的設定一變，fingerprint 就不符，自動退回寫信模式，直到重新完成 live probe。
+
 ## Adapter 只接受 executable，但原生 CLI 需要額外 argv
 
 可用 `node <skill>/scripts/lib/argv-launcher.mjs` 建立通用原生啟動工具，返回包內 `_private/runtime` 的 executable。將 adapter 的 executable 設定指向它；route 的 environment 設 `REVIEW_LAUNCH_TARGET` 為實際 `.exe` 絕對路徑，`REVIEW_LAUNCH_ARGV` 為 JSON 字串陣列（前置參數）。Adapter 追加的參數接在其後。沒有 shell 展開，也不替任何品牌猜參數；資料控制、實际 CLI flags 與 adapter 入口仍需核對。

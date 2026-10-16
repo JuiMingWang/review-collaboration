@@ -111,7 +111,8 @@ export async function sendExchange(request,privateRoot,invocation){
       const partialWrites=[];
       try{
         checkCancel();const input=readArchivedInput(dir);
-        result=await runAcpTurn(route,run.selection,readOutbound(dir).content_blocks,{workDir,resumeRef,continuity,signal:controller.signal,
+        const readRoot=run.reading?.mode==='direct-read'&&run.route.read_access?run.reading.read_root:undefined;
+        result=await runAcpTurn(route,run.selection,readOutbound(dir).content_blocks,{workDir,readRoot,resumeRef,continuity,signal:controller.signal,
           deadlineMs:run.timeouts.prompt_deadline_ms,cancelGraceMs:run.timeouts.cancel_grace_ms,
           authorizedSnapshots:input.attachments.map(a=>({...a,absolute_path:safePath(join(dir,a.relative_path),{exists:true,file:true,within:dir})})),
           beforePrompt:async()=>{checkCancel();if(controller.signal.aborted)fail('cancelled-before-prompt','cancel requested before sending');await markDelivering(dir);},

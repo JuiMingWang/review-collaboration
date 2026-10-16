@@ -1,10 +1,42 @@
 // The sole SDK boundary. Routing never branches on reviewer tool identity.
 import {spawn} from 'node:child_process';
 import {Readable,Writable} from 'node:stream';
-import {readFileSync} from 'node:fs';
+import {readFileSync,unlinkSync} from 'node:fs';
+import {dirname,join,resolve,sep} from 'node:path';
+import {fileURLToPath} from 'node:url';
 import {client,ndJsonStream,PROTOCOL_VERSION} from '@agentclientprotocol/sdk';
 import {safePath} from './safe-files.mjs';
 import {sha256Hex} from './mail-contract.mjs';
+
+// A read-access route always starts through this launcher, so its whole
+// process tree runs at Low integrity: Windows refuses every write outside
+// folders labelled low. Exit 125 means the low-integrity start itself failed.
+const LOW_LAUNCHER=join(dirname(dirname(fileURLToPath(import.meta.url))),'low-integrity-launch.ps1');
+const LOW_LAUNCH_FAILED=125;
+function lowIntegrityCommand(executable,argv){
+  const powershell=join(process.env.SystemRoot??'C:\\Windows','System32','WindowsPowerShell','v1.0','powershell.exe');
+  return [powershell,['-NoProfile','-NonInteractive','-ExecutionPolicy','Bypass','-File',LOW_LAUNCHER,'-ArgvBase64',Buffer.from(JSON.stringify([executable,...argv]),'utf8').toString('base64')]];
+}
+function within(root,path){
+  const r=resolve(root).toLowerCase(),p=resolve(path).toLowerCase();
+  return p===r||p.startsWith(r.endsWith(sep)?r:r+sep);
+}
+// Capability check before a run chooses direct reading: a Low-integrity child
+// must start and must be refused a write into an ordinary (medium) folder.
+export async function lowIntegrityPreflight(probeDir,{timeoutMs=20000}={}){
+  const target=join(probeDir,'low-integrity-preflight.txt');
+  const script=`try{require('fs').writeFileSync(${JSON.stringify(target)},'x');process.exit(3)}catch(e){process.exit(e.code==='EPERM'||e.code==='EACCES'?0:4)}`;
+  const [command,args]=lowIntegrityCommand(process.execPath,['-e',script]);
+  const exit=await new Promise(done=>{
+    const child=spawn(command,args,{shell:false,windowsHide:true,stdio:'ignore'});
+    const timer=setTimeout(()=>{child.kill();done(null);},timeoutMs);
+    child.once('error',()=>{clearTimeout(timer);done(null);});
+    child.once('close',code=>{clearTimeout(timer);done(code);});
+  });
+  if(exit===3)try{unlinkSync(target);}catch{}
+  if(exit===0)return {ok:true,code:null};
+  return {ok:false,code:exit===LOW_LAUNCH_FAILED?'low-integrity-launch-failed':exit===3?'low-integrity-not-enforced':'low-integrity-preflight-failed'};
+}
 
 export class AcpError extends Error {
   constructor(code,message=code,evidenceRefs=[]){super(message);this.name='AcpError';this.code=code;this.evidence_refs=evidenceRefs;}
@@ -25,7 +57,8 @@ async function withEndpoint(route,context,operation,configure){
     for(const key of Object.keys(environment))if(key.toUpperCase()===name.toUpperCase())delete environment[key];
     if(value!==null)environment[name]=value;
   }
-  const child=spawn(executable,argv,{cwd:context.workDir,env:environment,shell:false,windowsHide:true,stdio:['pipe','pipe','pipe']});
+  const [command,commandArgs]=route.read_access?lowIntegrityCommand(executable,argv):[executable,argv];
+  const child=spawn(command,commandArgs,{cwd:context.workDir,env:environment,shell:false,windowsHide:true,stdio:['pipe','pipe','pipe']});
   let exitCode=null,closed=false;const fault=faultChannel();
   const close=new Promise(resolve=>child.once('close',code=>{exitCode=code;closed=true;resolve();}));
   child.once('error',()=>fault.fail('endpoint-launch-failed'));
@@ -37,15 +70,22 @@ async function withEndpoint(route,context,operation,configure){
   child.stderr.resume();
   const app=client({name:'review-collaboration-acp'});if(configure)configure(app,fault);
   const timer=setTimeout(()=>fault.fail('acp-deadline'),hardMs);
-  let value,error=null,closeReason='unobserved';
+  let value,error=null,closeReason='unobserved',connection,operationSettled=false;
   try{
-    value=await Promise.race([app.connectWith(ndJsonStream(Writable.toWeb(child.stdin),Readable.toWeb(child.stdout)),ctx=>operation(ctx,fault)),fault.promise]);
+    // connectWith cancels the stdout reader when the operation returns. Keep it
+    // open until the endpoint has handled stdin EOF and flushed its final output.
+    connection=app.connect(ndJsonStream(Writable.toWeb(child.stdin),Readable.toWeb(child.stdout)));
+    const result=Promise.resolve().then(()=>operation(connection.agent,fault)).finally(()=>{operationSettled=true;});
+    connection.closed.then(()=>{if(!operationSettled)fault.fail('acp-connection-failed');});
+    value=await Promise.race([result,fault.promise]);
   }catch(e){error=e instanceof AcpError?e:new AcpError(e?.code===-32000?'reviewer-auth-required':'acp-connection-failed');}
   finally{
     clearTimeout(timer);child.stdin.end();
     if(!closed)await Promise.race([close,sleep(500)]);
     if(closed)closeReason=exitCode===0?'graceful':'unexpected';
     else {child.kill();closeReason='controlled-stop';await Promise.race([close,sleep(2000)]);}
+    if(route.read_access&&exitCode===LOW_LAUNCH_FAILED&&error)error=new AcpError('low-integrity-launch-failed');
+    connection?.close();
     // A native endpoint may leave a descendant holding diagnostic pipe handles.
     // After ACP has ended and bounded shutdown has elapsed, release our ends so
     // the helper can exit. Its outer Windows Job then sweeps owned descendants.
@@ -145,26 +185,40 @@ async function configureSelection(ctx,route,selection,state,sessionId){
   }
 }
 
-function permissionDecision(params,sessionId,snapshots,recorded){
-  let allowed=false;
+// Reads are allowed for hash-bound snapshots and, in read-access runs, for files
+// inside the run's read root. Every other request is rejected; in read-access
+// runs Windows also refuses the writes themselves.
+function permissionDecision(params,sessionId,snapshots,readRoot,recorded){
+  let allowed=false,reason='outside-verified-read';
   const locations=params?.toolCall?.locations;
   if(params.sessionId===sessionId&&params.toolCall?.kind==='read'&&Array.isArray(locations)&&locations.length>0){
-    allowed=locations.every(location=>{
+    const inRoot=!!readRoot&&locations.every(location=>{
+      try{return within(readRoot,safePath(location.path,{exists:true,file:true}));}catch{return false;}
+    });
+    if(inRoot){allowed=true;reason='read-root';}
+    else allowed=locations.every(location=>{
       try{
         const path=safePath(location.path,{exists:true,file:true});
         const authorized=snapshots.find(s=>typeof s.absolute_path==='string'&&s.absolute_path.toLowerCase()===path.toLowerCase());
         return !!authorized&&sha256Hex(readFileSync(path))===authorized.sha256;
       }catch{return false;}
     });
+    if(allowed&&!inRoot)reason='hash-bound-read';
   }
   const option=(params.options??[]).find(o=>o.kind===(allowed?'allow_once':'reject_once'));
-  recorded.push({decided:allowed&&option?'allowed':'denied',kind:params.toolCall?.kind??'unknown',reason:allowed&&option?'hash-bound-read':'outside-verified-read'});
+  recorded.push({decided:allowed&&option?'allowed':'denied',kind:params.toolCall?.kind??'unknown',reason:allowed&&option?reason:'outside-verified-read'});
   return option?{outcome:{outcome:'selected',optionId:option.optionId}}:{outcome:{outcome:'cancelled'}};
+}
+// The read root reaches the agent through the standard ACP session field only
+// when the agent advertises it; otherwise the letter names absolute paths.
+function sessionDirectories(init,readRoot){
+  return readRoot&&init.agentCapabilities?.sessionCapabilities?.additionalDirectories!=null?{additionalDirectories:[readRoot]}:{};
 }
 
 export async function runAcpTurn(route,selection,promptBlocks,context){
   const deadline=duration(context.deadlineMs,600000),grace=duration(context.cancelGraceMs,10000);
   if(!Array.isArray(promptBlocks)||promptBlocks.some(b=>b.type!=='text'||typeof b.text!=='string'))throw new AcpError('unsupported-prompt-block');
+  const readRoot=route.read_access&&typeof context.readRoot==='string'?context.readRoot:null;
   let replyText='',stopReason=null,nativeSessionRef=context.resumeRef??null,errorCode=null;
   let phase='initializing',promptsSubmitted=0,cancelRequested=false,timer,cancelTimer,abortHandler;
   let observed=unknown();const permissionDecisions=[];let state={};let connectionContext,fault;
@@ -183,10 +237,10 @@ export async function runAcpTurn(route,selection,promptBlocks,context){
     if(context.resumeRef){
       if(init.agentCapabilities?.loadSession!==true)throw new AcpError('session-reconstruction-required');
       phase='loading';
-      try{const loaded=await ctx.request('session/load',{sessionId:context.resumeRef,cwd:context.workDir,mcpServers:[],...(route.session_meta?{_meta:structuredClone(route.session_meta)}:{})});state={...state,...loaded};}
+      try{const loaded=await ctx.request('session/load',{sessionId:context.resumeRef,cwd:context.workDir,mcpServers:[],...sessionDirectories(init,readRoot),...(route.session_meta?{_meta:structuredClone(route.session_meta)}:{})});state={...state,...loaded};}
       catch{throw new AcpError('session-reconstruction-required');}
     }else{
-      state=await ctx.request('session/new',{cwd:context.workDir,mcpServers:[],...(route.session_meta?{_meta:structuredClone(route.session_meta)}:{})});
+      state=await ctx.request('session/new',{cwd:context.workDir,mcpServers:[],...sessionDirectories(init,readRoot),...(route.session_meta?{_meta:structuredClone(route.session_meta)}:{})});
       if(typeof state.sessionId!=='string'||!state.sessionId)throw new AcpError('session-id-missing');nativeSessionRef=state.sessionId;
     }
     if(errorCode)throw new AcpError(errorCode);
@@ -220,7 +274,7 @@ export async function runAcpTurn(route,selection,promptBlocks,context){
         try{context.onUpdate?.(params,replyText);}catch{channel.fail('partial-save-failed');}
       }
     });
-    app.onRequest('session/request_permission',({params})=>permissionDecision(params,nativeSessionRef,context.authorizedSnapshots??[],permissionDecisions));
+    app.onRequest('session/request_permission',({params})=>permissionDecision(params,nativeSessionRef,context.authorizedSnapshots??[],readRoot,permissionDecisions));
   });
   clearTimeout(timer);clearTimeout(cancelTimer);if(abortHandler)context.signal?.removeEventListener('abort',abortHandler);
   if(outcome.error)errorCode=errorCode??outcome.error.code;

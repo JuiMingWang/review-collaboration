@@ -25,12 +25,17 @@ Private self-move: copy this entire folder (including needed local dependencies 
 | `acp-client.mjs` / `mail-exchange.mjs` | One ACP connection core, ordinary text both directions, cancel/resume and durable evidence |
 | `safe-files.mjs`, `windows-lock.mjs`, `LockTransaction.cs`, `build-lock-helper.ps1` | Local path guards and atomic short lock transactions; generated helper stays in `_private` |
 | `invoke-process.ps1` / `ProcessTransport.cs` | Own and clean this invocation's Windows process tree |
+| `low-integrity-launch.ps1` / `LowIntegrityLauncher.cs` | Start a read-access route's reviewer tree at Low integrity, so Windows refuses its writes outside folders labelled low; loaded in memory, no executable produced |
 | `argv-launcher.mjs`, `build-argv-launcher.ps1`, `ArgvLauncher.cs` | Optional native executable that prepends explicit CLI arguments, forwards bytes and preserves exit status when an adapter accepts only an executable path |
 | `export-clean.ps1` | Copy only individually approved public files into a new folder |
 
 All modules above are under `scripts/lib` unless a different path is shown. No global hook or Herdr installation is required. Normal JSON calls are documented in [mail records](references/mail-records.md); first-time routing in [first connection](references/first-connection.md).
 
 For routine use, the host reads this skill and uses `review-mail.ps1 -RequestFile <absolute-envelope.json>`; no output path is required. All automatic operation files stay under this folder's `_private/operations/<UUID>`. They are not the project letters and are excluded from a public export. First-time connection setup is required once per local reviewer route; adding an unknown CLI still requires a compatible adapter and a checked material boundary. The core does not infer them from a successful interactive launch.
+
+Read-access mode (optional): with a verified read-access route, `run-open` given `read_root` lets the reviewer open project files itself instead of receiving pasted text. The reviewer runs at Low integrity and writes only to its own folders under `_private/reviewers` (listed in that folder's `README.md`). Without such a route, or when Low-integrity start fails, the run uses letters as before. See [first connection](references/first-connection.md) and [data boundaries](references/data-boundaries.md).
+
+ACP shutdown keeps the reviewer output pipe open while the endpoint handles stdin EOF and flushes its final notifications. Closing the SDK reader first can induce a broken-pipe crash after a valid reply. Shutdown remains bounded by the existing process cleanup; genuine nonzero reviewer exits still fail validation, and cleanup text is not appended to the completed reply.
 
 ## Verify and share
 

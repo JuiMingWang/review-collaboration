@@ -7,6 +7,7 @@ Use this as a preparation aid, not a mandatory response form. Fill the operation
 - User goal / actual constraints; choices open to challenge; important unknowns or counterevidence:
 - Reviewer tool; requested model/thinking; frozen route/run:
 - Project record root, topic_id, run_id, expected_topic_revision:
+- Reading mode from `run-open` (`letters`, or `direct-read` with `read_root`):
 - Authorized letter and checked attachment snapshots (paths, hashes, source revisions):
 - Lookup pointers: what each source can answer; which snapshots/excerpts may be reused in follow-up letters under the existing authorization:
 - Authorization reference and disclosure scope; material requiring a new host decision:

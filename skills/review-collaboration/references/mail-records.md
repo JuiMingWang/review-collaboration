@@ -29,11 +29,11 @@
 |---|---|---|
 | resolve | host_id | 只讀該 host 選擇；沒有則 selection-required |
 | authenticate | route_candidate_file, mode, authorization_ref | inspect 取得非秘密登入方法；login 交由官方 agent 認證；兩者零 session／零 prompt，不產生 live proof |
-| probe | route_candidate_file, mode, authorization_ref | initialize 不送 prompt；live 僅送固定合成連線題，須已有資料控制證據 |
+| probe | route_candidate_file, mode, authorization_ref | initialize 不送 prompt；live 僅送固定合成連線題，須已有資料控制證據；讀取模式 route 的 live 另做合成讀取檢查（見 [首次設定](first-connection.md#讀取模式路線)） |
 | profile-set | selection, expected_revision | CAS 更新 host 預設；revision 不符不覆寫 |
 | project-init | project_root | 建立／核對專案紀錄及私人資料防護 |
 | topic-create | title, related_topic_ids（可省略） | 新議題；關係由主 agent 判斷 |
-| run-open | topic_id, host_id, host_session_key；可選 selection_override, timeout_ms | 保存本次設定快照；host key 須可追溯，不猜原生 session |
+| run-open | topic_id, host_id, host_session_key；可選 selection_override, timeout_ms, read_root | 保存本次設定快照；host key 須可追溯，不猜原生 session。給 read_root 時選擇讀取模式或退回寫信模式，結果見回傳的 `reading` |
 | exchange | run_id, exchange_id, request_file, input_file | 封存、送一次、收信、完成核對 |
 | status | run_id；可選 exchange_id | 只讀，不送 prompt |
 | cancel | run_id, exchange_id | 寫取消要求，不送新 prompt |
@@ -45,6 +45,8 @@ selection 的 model/thinking 各為 `{"source":"provider-default","value":null}`
 input_file 是草稿 JSON，必填 schema_version、project_id、topic_id、run_id、exchange_id、previous_exchange_id（首封 null）、expected_topic_revision、attachments、authorization。attachments 每項帶 source_file、sha256、source_revision；工具封存為內容 hash 路徑。authorization 必須有 ref、scope=text-and-listed-snapshots、allowed_attachment_hashes。可選 request_sha256、outbound_sha256 供預先核對。
 
 continuity 省略即 auto：同 run 接 previous_exchange_id 時嘗試已記錄的原生 session。缺能力或失效就回 session-reconstruction-required，不偷偷重試。主端可明確準備必要且已授權的舊信摘錄，在**新 exchange** 指定 letters-reconstructed；工具不自行追加整段歷史。同 topic 跨主 session 的接續也採新 run 加授權摘錄。
+
+run-open 的 `read_root` 是使用者同意讓 reviewer 直接閱讀的資料夾（絕對路徑）。工具找到對應寫信 route 的已驗證讀取模式 route，且低完整性啟動檢查通過時，回傳並在 run.json 記錄 `reading:{mode:"direct-read",read_root,letter_route_id}`，凍結的 selection.route_id 改為讀取模式 route。否則記錄 `reading:{mode:"letters",requested_read_root,fallback_reason}`，常見原因：`read-route-missing`（尚未建立）、`read-route-unverified`、`revalidation-required`（設定或版本變了）、`low-integrity-launch-failed`／`low-integrity-not-enforced`（Windows 無法以低等級啟動或沒有擋下寫入）。沒有給 read_root 時為 `{mode:"letters"}`。讀取模式的 exchange 若低等級啟動失敗，回 `low-integrity-launch-failed` 且不送出 prompt；改開一個不帶 read_root 的新 run 即可用寫信模式繼續。
 
 ## 並行、等待與資料限制
 

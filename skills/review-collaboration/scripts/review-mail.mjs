@@ -1,12 +1,12 @@
 // Strict host entry: business data is JSON; no command-string interpolation.
-import {readFileSync,writeFileSync,mkdirSync,existsSync} from 'node:fs';
+import {readFileSync,writeFileSync,mkdirSync,existsSync,statSync} from 'node:fs';
 import {dirname,join,relative,isAbsolute} from 'node:path';
 import {fileURLToPath,pathToFileURL} from 'node:url';
 import {fields,safePath,readJSON,writeJSON,privateWritable} from './lib/safe-files.mjs';
 import {fail,sha256Hex,assertUuid} from './lib/mail-contract.mjs';
 import {runAcpAuthenticate} from './lib/acp-client.mjs';
 import {normalizeIdentity,resolveSelection,readProfile,selectOnce,saveProfile} from './lib/reviewer-profile.mjs';
-import {loadRoute,validateRoute,probeRoute,saveRoute,requireMaterialControl} from './lib/acp-route.mjs';
+import {loadRoute,validateRoute,probeRoute,saveRoute,requireMaterialControl,chooseReadRoute} from './lib/acp-route.mjs';
 import {initProject,createTopic,openRun,appendNote,recoverRun,ensureRecordRootWritable} from './lib/mail-store.mjs';
 import {sendExchange,finalizeExchange,statusExchange,cancelExchange,exchangePath,correlateReceipt,receiptProblems} from './lib/mail-exchange.mjs';
 
@@ -18,7 +18,7 @@ const contracts={
   'profile-set':[['selection','expected_revision'],['selection','expected_revision']],
   'project-init':[['project_root'],['project_root']],
   'topic-create':[['title','related_topic_ids'],['title']],
-  'run-open':[['topic_id','host_id','host_session_key','selection_override','timeout_ms'],['topic_id','host_id','host_session_key']],
+  'run-open':[['topic_id','host_id','host_session_key','selection_override','timeout_ms','read_root'],['topic_id','host_id','host_session_key']],
   exchange:[['run_id','exchange_id','request_file','input_file'],['run_id','exchange_id','request_file','input_file']],
   status:[['run_id','exchange_id'],['run_id']],
   cancel:[['run_id','exchange_id'],['run_id','exchange_id']],
@@ -56,8 +56,9 @@ async function finalizeProbe(request,invocation){
   const replyPath=join(invocation.output_directory,'probe-reply.md');
   if(result.level==='live-verified'&&(!existsSync(replyPath)||sha256Hex(readFileSync(replyPath))!==result.reply_sha256))fail('probe-reply-unverified','probe reply is missing or changed');
   if(!['initialized','live-verified'].includes(result.level)||result.prompts_submitted!==(result.level==='initialized'?0:1))fail('probe-contract-mismatch','probe did not perform the claimed work');
+  if(route.read_access&&result.level==='live-verified'&&result.read_access?.ok!==true)fail('read-access-probe-failed','read-access checks did not pass');
   const proofPath=join(invocation.output_directory,'probe-proof.json');
-  writeJSON(proofPath,{schema_version:1,ok:true,level:result.level,route_fingerprint:route.fingerprint,receipt_sha256:sha256Hex(readFileSync(invocation.receipt_file)),reply_sha256:result.reply_sha256??null},{exclusive:true});
+  writeJSON(proofPath,{schema_version:1,ok:true,level:result.level,route_fingerprint:route.fingerprint,receipt_sha256:sha256Hex(readFileSync(invocation.receipt_file)),reply_sha256:result.reply_sha256??null,...(result.read_access?{read_access:result.read_access}:{})},{exclusive:true});
   route.verification={level:result.level,evidence_ref:proofPath};await saveRoute(privateRoot,route);
   return {route_id:route.route_id,level:result.level,observed:result.observed,prompts_submitted:result.prompts_submitted,evidence_refs:[proofPath]};
 }
@@ -103,14 +104,25 @@ export async function dispatchRequest(request,invocation=null,{finalize=false}={
     case 'run-open':{
       const selection=await selectOnce(privateRoot,a.host_id,a.selection_override??null);
       if(!selection)fail('selection-required','choose one reviewer for this host');
-      const route=loadRoute(privateRoot,selection.route_id);requireMaterialControl(route);
+      let route=loadRoute(privateRoot,selection.route_id);requireMaterialControl(route);
       if(route.verification.level!=='live-verified')fail('route-not-live-verified','complete initial probe first');
       const proof=readJSON(route.verification.evidence_ref);
       if(proof.ok!==true||proof.level!=='live-verified'||proof.route_fingerprint!==route.fingerprint)fail('route-verification-unproven','route proof does not match');
       const timeout=a.timeout_ms??600000;
       if(!Number.isInteger(timeout)||timeout<100||timeout>3600000)fail('invalid-deadline','timeout_ms is outside supported range');
-      const run=await openRun(request.record_root,{topic_id:a.topic_id,host_id:normalizeIdentity(a.host_id,privateRoot),host_session_key:a.host_session_key,selection,route,timeouts:{prompt_deadline_ms:timeout,cancel_grace_ms:10000,outer_hard_timeout_ms:timeout+15000}});
-      return {...run,selection,requested:{reviewer:selection.reviewer_tool_id,model:selection.model,thinking:selection.thinking,channel:'acp'}};
+      // Direct reading is chosen only when a verified read-access route and a
+      // working Low-integrity start both exist; otherwise the run uses letters.
+      let reading={mode:'letters'};
+      if(a.read_root!==undefined){
+        if(typeof a.read_root!=='string'||!isAbsolute(a.read_root))fail('invalid-read-root','read_root must be an absolute folder');
+        const readRoot=safePath(a.read_root,{exists:true});if(!statSync(readRoot).isDirectory())fail('invalid-read-root','read_root must be a folder');
+        const choice=await chooseReadRoute(privateRoot,route);
+        if(choice.route){reading={mode:'direct-read',read_root:readRoot,letter_route_id:route.route_id};route=choice.route;}
+        else reading={mode:'letters',requested_read_root:readRoot,fallback_reason:choice.reason};
+      }
+      const frozen={...selection,route_id:route.route_id};
+      const run=await openRun(request.record_root,{topic_id:a.topic_id,host_id:normalizeIdentity(a.host_id,privateRoot),host_session_key:a.host_session_key,selection:frozen,route,reading,timeouts:{prompt_deadline_ms:timeout,cancel_grace_ms:10000,outer_hard_timeout_ms:timeout+15000}});
+      return {...run,selection:frozen,reading,requested:{reviewer:selection.reviewer_tool_id,model:selection.model,thinking:selection.thinking,channel:'acp'}};
     }
     case 'exchange':return sendExchange(request,privateRoot,invocation);
     case 'status':return statusExchange(request.record_root,a.run_id,a.exchange_id??null);
@@ -146,7 +158,7 @@ export async function dispatchRequest(request,invocation=null,{finalize=false}={
       catch(error){error.evidence_refs=[...(error.evidence_refs??[]),...[submission,outcome].filter(existsSync)];throw error;}
       let replyHash=null;
       if(result.reply_text!==undefined){writeFileSync(join(invocation.output_directory,'probe-reply.md'),result.reply_text,{flag:'wx'});replyHash=sha256Hex(Buffer.from(result.reply_text));}
-      writeJSON(join(invocation.output_directory,'probe-result.json'),{schema_version:1,invocation_id:invocation.invocation_id,route_fingerprint:route.fingerprint,level:result.level,prompts_submitted:result.prompts_submitted,observed:result.observed,reply_sha256:replyHash},{exclusive:true});
+      writeJSON(join(invocation.output_directory,'probe-result.json'),{schema_version:1,invocation_id:invocation.invocation_id,route_fingerprint:route.fingerprint,level:result.level,prompts_submitted:result.prompts_submitted,observed:result.observed,reply_sha256:replyHash,...(result.read_access?{read_access:result.read_access}:{})},{exclusive:true});
       return {stage:'awaiting-outer-receipt',route_id:route.route_id,prompts_submitted:result.prompts_submitted};
     }
   }

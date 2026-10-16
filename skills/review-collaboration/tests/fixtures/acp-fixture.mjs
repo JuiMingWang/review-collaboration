@@ -12,7 +12,7 @@
 
 import { createHash } from 'node:crypto';
 import { spawn } from 'node:child_process';
-import { appendFileSync, existsSync } from 'node:fs';
+import { appendFileSync, existsSync, writeFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 
 const PROTOCOL_VERSION = 1;
@@ -47,6 +47,9 @@ export const SCENARIO_BODIES = {
   'late-after-cancel': 'chunk before cancel.',
   'hang-with-child': 'never sent',
   'reply-with-held-pipes': 'Final reply before descendant cleanup.',
+  'shutdown-update': 'Reply before graceful shutdown.',
+  'shutdown-failure': 'Reply before failed shutdown.',
+  'shutdown-failure-held-stdout': 'Reply before failed shutdown with inherited stdout.',
 };
 
 const args = process.argv.slice(2);
@@ -218,6 +221,7 @@ function handle(message) {
           receivedText === null ? null : createHash('sha256').update(receivedText, 'utf8').digest('hex'),
       });
       const sessionId = params?.sessionId;
+      if(scenario==='shutdown-update')pendingSessionId=sessionId;
       const body = scenario==='echo-input'?receivedText:SCENARIO_BODIES[scenario];
 
       if(scenario==='die-after-prompt'){process.exit(7);return;}
@@ -225,7 +229,8 @@ function handle(message) {
       if(scenario==='wrong-session'){sendBodyAsChunks('unrelated-session',body,1,0);result(id,{stopReason:'end_turn'});return;}
       if(scenario==='config-change'){modelValue='basic';notify('session/update',{sessionId,update:{sessionUpdate:'config_option_update',configOptions:configOptions()}});}
       if(scenario==='permission'){
-        const allowed=argValue('--allowed-file');
+        const allowed=argValue('--allowed-file'),writeTarget=argValue('--write-target');
+        if(writeTarget){let code='written';try{writeFileSync(writeTarget,'synthetic write');}catch(e){code=e.code;}logEvent({event:'write-attempt',code});}
         const requests=[{kind:'read',locations:[{path:allowed}]},{kind:'read',locations:[{path:allowed+'.outside'}]},{kind:'execute',locations:[]}];
         const next=()=>{
           if(!requests.length){ask('fs/read_text_file',{sessionId,path:allowed},response=>{logEvent({event:'unsupported-fs',response});sendBodyAsChunks(sessionId,body,1,0);result(id,{stopReason:'end_turn'});});return;}
@@ -243,6 +248,12 @@ function handle(message) {
       if(scenario==='reply-with-held-pipes'){
         const child=spawn(process.execPath,['-e','setInterval(()=>{},1000)'],{stdio:['ignore','inherit','inherit'],windowsHide:true,shell:false});
         logEvent({event:'descendants-spawned',fixture_pid:process.pid,child_pid:child.pid});
+      }
+      if(scenario==='shutdown-failure-held-stdout'){
+        const child=spawn(process.execPath,['-e',"setInterval(()=>{},1000);process.stdout.write('');process.send('ready',()=>process.disconnect());"],{stdio:['ignore','inherit','ignore','ipc'],windowsHide:true,shell:false});
+        logEvent({event:'descendants-spawned',fixture_pid:process.pid,child_pid:child.pid});
+        child.once('message',()=>{sendBodyAsChunks(sessionId,body,1,0);result(id,{stopReason:'end_turn'});});
+        return;
       }
 
       if(scenario==='hold-until-file'){
@@ -316,6 +327,11 @@ function serve() {
   });
   process.stdin.on('end', () => {
     logEvent({ event: 'stdin-end', prompt_count: promptCount, cancel_count: cancelCount });
+    if(scenario==='shutdown-failure'||scenario==='shutdown-failure-held-stdout'){process.exit(23);return;}
+    if(scenario==='shutdown-update'){
+      process.stdout.end(JSON.stringify({jsonrpc:'2.0',method:'session/update',params:{sessionId:pendingSessionId,update:{sessionUpdate:'agent_message_chunk',content:{type:'text',text:'Cleanup text is not part of the reply.'}}}})+'\n');
+      return;
+    }
     if (!['hang-with-child','reply-with-held-pipes'].includes(scenario)) process.exit(0);
   });
 }
