@@ -88,9 +88,9 @@ const readdirSync=(path,...options)=>rawReaddirSync(safePath(path),...options);
 // Operational defaults from the plan. They are program timings, not review
 // rules, and a single run may record different ones.
 export const DEFAULT_TIMEOUTS = {
-  prompt_deadline_ms: 600000,
+  prompt_deadline_ms: 900000,
   cancel_grace_ms: 10000,
-  outer_hard_timeout_ms: 615000,
+  outer_hard_timeout_ms: 915000,
 };
 
 const SHORT_LOCK_WAIT_MS = 5000;
@@ -1073,7 +1073,7 @@ function resolveAttachments(draft) {
       sha256: hash,
       source_revision: attachment.source_revision,
       bytes,
-      text: decodeUtf8Strict(bytes, `attachment ${hash}`),
+      text: decodeUtf8Strict(bytes, `attachment ${attachment.source_file}`),
     });
   }
   return resolved;
@@ -1514,11 +1514,13 @@ export async function recoverExchange(exchangeDir) {
   const evidence = evaluateExchangeEvidence(exchangeDir);
 
   if (evidence.state === null) {
+    // No folder at all means this id was never sent, not a damaged archive.
+    const missing = !existsSync(exchangeDir);
     return {
       status: 'failed',
       delivery: 'not-sent',
-      stage: 'archive-incomplete',
-      problems: evidence.problems,
+      stage: missing ? 'exchange-not-found' : 'archive-incomplete',
+      problems: missing ? ['exchange-not-found'] : evidence.problems,
       evidence_refs: evidence.evidence_refs,
     };
   }

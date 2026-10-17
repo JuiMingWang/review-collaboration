@@ -100,7 +100,9 @@ npm.cmd ci --ignore-scripts
 
 ## 版本與驗證範圍
 
-本次為 **R14（2026-10-16）**，helper 的 package 版本仍為 `0.1.0`；R14 表示文件與來源快照，不是 npm 發布版本。相較 R13，新增可選的讀取模式：reviewer 的讀取模式路線通過合成檢查後，`run-open` 帶入 `read_root`，reviewer 就能自己開啟專案檔案，信件只需寫路徑、不必貼全文，reviewer 也不必為了要資料多跑一輪。reviewer 的程序樹以 Windows 低完整性等級執行，除了 `_private/reviewers` 底下自己的資料夾之外，寫入一律由 Windows 拒絕；啟動器在記憶體中載入，不產生執行檔。缺少驗證或低等級啟動失敗時，自動退回原本的寫信模式。R14 也讓 reviewer 的輸出管道保持開啟到 ACP 關閉完成，正常回信後不再出現管道中斷的誤判。審查程序及依賴版本未改。圖稿仍描述 R13，未包含讀取模式。
+本次為 **R15（2026-10-17）**，helper 的 package 版本仍為 `0.1.0`；R15 表示文件與來源快照，不是 npm 發布版本。相較 R14，修正實際使用中發現、會白白浪費時間的工具執行失敗，審查程序不變：預設回信期限由 10 分鐘改為 15 分鐘；`run-open` 回傳 `host_command_timeout_ms`，即主端執行 `exchange` 指令時自己的逾時至少要設多長，SKILL.md、交接範本與信件說明都寫明；`status` 回報 `cancel_cause`（`prompt-deadline` 或 `cancel-request`），分得出期限到了還是有人取消；失敗結果在最外層 `detail` 附上原始錯誤，例如哪個附件不是 UTF-8；查詢從未建立的 exchange_id 時回報 `exchange-not-found`，不再顯示 `archive-incomplete`；信件說明寫清楚哪些動作要帶 `record_root`。依賴版本與編譯小工具的原始碼未改。
+
+R14（2026-10-16）新增可選的讀取模式：有已驗證讀取模式路線的 reviewer 以 Windows 低完整性等級自行開啟專案檔案，信件只需寫路徑；未通過驗證時退回寫信模式。R14 也讓 reviewer 的輸出管道保持開啟到 ACP 關閉完成。圖稿仍描述 R13。
 
 R13（2026-09-28）修正乾淨 Windows 環境安裝時發現的問題：小工具改在短暫存資料夾編譯、編譯失敗分因回報、Windows 不允許啟動的小工具會回報且不快取、從 PowerShell 7 啟動不再缺指令、Node 22 在非 ASCII 資料夾跑測試不再崩潰。
 

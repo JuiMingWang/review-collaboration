@@ -184,13 +184,14 @@ try{
     if($null -ne $final){$problems+=@($final.problems);if($null -ne $final.helper){$chosen=$final.helper}}
     $ok=$problems.Count -eq 0
     $code='ok'
+    $detail=$null
     if(-not $ok){
         $candidateCode=Get-Field $chosen 'code'
-        if($null -ne $outer.helper -and (Get-Field $outer.helper 'ok') -ne $true){$code=Get-Field $outer.helper 'code'}
+        if($null -ne $outer.helper -and (Get-Field $outer.helper 'ok') -ne $true){$code=Get-Field $outer.helper 'code';$detail=Get-Field $outer.helper 'detail'}
         elseif($candidateCode -and $candidateCode -ne 'ok'){$code=$candidateCode}
         else{$code=$problems[0]}
     }
-    Write-Result @{schema_version=1;ok=$ok;code=$code;data=(Get-Field $chosen 'data');evidence_refs=@((Get-Field $chosen 'evidence_refs'));helper_result=$chosen;initial_helper_result=$outer.helper;problems=$problems;native_exit_code=(Get-Field $outer.receipt 'native_exit_code');transport_exit_code=(Get-Field $outer.receipt 'transport_exit_code');transport_status=(Get-Field $outer.receipt 'transport_status');timed_out=(Get-Field $outer.receipt 'timed_out');cleanup=(Get-Field $outer.receipt 'cleanup');capture=(Get-Field $outer.receipt 'capture');output_directory=$outputFull;transport_request=$transportRequest;request_sha256=$requestSha}
+    Write-Result @{schema_version=1;ok=$ok;code=$code;detail=$detail;data=(Get-Field $chosen 'data');evidence_refs=@((Get-Field $chosen 'evidence_refs'));helper_result=$chosen;initial_helper_result=$outer.helper;problems=$problems;native_exit_code=(Get-Field $outer.receipt 'native_exit_code');transport_exit_code=(Get-Field $outer.receipt 'transport_exit_code');transport_status=(Get-Field $outer.receipt 'transport_status');timed_out=(Get-Field $outer.receipt 'timed_out');cleanup=(Get-Field $outer.receipt 'cleanup');capture=(Get-Field $outer.receipt 'capture');output_directory=$outputFull;transport_request=$transportRequest;request_sha256=$requestSha}
     if($ok){exit 0}
     $native=Get-Field $outer.receipt 'native_exit_code'
     if($null -ne $native -and [int]$native -ne 0){exit ([int]$native)}

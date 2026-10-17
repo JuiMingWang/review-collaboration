@@ -185,6 +185,7 @@ test('T5 C01 W02 a live run refuses a competing letter; cancellation keeps the l
   const cancelled=await call({schema_version:1,action:'cancel',record_root:f.records,args:{run_id:f.draft.run_id,exchange_id:f.draft.exchange_id}});assert.equal(cancelled.exit,0);
   const result=await active;assert.equal(result.exit,0,JSON.stringify(result.result));
   const completed=JSON.parse(readFileSync(join(f.exchangeDir,'completion.json')));assert.equal(completed.status,'cancelled');assert.equal(completed.delivery,'replied');
+  const status=await call({schema_version:1,action:'status',record_root:f.records,args:{run_id:f.draft.run_id,exchange_id:f.draft.exchange_id}});assert.equal(data(status).cancel_cause,'cancel-request');
   assert.match(readFileSync(join(f.exchangeDir,'reply.md'),'utf8'),/late chunk after cancel/);
   await call({schema_version:1,action:'recover',record_root:f.records,args:{run_id:f.draft.run_id,exchange_id:f.draft.exchange_id}});
   assert.equal(eventList(f).filter(e=>e.event==='prompt').length,1);assert.equal(eventList(f).filter(e=>e.event==='started').length,1);
@@ -260,4 +261,19 @@ test('T5 C05 notes preserve history and only premise-change advances revision',a
 test('T5 dispatcher rejects unknown fields and nonlocal roots before reviewer startup',async()=>{
   const result=await call({schema_version:1,action:'project-init',args:{project_root:root,shell:'should never execute'}});assert.notEqual(result.exit,0);assert.equal(result.result.code,'unknown-field');
   const unsafe=await call({schema_version:1,action:'status',record_root:'\\\\synthetic-server\\records',args:{run_id:randomUUID()}});assert.notEqual(unsafe.exit,0);assert.equal(unsafe.result.code,'unsafe-path');
+});
+
+test('tool failures name their cause: deadline, unknown exchange, run defaults, attachment encoding, record_root',async()=>{
+  const f=await scenario('late-after-cancel',{deadline:1500});const r=await call(f.request,{timeout:null});assert.equal(r.exit,0,JSON.stringify(r.result));
+  const status=args=>call({schema_version:1,action:'status',record_root:f.records,args:{run_id:f.draft.run_id,...args}});
+  const ended=data(await status({exchange_id:f.draft.exchange_id}));assert.equal(ended.status,'cancelled');assert.equal(ended.cancel_cause,'prompt-deadline');
+  const unknown=data(await status({exchange_id:randomUUID()}));assert.equal(unknown.stage,'exchange-not-found');assert.deepEqual(unknown.problems,['exchange-not-found']);
+  const opened=await call({schema_version:1,action:'run-open',record_root:f.records,args:{topic_id:f.draft.topic_id,host_id:'codex',host_session_key:'generated:synthetic-host'}});assert.equal(opened.exit,0,JSON.stringify(opened.result));
+  assert.equal(data(opened).host_command_timeout_ms,960000);assert.equal(JSON.parse(readFileSync(join(data(opened).run_dir,'run.json'))).timeouts.prompt_deadline_ms,900000);
+  const latin=join(f.dir,'latin1.txt');writeFileSync(latin,Buffer.from([0x63,0x61,0x66,0xe9,0x0a]));const hash=sha256Hex(readFileSync(latin));
+  const id=randomUUID(),input=join(f.dir,'latin-input.json');writeFileSync(input,JSON.stringify({...f.draft,run_id:data(opened).run_id,exchange_id:id,attachments:[{source_file:latin,sha256:hash,source_revision:'r1'}],authorization:{...f.draft.authorization,allowed_attachment_hashes:[hash]}}));
+  const refused=await call({...f.request,args:{...f.request.args,run_id:data(opened).run_id,exchange_id:id,input_file:input}});
+  assert.notEqual(refused.exit,0);assert.equal(refused.result.code,'invalid-utf8');assert.ok(refused.result.detail.includes(latin),JSON.stringify(refused.result));
+  const init=await call({schema_version:1,action:'project-init',record_root:f.records,args:{project_root:f.dir}});
+  assert.equal(init.result.code,'unexpected-record-root');assert.match(init.result.detail,/args\.project_root/);
 });

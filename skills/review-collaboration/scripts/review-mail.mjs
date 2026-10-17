@@ -36,7 +36,7 @@ export function validateRequest(request){
   const [allowed,required]=contracts[request.action];fields(request.args,allowed,required,'args');
   if(!['resolve','probe','authenticate','profile-set','project-init'].includes(request.action)){
     safePath(request.record_root,{exists:true});outsidePackage(request.record_root);
-  }else if(request.record_root!==undefined)fail('unexpected-record-root','this action does not use project records');
+  }else if(request.record_root!==undefined)fail('unexpected-record-root',`${request.action} takes no record_root; project-init names the project folder in args.project_root`);
   return request;
 }
 function readInvocation(path,bytes){
@@ -108,7 +108,7 @@ export async function dispatchRequest(request,invocation=null,{finalize=false}={
       if(route.verification.level!=='live-verified')fail('route-not-live-verified','complete initial probe first');
       const proof=readJSON(route.verification.evidence_ref);
       if(proof.ok!==true||proof.level!=='live-verified'||proof.route_fingerprint!==route.fingerprint)fail('route-verification-unproven','route proof does not match');
-      const timeout=a.timeout_ms??600000;
+      const timeout=a.timeout_ms??900000;
       if(!Number.isInteger(timeout)||timeout<100||timeout>3600000)fail('invalid-deadline','timeout_ms is outside supported range');
       // Direct reading is chosen only when a verified read-access route and a
       // working Low-integrity start both exist; otherwise the run uses letters.
@@ -122,7 +122,9 @@ export async function dispatchRequest(request,invocation=null,{finalize=false}={
       }
       const frozen={...selection,route_id:route.route_id};
       const run=await openRun(request.record_root,{topic_id:a.topic_id,host_id:normalizeIdentity(a.host_id,privateRoot),host_session_key:a.host_session_key,selection:frozen,route,reading,timeouts:{prompt_deadline_ms:timeout,cancel_grace_ms:10000,outer_hard_timeout_ms:timeout+15000}});
-      return {...run,selection:frozen,reading,requested:{reviewer:selection.reviewer_tool_id,model:selection.model,thinking:selection.thinking,channel:'acp'}};
+      // host_command_timeout_ms: the least a host's own command timeout must allow for one exchange
+      // call (prompt deadline, cancel grace, outer cleanup and the 30 s finalize, plus margin).
+      return {...run,selection:frozen,reading,host_command_timeout_ms:timeout+60000,requested:{reviewer:selection.reviewer_tool_id,model:selection.model,thinking:selection.thinking,channel:'acp'}};
     }
     case 'exchange':return sendExchange(request,privateRoot,invocation);
     case 'status':return statusExchange(request.record_root,a.run_id,a.exchange_id??null);
@@ -178,7 +180,7 @@ async function main(){
     const code=ok?'ok':data.status;
     process.stdout.write(JSON.stringify({ok,code,data,evidence_refs:data.evidence_refs??[]})+'\n');process.exitCode=ok?0:1;
   }catch(error){
-    process.stdout.write(JSON.stringify({ok:false,code:error.code??'helper-failed',data:{},evidence_refs:error.evidence_refs??[]})+'\n');process.exitCode=1;
+    process.stdout.write(JSON.stringify({ok:false,code:error.code??'helper-failed',detail:typeof error.message==='string'?error.message:null,data:{},evidence_refs:error.evidence_refs??[]})+'\n');process.exitCode=1;
   }
 }
 if(process.argv[1]&&pathToFileURL(process.argv[1]).href===import.meta.url)await main();

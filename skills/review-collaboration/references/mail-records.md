@@ -15,7 +15,7 @@
 
 `reply.md` 原樣保存 reviewer 串流，開頭可能有 reviewer 工具自己的啟動警告（例如 Codex CLI 的 Code Mode 提示）；那是環境訊息，不是 reviewer 對問題的意見，除非影響回覆內容，不必另外追查或轉述。
 
-`reply-ready` 表示收發證據支持正常回信，semantic_acceptance 仍是 pending。其他 status 為 incomplete、refused、cancelled、failed、unconfirmed；delivery 另為 not-sent、unknown、replied。收到拒絕或取消的停止原因仍原樣保留；附帶錯誤須一起閱讀。
+`reply-ready` 表示收發證據支持正常回信，semantic_acceptance 仍是 pending。其他 status 為 incomplete、refused、cancelled、failed、unconfirmed；delivery 另為 not-sent、unknown、replied。收到拒絕或取消的停止原因仍原樣保留；附帶錯誤須一起閱讀。status 的 `cancel_cause` 說明取消來源：`prompt-deadline` 是 run 的回信期限到了，`cancel-request` 是有人寫了取消要求，null 是沒有取消。stage `exchange-not-found` 表示這個 exchange_id 從未建立（尚未寄出或 ID 打錯），不是封存損壞；`archive-incomplete` 才是資料夾存在但封存不完整。失敗結果的 `detail` 是錯誤說明，例如哪一個檔案出問題。
 
 已保存 agent-result、但外層收據尚未完成時，status 保持 unconfirmed。投遞未知時不自動重送。相同 exchange 再呼叫只比較既有封存並回報狀態；改信、改授權或改 continuity 都需要新 exchange。取消只寫相關 marker；收到 marker 不等於 reviewer 已取消。
 
@@ -23,7 +23,9 @@
 
 從任意 cwd，以 `powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File <skill>/scripts/review-mail.ps1 -RequestFile <absolute-envelope.json>` 呼叫。工具安裝位置由 script 自身解析。OutputDirectory 省略時寫入包內 `_private/operations/<UUID>`；指定時必須是未存在的本機普通路徑。每次會保留原始 transport request、invocation metadata 及 mail-result.json。
 
-請求是 UTF-8 JSON：`{"schema_version":1,"action":"...","args":{...}}`。操作專案紀錄時另有絕對 `record_root`。未知 action／欄位被拒絕。所有路徑、文字、argv 都當資料傳遞，不拼 shell 指令。
+exchange 呼叫會一直等到回信完成或期限到。主端執行這個指令的工具若有自己的逾時，須設為不少於 run-open 回傳的 `host_command_timeout_ms`，或改用不會中途終止的背景執行；主端工具先把指令殺掉，回信會停在 unconfirmed，該 run 無法再寄新信。
+
+請求是 UTF-8 JSON：`{"schema_version":1,"action":"...","args":{...}}`。resolve、authenticate、probe、profile-set、project-init 不帶 `record_root`（project-init 用 args.project_root 指專案資料夾）；其餘動作必須帶絕對 `record_root`，即專案的 `.review-collaboration` 資料夾。未知 action／欄位被拒絕。所有路徑、文字、argv 都當資料傳遞，不拼 shell 指令。
 
 | action | args | 效果 |
 |---|---|---|
@@ -42,7 +44,7 @@
 
 selection 的 model/thinking 各為 `{"source":"provider-default","value":null}`，或 `{"source":"user","value":"實際選項 ID"}`。default 不送 setter；observed 未回報時保持 unknown。host key 是主端提供的持久識別／明示生成值，不是工具發現任意 CLI 視窗的機制。
 
-input_file 是草稿 JSON，必填 schema_version、project_id、topic_id、run_id、exchange_id、previous_exchange_id（首封 null）、expected_topic_revision、attachments、authorization。attachments 每項帶 source_file、sha256、source_revision；工具封存為內容 hash 路徑。authorization 必須有 ref、scope=text-and-listed-snapshots、allowed_attachment_hashes。可選 request_sha256、outbound_sha256 供預先核對。
+input_file 是草稿 JSON，必填 schema_version、project_id、topic_id、run_id、exchange_id、previous_exchange_id（首封 null）、expected_topic_revision、attachments、authorization。attachments 每項帶 source_file、sha256、source_revision；工具封存為內容 hash 路徑。附件與信件都必須是 UTF-8 文字（例如 PDF 轉出的文字檔先轉成 UTF-8），否則回 `invalid-utf8` 並在 detail 指出檔案，信不會寄出。authorization 必須有 ref、scope=text-and-listed-snapshots、allowed_attachment_hashes。可選 request_sha256、outbound_sha256 供預先核對。
 
 continuity 省略即 auto：同 run 接 previous_exchange_id 時嘗試已記錄的原生 session。缺能力或失效就回 session-reconstruction-required，不偷偷重試。主端可明確準備必要且已授權的舊信摘錄，在**新 exchange** 指定 letters-reconstructed；工具不自行追加整段歷史。同 topic 跨主 session 的接續也採新 run 加授權摘錄。
 
@@ -50,7 +52,7 @@ run-open 的 `read_root` 是使用者同意讓 reviewer 直接閱讀的資料夾
 
 ## 並行、等待與資料限制
 
-run-open.timeout_ms 控制 prompt 期限（100 到 3600000ms）；取消寬限 10000ms，外層 hard timeout 為 prompt+15000ms。exchange 未指定 PowerShell -TimeoutMs 時使用 run 快照，並核對 run hash 未變；status 等本機操作仍使用 wrapper 預設期限。明確傳 -TimeoutMs 是該呼叫的外層覆寫，invocation 記錄來源及實際值；若刻意設得比 prompt 加寬限還短，可能導致 unknown，並不保證服務端取消。一般呼叫只需設定 run-open 的期限。
+run-open.timeout_ms 控制 prompt 期限（100 到 3600000ms，省略時 900000ms＝15 分鐘）；取消寬限 10000ms，外層 hard timeout 為 prompt+15000ms。信件很長或問題需要深入分析時，可在 run-open 設更長的期限。exchange 未指定 PowerShell -TimeoutMs 時使用 run 快照，並核對 run hash 未變；status 等本機操作仍使用 wrapper 預設期限。明確傳 -TimeoutMs 是該呼叫的外層覆寫，invocation 記錄來源及實際值；若刻意設得比 prompt 加寬限還短，可能導致 unknown，並不保證服務端取消。一般呼叫只需設定 run-open 的期限。
 
 同 run 同時只允許一個送信；另一個新 exchange 得到 run-busy，草稿保留。不同 run 可同時完成且不依回信時間配對。主端可處理其他工作；回信保存不會背景打字或自動修改專案。只有主端 note 的 premise-change 會增加 topic revision，舊回信顯示 needs_reassessment。
 

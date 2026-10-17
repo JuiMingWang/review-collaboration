@@ -220,7 +220,7 @@ export async function runAcpTurn(route,selection,promptBlocks,context){
   if(!Array.isArray(promptBlocks)||promptBlocks.some(b=>b.type!=='text'||typeof b.text!=='string'))throw new AcpError('unsupported-prompt-block');
   const readRoot=route.read_access&&typeof context.readRoot==='string'?context.readRoot:null;
   let replyText='',stopReason=null,nativeSessionRef=context.resumeRef??null,errorCode=null;
-  let phase='initializing',promptsSubmitted=0,cancelRequested=false,timer,cancelTimer,abortHandler;
+  let phase='initializing',promptsSubmitted=0,cancelRequested=false,cancelCause=null,timer,cancelTimer,abortHandler;
   let observed=unknown();const permissionDecisions=[];let state={};let connectionContext,fault;
   const cancel=()=>{
     if(cancelRequested)return;cancelRequested=true;
@@ -229,9 +229,10 @@ export async function runAcpTurn(route,selection,promptBlocks,context){
   };
   const outcome=await withEndpoint(route,{...context,hardDeadlineMs:deadline+grace},async(ctx,channel)=>{
     connectionContext=ctx;fault=channel;
-    timer=setTimeout(cancel,deadline);
-    abortHandler=cancel;context.signal?.addEventListener('abort',abortHandler,{once:true});
-    if(context.signal?.aborted){cancel();throw new AcpError('cancelled-before-prompt');}
+    // The deadline and a cancel request end a turn the same way; record which one fired.
+    timer=setTimeout(()=>{cancelCause??='prompt-deadline';cancel();},deadline);
+    abortHandler=()=>{cancelCause??='cancel-request';cancel();};context.signal?.addEventListener('abort',abortHandler,{once:true});
+    if(context.signal?.aborted){cancelCause??='cancel-request';cancel();throw new AcpError('cancelled-before-prompt');}
     const init=await initialize(ctx);
     if(route.authentication){phase='authenticating';await authenticateSelection(ctx,init,route);}
     if(context.resumeRef){
@@ -280,5 +281,5 @@ export async function runAcpTurn(route,selection,promptBlocks,context){
   if(outcome.error)errorCode=errorCode??outcome.error.code;
   if(promptsSubmitted&&['model','thinking'].some(k=>selection?.[k]?.source==='user'&&observed[k]!==selection[k].value))errorCode=errorCode??'runtime-configuration-changed';
   if(outcome.reviewerProcess.closeReason==='unexpected'&&!errorCode)errorCode='reviewer-process-failed';
-  return {replyText,stopReason,nativeSessionRef,continuity:context.resumeRef?'native-resume':context.continuity??'new',observed,errorCode,cancelRequested,promptsSubmitted,permissionDecisions,reviewerProcess:outcome.reviewerProcess};
+  return {replyText,stopReason,nativeSessionRef,continuity:context.resumeRef?'native-resume':context.continuity??'new',observed,errorCode,cancelRequested,cancelCause,promptsSubmitted,permissionDecisions,reviewerProcess:outcome.reviewerProcess};
 }

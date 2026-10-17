@@ -1,5 +1,5 @@
 {
-  "snapshot": "R14-2026-10-16",
+  "snapshot": "R15-2026-10-17",
   "scope": "explicit-publication-allowlist",
   "excludes": "Private profiles, correspondence, credentials, evidence, caches, and build outputs",
   "files": [
@@ -25,13 +25,13 @@
     },
     {
       "path": "README.md",
-      "bytes": 13280,
-      "sha256": "403919558f6b1e12ab5354dff14ea86ce1ab1d5196cef05f0b9d6fe9630b362a"
+      "bytes": 13558,
+      "sha256": "4f44da29e662e8a99a2edf607d51c3ee37a948271f669aeb319cb094b5310b56"
     },
     {
       "path": "README.zh-TW.md",
-      "bytes": 11660,
-      "sha256": "3e8e1d4db0ce352aaec683e2484aa3d93271cf50f72bc9cb32df525323e5f02c"
+      "bytes": 11960,
+      "sha256": "a214c8a4726a06dc713e1c4a0dc14158edd27c8a514eedb012f357d33f3e9be2"
     },
     {
       "path": "docs/diagrams/review-collaboration-guide-20260913/01-overview.html",
@@ -465,8 +465,8 @@
     },
     {
       "path": "skills/review-collaboration/SKILL.md",
-      "bytes": 11989,
-      "sha256": "3809b5f47b51f0dac7664c6c18058aa6c0a78466b4b6cda31e09b0741d166114"
+      "bytes": 12254,
+      "sha256": "05bbe056dc45b631d405f3d343ba182e06cd77d7ac01c8cdfec77174e6c054f4"
     },
     {
       "path": "skills/review-collaboration/package-lock.json",
@@ -490,8 +490,8 @@
     },
     {
       "path": "skills/review-collaboration/references/mail-records.md",
-      "bytes": 8133,
-      "sha256": "7d1f325447526ceedbdc7ebca4c7cac16278a17ffa3faa0320ee7c47643ad3f6"
+      "bytes": 9342,
+      "sha256": "d061e2d1ec589d665604e1c927068f226ca8d42ff74771c6a4ef05dd7b1c8584"
     },
     {
       "path": "skills/review-collaboration/references/reviewer-discovery.md",
@@ -506,7 +506,7 @@
     {
       "path": "skills/review-collaboration/release-manifest.json",
       "bytes": 10496,
-      "sha256": "422fb63f2c60e480b9dcec38753b375e903d3313b7aab55d3cdc928d548af4bc"
+      "sha256": "3be1cec8ab822f826c25c7882ad1663b4d318eaadc90a1e174c432fa8f4dc586"
     },
     {
       "path": "skills/review-collaboration/scripts/export-clean.ps1",
@@ -540,8 +540,8 @@
     },
     {
       "path": "skills/review-collaboration/scripts/lib/acp-client.mjs",
-      "bytes": 20052,
-      "sha256": "409f809304ae21281108f0cc044b1d35f77d7b64535459ecfaa104387346115d"
+      "bytes": 20283,
+      "sha256": "1c4d3ceedb93464a2c061571d7b136ac56b84fa316545cfa4f8cf946c73b3ec3"
     },
     {
       "path": "skills/review-collaboration/scripts/lib/acp-route.mjs",
@@ -570,13 +570,13 @@
     },
     {
       "path": "skills/review-collaboration/scripts/lib/mail-exchange.mjs",
-      "bytes": 13141,
-      "sha256": "ba61db3e74aa7a6962554c2d4651649608b6a05347b3768e97a3a64fadc4268e"
+      "bytes": 13316,
+      "sha256": "3c27affad57bbe5e0a171c7d599203426d7dfe702f6204e0ee5487a27b262df7"
     },
     {
       "path": "skills/review-collaboration/scripts/lib/mail-store.mjs",
-      "bytes": 64827,
-      "sha256": "0cb74796681f68fe6f611ae45d6d9d15e983018d5e9fbd41cf83831e0cbb6335"
+      "bytes": 65036,
+      "sha256": "e2bdfb48c69163f0995bc0ca4e461cc611e1afb6579ab87be4fa4ec433241498"
     },
     {
       "path": "skills/review-collaboration/scripts/lib/reviewer-profile.mjs",
@@ -600,13 +600,13 @@
     },
     {
       "path": "skills/review-collaboration/scripts/review-mail.mjs",
-      "bytes": 15807,
-      "sha256": "3365f7929f534f0b12230562988a76b1a9b2eff90a4ae67e416f0f77430daa85"
+      "bytes": 16159,
+      "sha256": "47934c487167c1f35bfc4ebbfd401bfdd02be8ed596d9d068697f3785a5620b7"
     },
     {
       "path": "skills/review-collaboration/scripts/review-mail.ps1",
-      "bytes": 12750,
-      "sha256": "f2c319af121c6bf04d68389de400632179631b65ce521fddfa852f14e0723e8d"
+      "bytes": 12824,
+      "sha256": "207082a473b8e9e86230d9c4527a5a58f0f63a7e72d04e4fe41c1749926b7cb3"
     },
     {
       "path": "skills/review-collaboration/templates/background.md",
@@ -615,8 +615,8 @@
     },
     {
       "path": "skills/review-collaboration/templates/handoff.md",
-      "bytes": 2259,
-      "sha256": "6b6e7ee35c527c28cdbb2fa626283077253456f6ec14d7420f0afcf6730f526b"
+      "bytes": 2349,
+      "sha256": "c9541d57b1a59bb06bb098168cb5c8591c927f46f7fb5c55378ac4ea0f4783b2"
     },
     {
       "path": "skills/review-collaboration/templates/request.md",
@@ -675,8 +675,8 @@
     },
     {
       "path": "skills/review-collaboration/tests/mail-exchange.test.mjs",
-      "bytes": 26610,
-      "sha256": "d9353af0dbc7df09eaebc536e88a74a9ff977a6cf284e236ce3fa1c9e7de7bd8"
+      "bytes": 28921,
+      "sha256": "f4c5543cad295c0a0316032b0073f19853322e977c0b8595b038ed91ee3737c0"
     },
     {
       "path": "skills/review-collaboration/tests/mail-store.test.mjs",

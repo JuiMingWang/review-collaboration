@@ -22,7 +22,8 @@ export async function statusExchange(root,runId,id=null){
   }
   const dir=exchangePath(root,runId,id);const recovered=await recoverExchange(dir);
   let revision=null;try{revision=readArchivedInput(dir).expected_topic_revision;}catch{}
-  return {run_id:runId,exchange_id:id,status:recovered.status,delivery:recovered.delivery,stage:recovered.stage,problems:recovered.problems,
+  let cancelCause=null;try{cancelCause=readJSON(join(dir,'turn-observations.json')).cancel_cause??null;}catch{}
+  return {run_id:runId,exchange_id:id,status:recovered.status,delivery:recovered.delivery,stage:recovered.stage,problems:recovered.problems,cancel_cause:cancelCause,
     needs_reassessment:revision!==null&&revision!==topic.revision,expected_topic_revision:revision,current_topic_revision:topic.revision,
     completion_file:existsSync(join(dir,'completion.json'))?join(dir,'completion.json'):null,
     reply_file:existsSync(join(dir,'reply.md'))?join(dir,'reply.md'):null,evidence_refs:recovered.evidence_refs.map(p=>join(dir,p))};
@@ -127,7 +128,7 @@ export async function sendExchange(request,privateRoot,invocation){
     }
     ensureRecordRootWritable(root);
     if(result.stopReason===null)await saveUnconfirmedResult(dir,result);else await saveReply(dir,result);
-    writeJSON(join(dir,'turn-observations.json'),{schema_version:1,prompts_submitted:result.promptsSubmitted,cancel_requested:result.cancelRequested??false,permission_decisions:result.permissionDecisions??[]},{exclusive:true});
+    writeJSON(join(dir,'turn-observations.json'),{schema_version:1,prompts_submitted:result.promptsSubmitted,cancel_requested:result.cancelRequested??false,cancel_cause:result.cancelCause??null,permission_decisions:result.permissionDecisions??[]},{exclusive:true});
     return {run_id:runId,exchange_id:id,existing:false,status:'unconfirmed',stage:'awaiting-outer-receipt',exchange_dir:dir};
   });
 }
